@@ -16,6 +16,13 @@ Route::post('/associado/store', 'FrontController@associadoStore')->name('associa
 
 Auth::routes();
 
+// Rotas para associados logados
+Route::middleware(['auth'])->group(function () {
+    Route::get('/associado/dashboard', 'AssociadoController@dashboard')->name('associado.dashboard');
+    Route::get('/associado/profile', 'AssociadoController@profile')->name('associado.profile');
+    Route::put('/associado/profile', 'AssociadoController@updateProfile')->name('associado.profile.update');
+});
+
 Route::get('/home', 'HomeController@index')->name('home');
 
 // primeiro esse

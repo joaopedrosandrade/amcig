@@ -348,12 +348,12 @@
     <div class="offcanvas-body">
         <ul class="list-unstyled">
             <li class="mb-3">
-                <a href="index.html" class="text-decoration-none text-dark">
+                <a href="{{ url('/') }}" class="text-decoration-none text-dark">
                     <i class="ri-home-line me-2"></i>Página Inicial
                 </a>
             </li>
             <li class="mb-3">
-                <a href="auth-signin.html" class="text-decoration-none text-dark">
+                <a href="{{ route('login') }}" class="text-decoration-none text-dark">
                     <i class="ri-login-box-line me-2"></i>Área do Associado
                 </a>
             </li>
@@ -564,7 +564,7 @@
                         </div>
                     </form>
                     
-                    <p class="text-center mt-6 mb-0 text-muted fs-13">Já é associado? <a href="auth-signin.html" class="link fw-semibold">Faça login aqui</a></p>
+                    <p class="text-center mt-6 mb-0 text-muted fs-13">Já é associado? <a href="{{ route('login') }}" class="link fw-semibold">Faça login aqui</a></p>
                 </div>
             </div>
             <p class="position-relative text-center fs-13 mb-0">©
