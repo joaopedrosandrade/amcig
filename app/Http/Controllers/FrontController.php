@@ -41,44 +41,65 @@ class FrontController extends Controller
         try {
             // Validação dos dados
             $validator = Validator::make($request->all(), [
-                'nome' => 'required|string|max:255',
-                'cpf' => 'required|string|max:14|unique:users,cpf',
+                'nome' => 'required|string',
+                'cpf' => 'required|string|unique:users,cpf',
                 'data_nascimento' => 'required|date|before:today',
-                'telefone' => 'required|string|max:20',
-                'email' => 'required|email|max:255|unique:users,email',
-                'cep' => 'required|string|max:9',
-                'logradouro' => 'required|string|max:255',
-                'numero' => 'required|string|max:20',
-                'complemento' => 'nullable|string|max:255',
-                'bairro' => 'required|string|max:255',
-                'cidade' => 'required|string|max:255',
-                'uf' => 'required|string|size:2',
+                'telefone' => 'required|string',
+                'email' => 'required|email|unique:users,email',
+                'cep' => 'required|string',
+                'logradouro' => 'required|string',
+                'numero' => 'required|string',
+                'complemento' => 'nullable|string',
+                'bairro' => 'required|string',
+                'cidade' => 'required|string',
+                'uf' => 'required|string',
                 'tipo_associado' => 'required|in:morador,comerciante,ambos',
-                'nome_comercio' => 'nullable|string|max:255',
+                'nome_comercio' => 'nullable|string',
                 'endereco_comercio' => 'nullable|string',
-                'ramo_atividade' => 'nullable|string|max:255',
-                'senha' => 'required|string|min:6|confirmed',
+                'ramo_atividade' => 'nullable|string',
+                'senha' => 'required|string|min:6',
+                'aceiteTermos' => 'required',
             ], [
                 'nome.required' => 'O nome completo é obrigatório.',
+
                 'cpf.required' => 'O CPF é obrigatório.',
                 'cpf.unique' => 'Este CPF já está cadastrado.',
+
                 'data_nascimento.required' => 'A data de nascimento é obrigatória.',
                 'data_nascimento.before' => 'A data de nascimento deve ser anterior a hoje.',
+
                 'telefone.required' => 'O telefone é obrigatório.',
+
                 'email.required' => 'O email é obrigatório.',
                 'email.email' => 'Digite um email válido.',
+
                 'email.unique' => 'Este email já está cadastrado.',
                 'cep.required' => 'O CEP é obrigatório.',
+
                 'logradouro.required' => 'O logradouro é obrigatório.',
+
                 'numero.required' => 'O número é obrigatório.',
+
                 'bairro.required' => 'O bairro é obrigatório.',
+
                 'cidade.required' => 'A cidade é obrigatória.',
+
                 'uf.required' => 'A UF é obrigatória.',
+
                 'tipo_associado.required' => 'O tipo de associado é obrigatório.',
                 'tipo_associado.in' => 'Tipo de associado inválido.',
+
                 'senha.required' => 'A senha é obrigatória.',
                 'senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
-                'senha.confirmed' => 'A confirmação de senha não confere.',
+
+                'aceiteTermos.required' => 'Você deve aceitar os termos e condições.',
+                'aceiteTermos.in' => 'Você deve aceitar os termos e condições.',
+
+
+
+
+
+
             ]);
 
             if ($validator->fails()) {
@@ -89,23 +110,41 @@ class FrontController extends Controller
                 ], 422);
             }
 
+            // Validação da confirmação de senha
+            if ($request->senha !== $request->senha_confirmation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A confirmação de senha não confere.',
+                    'errors' => ['senha' => ['A confirmação de senha não confere.']]
+                ], 422);
+            }
+
             // Validações específicas para comerciantes
             if (in_array($request->tipo_associado, ['comerciante', 'ambos'])) {
-                if (empty($request->nome_comercio) || empty($request->endereco_comercio) || empty($request->ramo_atividade)) {
+                $errosComercio = [];
+                
+                if (empty($request->nome_comercio)) {
+                    $errosComercio['nome_comercio'] = ['O nome do comércio é obrigatório para comerciantes.'];
+                }
+                
+                if (empty($request->endereco_comercio)) {
+                    $errosComercio['endereco_comercio'] = ['O endereço do comércio é obrigatório para comerciantes.'];
+                }
+                
+                if (empty($request->ramo_atividade)) {
+                    $errosComercio['ramo_atividade'] = ['O ramo de atividade é obrigatório para comerciantes.'];
+                }
+                
+                if (!empty($errosComercio)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Para comerciantes, todos os campos do comércio são obrigatórios.'
+                        'message' => 'Para comerciantes, todos os campos do comércio são obrigatórios.',
+                        'errors' => $errosComercio
                     ], 422);
                 }
             }
 
-            // Validação de CEP (apenas São Mateus-ES)
-            if ($request->cidade !== 'São Mateus' || $request->uf !== 'ES') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Apenas moradores e comerciantes de São Mateus-ES podem se associar.'
-                ], 422);
-            }
+
 
             DB::beginTransaction();
 
@@ -133,7 +172,11 @@ class FrontController extends Controller
 
             DB::commit();
 
-            return redirect()->route('associado.success')->with('success', 'Cadastro realizado com sucesso!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Cadastro realizado com sucesso!',
+                'redirect' => route('associado.success')
+            ]);
 
         } catch (\Exception $e) {
             DB::rollback();

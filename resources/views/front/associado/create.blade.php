@@ -23,6 +23,8 @@
     <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css">
     <!-- App Css-->
     <link href="{{asset('assets/css/app.min.css')}}" id="app-style" rel="stylesheet" type="text/css">
+    <!-- SweetAlert2 CSS -->
+    <link href="{{asset('assets/libs/sweetalert2/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
     
 
     
@@ -92,213 +94,228 @@
             background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
         }
         
-                 .btn:disabled {
-             opacity: 0.6;
-             cursor: not-allowed;
-         }
-         
-         /* Estilos para a barra de progresso */
-         .progress {
-             border-radius: 10px;
-             background-color: #e9ecef;
-             overflow: hidden;
-         }
-         
-         .progress-bar {
-             transition: width 0.6s ease;
-             border-radius: 10px;
-         }
-         
-         .progress-bar.bg-success {
-             background-color: #198754 !important;
-         }
-         
-         .progress-bar.bg-warning {
-             background-color: #ffc107 !important;
-         }
-         
-         .progress-bar.bg-danger {
-             background-color: #dc3545 !important;
-         }
-         
-         /* Responsividade para mobile */
-         @media (max-width: 768px) {
-             .progress-container {
-                 padding: 0.75rem;
-                 margin-bottom: 1rem !important;
-             }
-             
-             .progress {
-                 height: 6px !important;
-             }
-             
-             .progress-container small {
-                 font-size: 0.75rem;
-             }
-         }
-         
-         /* Estilos para o header fixo */
-         .fixed-header {
-             position: fixed;
-             top: 0;
-             left: 0;
-             right: 0;
-             background: rgba(255, 255, 255, 0.95);
-             backdrop-filter: blur(10px);
-             border-bottom: 1px solid #e9ecef;
-             padding: 1rem 0;
-             z-index: 1030;
-             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-         }
-         
-         .header-logo {
-             height: 35px;
-             width: auto;
-         }
-         
-         .header-title {
-             font-weight: 700;
-             font-size: 1.2rem;
-             color: #495057;
-         }
-         
-         .header-progress {
-             max-width: 500px;
-             margin: 0 auto;
-         }
-         
-         .header-progress .progress {
-             background-color: #e9ecef;
-             border-radius: 8px;
-         }
-         
-         .header-progress small {
-             font-size: 0.75rem;
-         }
-         
-         /* Ajuste do conteúdo principal para o header fixo */
-         .main-content {
-             margin-top: 80px;
-         }
-         
-         /* Responsividade do header */
-         @media (max-width: 768px) {
-             .fixed-header {
-                 padding: 0.75rem 0;
-             }
-             
-             .header-logo {
-                 height: 30px;
-             }
-             
-             .header-title {
-                 font-size: 1rem;
-             }
-             
-             .header-progress small {
-                 font-size: 0.7rem;
-             }
-             
-             .main-content {
-                 margin-top: 70px;
-             }
-         }
-         
-         @media (max-width: 576px) {
-             .header-progress {
-                 max-width: 100%;
-             }
-             
-             .header-progress .progress {
-                 height: 4px !important;
-             }
-         }
-         
-         /* Estilos para os cards de links informativos */
-         .info-link-card {
-             background: #f8f9fa;
-             border: 1px solid #e9ecef;
-             transition: all 0.3s ease;
-             cursor: pointer;
-             min-height: 120px;
-             display: flex;
-             flex-direction: column;
-             justify-content: center;
-             align-items: center;
-         }
-         
-         .info-link-card:hover {
-             background: #e9ecef;
-             border-color: #6c757d;
-             transform: translateY(-2px);
-             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-         }
-         
-         .info-link-card i {
-             display: block;
-             margin-bottom: 0.5rem;
-         }
-         
-         .info-link-card .fw-semibold {
-             color: #495057;
-             margin-bottom: 0.25rem;
-         }
-         
-         .info-link-card small {
-             color: #6c757d;
-             line-height: 1.2;
-         }
-         
-         /* Responsividade dos cards */
-         @media (max-width: 768px) {
-             .info-link-card {
-                 min-height: 80px;
-                 padding: 0.5rem !important;
-             }
-             
-             .info-link-card .fw-semibold {
-                 font-size: 0.85rem;
-             }
-             
-             .info-link-card small {
-                 font-size: 0.7rem;
-             }
-             
-             .info-link-card i {
-                 font-size: 1.2rem !important;
-                 margin-bottom: 0.25rem !important;
-             }
-         }
-         
-         @media (max-width: 576px) {
-             .info-link-card {
-                 min-height: 70px;
-                 padding: 0.4rem !important;
-             }
-             
-             .info-link-card .fw-semibold {
-                 font-size: 0.8rem;
-             }
-             
-             .info-link-card small {
-                 font-size: 0.65rem;
-             }
-             
-             .info-link-card i {
-                 font-size: 1rem !important;
-                 margin-bottom: 0.2rem !important;
-             }
-             
-             /* Reduzir margem inferior da seção de links */
-             .main-content .text-center.mb-4 {
-                 margin-bottom: 1rem !important;
-             }
-         }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para a barra de progresso */
+        .progress {
+            border-radius: 10px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            transition: width 0.6s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-bar.bg-success {
+            background-color: #198754 !important;
+        }
+        
+        .progress-bar.bg-warning {
+            background-color: #ffc107 !important;
+        }
+        
+        .progress-bar.bg-danger {
+            background-color: #dc3545 !important;
+        }
+        
+        /* Responsividade para mobile */
+        @media (max-width: 768px) {
+            .progress-container {
+                padding: 0.75rem;
+                margin-bottom: 1rem !important;
+            }
+            
+            .progress {
+                height: 6px !important;
+            }
+            
+            .progress-container small {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Estilos para o header fixo */
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-logo {
+            height: 35px;
+            width: auto;
+        }
+        
+        .header-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #495057;
+        }
+        
+        .header-progress {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header-progress .progress {
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .header-progress small {
+            font-size: 0.75rem;
+        }
+        
+        /* Ajuste do conteúdo principal para o header fixo */
+        .main-content {
+            margin-top: 80px;
+        }
+        
+        /* Responsividade do header */
+        @media (max-width: 768px) {
+            .fixed-header {
+                padding: 0.75rem 0;
+            }
+            
+            .header-logo {
+                height: 30px;
+            }
+            
+            .header-title {
+                font-size: 1rem;
+            }
+            
+            .header-progress small {
+                font-size: 0.7rem;
+            }
+            
+            .main-content {
+                margin-top: 70px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header-progress {
+                max-width: 100%;
+            }
+            
+            .header-progress .progress {
+                height: 4px !important;
+            }
+        }
+        
+        /* Estilos para os cards de links informativos */
+        .info-link-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .info-link-card:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .info-link-card i {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-link-card .fw-semibold {
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-link-card small {
+            color: #6c757d;
+            line-height: 1.2;
+        }
+        
+        /* Responsividade dos cards */
+        @media (max-width: 768px) {
+            .info-link-card {
+                min-height: 80px;
+                padding: 0.5rem !important;
+            }
+            
+            .info-link-card .fw-semibold {
+                font-size: 0.85rem;
+            }
+            
+            .info-link-card small {
+                font-size: 0.7rem;
+            }
+            
+            .info-link-card i {
+                font-size: 1.2rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .info-link-card {
+                min-height: 70px;
+                padding: 0.4rem !important;
+            }
+            
+            .info-link-card .fw-semibold {
+                font-size: 0.8rem;
+            }
+            
+            .info-link-card small {
+                font-size: 0.65rem;
+            }
+            
+            .info-link-card i {
+                font-size: 1rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            
+            /* Reduzir margem inferior da seção de links */
+            .main-content .text-center.mb-4 {
+                margin-bottom: 1rem !important;
+            }
+        }
+        
+        /* Estilos para mensagens de erro */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .form-control.is-invalid + .error-message {
+            display: block;
+        }
     </style>
 </head>
 
 <body>
-
 
 <!-- Header Fixo -->
 <header class="fixed-header">
@@ -316,15 +333,14 @@
             <div class="col">
                 <div class="header-progress">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <!--<small class="text-muted"></small>-->
                         <small class="text-muted" id="progressoTexto">0%</small>
                     </div>
                     <div class="progress" style="height: 6px;">
                         <div class="progress-bar bg-primary" id="barraProgresso" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                                         <div class="mt-1">
-                         <small class="text-muted" id="camposRestantes">Faça parte, seja um associado</small>
-                     </div>
+                    <div class="mt-1">
+                        <small class="text-muted" id="camposRestantes">Faça parte, seja um associado</small>
+                    </div>
                 </div>
             </div>
             
@@ -422,116 +438,129 @@
                     
                     <p class="mb-8 text-muted text-center">Preencha os dados abaixo para se tornar um associado</p>
                     
-                                         <form id="formAssociado" method="POST" action="{{ route('associado.store') }}">
+                    <form id="formAssociado" method="POST" action="{{ route('associado.store') }}">
                         @csrf
-                         <!-- Dados pessoais primeiro -->
-                         <div class="row">
-                             <div class="col-md-6 mb-4">
-                                 <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome completo" required>
-                             </div>
-                             <div class="col-md-6 mb-4">
-                                 <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" required>
-                             </div>
-                         </div>
-                         
-                         <div class="row">
-                             <div class="col-md-6 mb-4">
-                                 <label for="dataNascimento" class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                                 <input type="date" class="form-control" id="dataNascimento" name="data_nascimento" required>
-                             </div>
-                             <div class="col-md-6 mb-4">
-                                 <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
-                                 <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
-                             </div>
-                         </div>
-                         
-                         <div class="mb-4">
-                             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                             <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
-                         </div>
-                         
-                         <!-- CEP e Endereço -->
-                         <div class="mb-4">
-                             <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
-                             <div class="form-text">Digite o CEP para autopreenchimento do endereço</div>
-                         </div>
-                         
-                         <div class="mb-4">
-                             <label for="logradouro" class="form-label">Logradouro <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Rua, Avenida, etc." required>
-                         </div>
-                         
-                         <div class="row">
-                             <div class="col-md-6 mb-4">
-                                 <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" required>
-                             </div>
-                             <div class="col-md-6 mb-4">
-                                 <label for="complemento" class="form-label">Complemento</label>
-                                 <input type="text" class="form-control" id="complemento" name="complemento" placeholder="Apto, Casa, etc.">
-                             </div>
-                         </div>
-                         
-                         <div class="mb-4">
-                             <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Bairro" required>
-                         </div>
-                         
-                         <div class="row">
-                             <div class="col-md-6 mb-4">
-                                 <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="cidade" name="cidade" value="São Mateus" readonly>
-                                 <div class="form-text">Apenas moradores e comerciantes de São Mateus podem se associar</div>
-                             </div>
-                             <div class="col-md-6 mb-4">
-                                 <label for="uf" class="form-label">UF <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="uf" name="uf" value="ES" readonly>
-                             </div>
-                         </div>
+                        <!-- Dados pessoais primeiro -->
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+                                <div class="error-message" id="nome-error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                                <div class="error-message" id="cpf-error"></div>
+                            </div>
+                        </div>
                         
-                                                 <div class="mb-4">
-                             <label for="tipoAssociado" class="form-label">Tipo de Associado <span class="text-danger">*</span></label>
-                             <select class="form-select" id="tipoAssociado" name="tipo_associado" required>
-                                 <option value="">Selecione o tipo</option>
-                                 <option value="morador">Morador</option>
-                                 <option value="comerciante">Comerciante</option>
-                                 <option value="ambos">Morador e Comerciante</option>
-                             </select>
-                         </div>
-                         
-                         <!-- Campos do comércio (aparecem condicionalmente) -->
-                         <div id="camposComercio" class="d-none">
-                             <h5 class="mb-3 text-primary">Informações do Comércio</h5>
-                             
-                             <div class="mb-4">
-                                 <label for="nomeComercio" class="form-label">Nome do Comércio <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="nomeComercio" name="nome_comercio" placeholder="Nome do estabelecimento comercial">
-                             </div>
-                             
-                             <div class="mb-4">
-                                 <label for="enderecoComercio" class="form-label">Endereço do Comércio <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="enderecoComercio" name="endereco_comercio" placeholder="Endereço completo do comércio">
-                             </div>
-                             
-                             <div class="mb-4">
-                                 <label for="ramoAtividade" class="form-label">Ramo de Atividade <span class="text-danger">*</span></label>
-                                 <select class="form-select" id="ramoAtividade" name="ramo_atividade">
-                                     <option value="">Selecione o ramo</option>
-                                     <option value="alimentacao">Alimentação</option>
-                                     <option value="varejo">Varejo</option>
-                                     <option value="servicos">Serviços</option>
-                                     <option value="construcao">Construção</option>
-                                     <option value="transporte">Transporte</option>
-                                     <option value="saude">Saúde</option>
-                                     <option value="educacao">Educação</option>
-                                     <option value="lazer">Lazer e Turismo</option>
-                                     <option value="outros">Outros</option>
-                                 </select>
-                             </div>
-                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="dataNascimento" class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="dataNascimento" name="data_nascimento" required>
+                                <div class="error-message" id="dataNascimento-error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
+                                <div class="error-message" id="telefone-error"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
+                            <div class="error-message" id="email-error"></div>
+                        </div>
+                        
+                        <!-- CEP e Endereço -->
+                        <div class="mb-4">
+                            <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
+                            <div class="form-text">Digite o CEP para autopreenchimento do endereço</div>
+                            <div class="error-message" id="cep-error"></div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="logradouro" class="form-label">Logradouro <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Rua, Avenida, etc." required>
+                            <div class="error-message" id="logradouro-error"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" required>
+                                <div class="error-message" id="numero-error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="complemento" class="form-label">Complemento</label>
+                                <input type="text" class="form-control" id="complemento" name="complemento" placeholder="Apto, Casa, etc.">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Bairro" required>
+                            <div class="error-message" id="bairro-error"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cidade" name="cidade" value="São Mateus" readonly>
+                                <div class="form-text">Apenas moradores e comerciantes de São Mateus podem se associar</div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="uf" class="form-label">UF <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="uf" name="uf" value="ES" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="tipoAssociado" class="form-label">Tipo de Associado <span class="text-danger">*</span></label>
+                            <select class="form-select" id="tipoAssociado" name="tipo_associado" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="morador">Morador</option>
+                                <option value="comerciante">Comerciante</option>
+                                <option value="ambos">Morador e Comerciante</option>
+                            </select>
+                            <div class="error-message" id="tipoAssociado-error"></div>
+                        </div>
+                        
+                        <!-- Campos do comércio (aparecem condicionalmente) -->
+                        <div id="camposComercio" class="d-none">
+                            <h5 class="mb-3 text-primary">Informações do Comércio</h5>
+                            
+                            <div class="mb-4">
+                                <label for="nomeComercio" class="form-label">Nome do Comércio <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nomeComercio" name="nome_comercio" placeholder="Nome do estabelecimento comercial">
+                                <div class="error-message" id="nomeComercio-error"></div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="enderecoComercio" class="form-label">Endereço do Comércio <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="enderecoComercio" name="endereco_comercio" placeholder="Endereço completo do comércio">
+                                <div class="error-message" id="enderecoComercio-error"></div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="ramoAtividade" class="form-label">Ramo de Atividade <span class="text-danger">*</span></label>
+                                <select class="form-select" id="ramoAtividade" name="ramo_atividade">
+                                    <option value="">Selecione o ramo</option>
+                                    <option value="alimentacao">Alimentação</option>
+                                    <option value="varejo">Varejo</option>
+                                    <option value="servicos">Serviços</option>
+                                    <option value="construcao">Construção</option>
+                                    <option value="transporte">Transporte</option>
+                                    <option value="saude">Saúde</option>
+                                    <option value="educacao">Educação</option>
+                                    <option value="lazer">Lazer e Turismo</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                                <div class="error-message" id="ramoAtividade-error"></div>
+                            </div>
+                        </div>
                         
                         <div class="mb-4">
                             <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
@@ -539,6 +568,7 @@
                                 <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
                                 <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-senha" data-target="senha"><i class="ri-eye-off-line align-middle"></i></button>
                             </div>
+                            <div class="error-message" id="senha-error"></div>
                         </div>
                         
                         <div class="mb-4">
@@ -547,15 +577,17 @@
                                 <input type="password" class="form-control" id="confirmarSenha" name="senha_confirmation" placeholder="Confirme sua senha" required>
                                 <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-confirmarSenha" data-target="confirmarSenha"><i class="ri-eye-off-line align-middle"></i></button>
                             </div>
+                            <div class="error-message" id="confirmarSenha-error"></div>
                         </div>
                         
                         <div class="my-6">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="aceiteTermos" required>
+                                <input type="checkbox" class="form-check-input" id="aceiteTermos" name="aceiteTermos" required>
                                 <label class="form-check-label" for="aceiteTermos">
                                     Li e aceito os <a href="#!" class="link">termos e condições</a> da associação <span class="text-danger">*</span>
                                 </label>
                             </div>
+                            <div class="error-message" id="aceiteTermos-error"></div>
                         </div>
                         
                         <div>
@@ -580,13 +612,36 @@
 <script src="{{asset('assets/js/scroll-top.init.js')}}"></script>
 <script src="{{asset('assets/js/auth/auth.init.js')}}"></script>
 <script src="{{asset('assets/js/action.js')}}"></script>
-
+<script src="{{asset('assets/libs/sweetalert2/sweetalert2.min.js')}}"></script>
 
 <!-- Script para funcionalidades do formulário -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('formAssociado');
     const submitBtn = form.querySelector('button[type="submit"]');
+    
+    // Função para limpar mensagens de erro
+    function limparErros() {
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.textContent = '';
+            el.classList.remove('show');
+        });
+        document.querySelectorAll('.form-control, .form-select').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+    }
+    
+    // Função para mostrar erro em um campo específico
+    function mostrarErro(campo, mensagem) {
+        const input = document.getElementById(campo);
+        const errorDiv = document.getElementById(campo + '-error');
+        
+        if (input && errorDiv) {
+            input.classList.add('is-invalid');
+            errorDiv.textContent = mensagem;
+            errorDiv.classList.add('show');
+        }
+    }
     
     // Toggle para mostrar/ocultar campos do comércio
     const tipoAssociado = document.getElementById('tipoAssociado');
@@ -626,541 +681,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Desabilita o botão durante o envio e mostra loading
-    form.addEventListener('submit', function() {
-        // Desabilita o botão
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="ri-loader-4-line me-2"></i>Enviando...';
-        
-        // Mostra overlay de loading
-        showLoadingOverlay();
-    });
-    
-    // Função para mostrar overlay de loading
-    function showLoadingOverlay() {
-        // Cria o overlay
-        const overlay = document.createElement('div');
-        overlay.id = 'loadingOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        `;
-        
-        // Cria o spinner
-        const spinner = document.createElement('div');
-        spinner.style.cssText = `
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #198754;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        `;
-        
-        // Cria o texto
-        const text = document.createElement('div');
-        text.innerHTML = `
-            <h4 class="text-primary mb-2">Processando seu cadastro...</h4>
-            <p class="text-muted mb-0">Aguarde enquanto salvamos suas informações</p>
-        `;
-        text.style.textAlign = 'center';
-        
-        // Adiciona CSS para animação
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        
-        // Monta o overlay
-        overlay.appendChild(spinner);
-        overlay.appendChild(text);
-        document.head.appendChild(style);
-        document.body.appendChild(overlay);
-        
-        // Remove o overlay após 3 segundos (tempo para processamento)
-        setTimeout(() => {
-            if (document.getElementById('loadingOverlay')) {
-                // Mostra mensagem de sucesso antes de remover
-                const overlay = document.getElementById('loadingOverlay');
-                const text = overlay.querySelector('div:last-child');
-                text.innerHTML = `
-                    <div class="text-success mb-3">
-                        <i class="ri-checkbox-circle-line" style="font-size: 3rem;"></i>
-                    </div>
-                    <h4 class="text-success mb-2">Cadastro Realizado!</h4>
-                    <p class="text-muted mb-0">Redirecionando para a página de sucesso...</p>
-                `;
-                
-                // Remove o overlay após mostrar sucesso
-                setTimeout(() => {
-                    if (document.getElementById('loadingOverlay')) {
-                        document.getElementById('loadingOverlay').remove();
-                    }
-                }, 1500);
-            }
-        }, 2000);
-    }
-});
-</script>
-
-
-
-
-</body>
-
-</html>
-
-            <li class="mb-3">
-
-                <a href="#!" class="text-decoration-none text-dark">
-
-                    <i class="ri-information-line me-2"></i>Sobre a AMCIG
-
-                </a>
-
-            </li>
-
-            <li class="mb-3">
-
-                <a href="#!" class="text-decoration-none text-dark">
-
-                    <i class="ri-phone-line me-2"></i>Contato
-
-                </a>
-
-            </li>
-
-            <li class="mb-3">
-
-                <a href="#!" class="text-decoration-none text-dark">
-
-                    <i class="ri-file-text-line me-2"></i>Documentos
-
-                </a>
-
-            </li>
-
-        </ul>
-
-    </div>
-
-</div>
-
-
-
-<!-- Conteúdo Principal -->
-
-<div class="container main-content">
-
-    <div class="row justify-content-center align-items-center min-vh-100 pt-8 pb-10">
-
-        <div class="col-12 col-md-12 col-lg-11 col-xl-10">
-
-            <!-- Links Importantes -->
-
-            <div class="text-center mb-4">
-
-                <div class="row g-2 g-md-3 justify-content-center">
-
-                    <div class="col-12 col-md-4">
-
-                        <a href="#!" class="text-decoration-none">
-
-                            <div class="info-link-card p-3 rounded">
-
-                                <i class="ri-file-text-line fs-4 text-primary mb-2"></i>
-
-                                <div class="fw-semibold">Termos de Uso do Associado</div>
-
-                                <small class="text-muted">Conheça os direitos e deveres</small>
-
-                            </div>
-
-                        </a>
-
-                    </div>
-
-                    <div class="col-12 col-md-4">
-
-                        <a href="#!" class="text-decoration-none">
-
-                            <div class="info-link-card p-3 rounded">
-
-                                <i class="ri-calendar-event-line fs-4 text-primary mb-2"></i>
-
-                                <div class="fw-semibold">Dados da Assembleia</div>
-
-                                <small class="text-muted">Próximas reuniões e atas</small>
-
-                            </div>
-
-                        </a>
-
-                    </div>
-
-                    <div class="col-12 col-md-4">
-
-                        <a href="#!" class="text-decoration-none">
-
-                            <div class="info-link-card p-3 rounded">
-
-                                <i class="ri-team-line fs-4 text-primary mb-2"></i>
-
-                                <div class="fw-semibold">Diretoria e Comitê</div>
-
-                                <small class="text-muted">Conheça nossa equipe</small>
-
-                            </div>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            
-
-            <div class="card mx-xxl-8 shadow-none">
-
-                <div class="card-body p-8">
-
-                    <h3 class="fw-medium text-center">Cadastro de Associado</h3>
-
-                    
-
-                    <div class="text-center mb-4">
-
-                        <img src="assets/images/logos.png" alt="Logo AMCIG" class="img-fluid" style="max-height: 100px;">
-
-                    </div>
-
-                    
-
-                    <p class="mb-8 text-muted text-center">Preencha os dados abaixo para se tornar um associado</p>
-
-                    
-
-                                         <form id="formAssociado" method="POST" action="{{ route('associado.store') }}">
-                        @csrf
-                         <!-- Dados pessoais primeiro -->
-
-                         <div class="row">
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome completo" required>
-                             </div>
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" required>
-                             </div>
-
-                         </div>
-
-                         
-
-                         <div class="row">
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="dataNascimento" class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-
-                                 <input type="date" class="form-control" id="dataNascimento" name="data_nascimento" required>
-                             </div>
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
-
-                                 <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
-                             </div>
-
-                         </div>
-
-                         
-
-                         <div class="mb-4">
-
-                             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-
-                             <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
-                         </div>
-
-                         
-
-                         <!-- CEP e Endereço -->
-
-                         <div class="mb-4">
-
-                             <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
-
-                             <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
-                             <div class="form-text">Digite o CEP para autopreenchimento do endereço</div>
-
-                         </div>
-
-                         
-
-                         <div class="mb-4">
-
-                             <label for="logradouro" class="form-label">Logradouro <span class="text-danger">*</span></label>
-
-                             <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Rua, Avenida, etc." required>
-                         </div>
-
-                         
-
-                         <div class="row">
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" required>
-                             </div>
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="complemento" class="form-label">Complemento</label>
-
-                                 <input type="text" class="form-control" id="complemento" name="complemento" placeholder="Apto, Casa, etc.">
-                             </div>
-
-                         </div>
-
-                         
-
-                         <div class="mb-4">
-
-                             <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
-
-                             <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Bairro" required>
-                         </div>
-
-                         
-
-                         <div class="row">
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="cidade" name="cidade" value="São Mateus" readonly>
-                                 <div class="form-text">Apenas moradores e comerciantes de São Mateus podem se associar</div>
-
-                             </div>
-
-                             <div class="col-md-6 mb-4">
-
-                                 <label for="uf" class="form-label">UF <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="uf" name="uf" value="ES" readonly>
-                             </div>
-
-                         </div>
-
-                        
-
-                                                 <div class="mb-4">
-
-                             <label for="tipoAssociado" class="form-label">Tipo de Associado <span class="text-danger">*</span></label>
-
-                             <select class="form-select" id="tipoAssociado" name="tipo_associado" required>
-                                 <option value="">Selecione o tipo</option>
-
-                                 <option value="morador">Morador</option>
-
-                                 <option value="comerciante">Comerciante</option>
-
-                                 <option value="ambos">Morador e Comerciante</option>
-
-                             </select>
-
-                         </div>
-
-                         
-
-                         <!-- Campos do comércio (aparecem condicionalmente) -->
-
-                         <div id="camposComercio" class="d-none">
-
-                             <h5 class="mb-3 text-primary">Informações do Comércio</h5>
-
-                             
-
-                             <div class="mb-4">
-
-                                 <label for="nomeComercio" class="form-label">Nome do Comércio <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="nomeComercio" name="nome_comercio" placeholder="Nome do estabelecimento comercial">
-                             </div>
-
-                             
-
-                             <div class="mb-4">
-
-                                 <label for="enderecoComercio" class="form-label">Endereço do Comércio <span class="text-danger">*</span></label>
-
-                                 <input type="text" class="form-control" id="enderecoComercio" name="endereco_comercio" placeholder="Endereço completo do comércio">
-                             </div>
-
-                             
-
-                             <div class="mb-4">
-
-                                 <label for="ramoAtividade" class="form-label">Ramo de Atividade <span class="text-danger">*</span></label>
-
-                                 <select class="form-select" id="ramoAtividade" name="ramo_atividade">
-                                     <option value="">Selecione o ramo</option>
-
-                                     <option value="alimentacao">Alimentação</option>
-
-                                     <option value="varejo">Varejo</option>
-
-                                     <option value="servicos">Serviços</option>
-
-                                     <option value="construcao">Construção</option>
-
-                                     <option value="transporte">Transporte</option>
-
-                                     <option value="saude">Saúde</option>
-
-                                     <option value="educacao">Educação</option>
-
-                                     <option value="lazer">Lazer e Turismo</option>
-
-                                     <option value="outros">Outros</option>
-
-                                 </select>
-
-                             </div>
-
-                         </div>
-
-                        
-
-                        <div class="mb-4">
-
-                            <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
-
-                            <div class="position-relative">
-
-                                <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
-                                <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-senha" data-target="senha"><i class="ri-eye-off-line align-middle"></i></button>
-
-                            </div>
-
-                        </div>
-
-                        
-
-                        <div class="mb-4">
-
-                            <label for="confirmarSenha" class="form-label">Confirmar Senha <span class="text-danger">*</span></label>
-
-                            <div class="position-relative">
-
-                                <input type="password" class="form-control" id="confirmarSenha" name="senha_confirmation" placeholder="Confirme sua senha" required>
-                                <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-confirmarSenha" data-target="confirmarSenha"><i class="ri-eye-off-line align-middle"></i></button>
-
-                            </div>
-
-                        </div>
-
-                        
-
-                        <div class="my-6">
-
-                            <div class="form-check">
-
-                                <input type="checkbox" class="form-check-input" id="aceiteTermos" required>
-
-                                <label class="form-check-label" for="aceiteTermos">
-
-                                    Li e aceito os <a href="#!" class="link">termos e condições</a> da associação <span class="text-danger">*</span>
-
-                                </label>
-
-                            </div>
-
-                        </div>
-
-                        
-
-                        <div>
-
-                            <button type="submit" class="btn btn-primary w-100 mb-4">Cadastrar como Associado</button>
-
-                        </div>
-
-                    </form>
-
-                    
-
-                    <p class="text-center mt-6 mb-0 text-muted fs-13">Já é associado? <a href="{{ route('login') }}" class="link fw-semibold">Faça login aqui</a></p>
-                </div>
-
-            </div>
-
-            <p class="position-relative text-center fs-13 mb-0">©
-
-                <script>document.write(new Date().getFullYear())</script> AMCIG - Associação de Moradores e Comerciantes da Ilha de Guriri
-
-            </p>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- JAVASCRIPT -->
-
-<script src="{{asset('assets/libs/swiper/swiper-bundle.min.js')}}"></script>
-
-<script src="{{asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
-
-<script src="{{asset('assets/libs/simplebar/simplebar.min.js')}}"></script>
-
-<script src="{{asset('assets/js/scroll-top.init.js')}}"></script>
-
-<script src="{{asset('assets/js/auth/auth.init.js')}}"></script>
-
-<script src="{{asset('assets/js/action.js')}}"></script>
-
-<script src="{{asset('assets/libs/sweetalert2/sweetalert2.min.js')}}"></script>
-
-<!-- Script para envio do formulário -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('formAssociado');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    
+    // Envio do formulário
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Limpa erros anteriores
+        limparErros();
         
         // Desabilita o botão para evitar múltiplos envios
         submitBtn.disabled = true;
@@ -1185,26 +711,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Sucesso!',
-                    text: data.message,
+                    text: data.message || 'Cadastro realizado com sucesso!',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    // Limpa o formulário
-                    form.reset();
-                    // Redireciona ou faz outras ações necessárias
-                    window.location.reload();
+                    // Redireciona para a página de sucesso
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.href = '{{ route("associado.success") }}';
+                    }
                 });
             } else {
                 // Erro de validação
                 if (data.errors) {
-                    let errorMessage = 'Por favor, corrija os seguintes erros:\n\n';
+                    // Mostra erros nos campos específicos
                     Object.keys(data.errors).forEach(field => {
-                        errorMessage += `• ${data.errors[field][0]}\n`;
+                        const mensagem = data.errors[field][0];
+                        
+                        // Mapeia campos especiais
+                        let campoId = field;
+                        if (field === 'nome_comercio') campoId = 'nomeComercio';
+                        if (field === 'endereco_comercio') campoId = 'enderecoComercio';
+                        if (field === 'ramo_atividade') campoId = 'ramoAtividade';
+                        if (field === 'data_nascimento') campoId = 'dataNascimento';
+                        if (field === 'senha_confirmation') campoId = 'confirmarSenha';
+                        if (field === 'aceiteTermos') campoId = 'aceiteTermos';
+                        
+                        mostrarErro(campoId, mensagem);
                     });
                     
+                    // Mostra mensagem geral de erro
                     Swal.fire({
                         icon: 'error',
                         title: 'Erro de Validação',
-                        text: errorMessage,
+                        text: 'Por favor, corrija os erros indicados nos campos.',
                         confirmButtonText: 'OK'
                     });
                 } else {
@@ -1234,55 +774,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Toggle para mostrar/ocultar campos do comércio
-    const tipoAssociado = document.getElementById('tipoAssociado');
-    const camposComercio = document.getElementById('camposComercio');
-    
-    tipoAssociado.addEventListener('change', function() {
-        if (this.value === 'comerciante' || this.value === 'ambos') {
-            camposComercio.classList.remove('d-none');
-            // Torna os campos obrigatórios
-            document.getElementById('nomeComercio').required = true;
-            document.getElementById('enderecoComercio').required = true;
-            document.getElementById('ramoAtividade').required = true;
-        } else {
-            camposComercio.classList.add('d-none');
-            // Remove a obrigatoriedade
-            document.getElementById('nomeComercio').required = false;
-            document.getElementById('enderecoComercio').required = false;
-            document.getElementById('ramoAtividade').required = false;
-        }
+    // Toggle para mostrar/ocultar senha
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.getAttribute('data-target');
+            const input = document.getElementById(target);
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('ri-eye-off-line');
+                icon.classList.add('ri-eye-line');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('ri-eye-line');
+                icon.classList.add('ri-eye-off-line');
+            }
+        });
     });
-    
-    // Máscaras para CPF e telefone
-    if (typeof IMask !== 'undefined') {
-        // Máscara para CPF
-        IMask(document.getElementById('cpf'), {
-            mask: '000.000.000-00'
-        });
-        
-        // Máscara para telefone
-        IMask(document.getElementById('telefone'), {
-            mask: '(00) 00000-0000'
-        });
-        
-        // Máscara para CEP
-        IMask(document.getElementById('cep'), {
-            mask: '00000-000'
-        });
-    }
 });
 </script>
 
-
-
-
-
-
-
-
 </body>
-
-
-
 </html>
