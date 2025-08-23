@@ -15,7 +15,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'cpf', 'data_nascimento', 'telefone', 'email', 'password',
+        'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf',
+        'tipo_associado', 'nome_comercio', 'endereco_comercio', 'ramo_atividade',
+        'status', 'data_aprovacao'
     ];
 
     /**
@@ -26,4 +29,44 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'data_nascimento' => 'date',
+        'data_aprovacao' => 'datetime',
+    ];
+
+    /**
+     * Verifica se o usuário é um associado aprovado
+     *
+     * @return bool
+     */
+    public function isAssociadoAprovado()
+    {
+        return $this->status === 'aprovado';
+    }
+
+    /**
+     * Verifica se o usuário é um comerciante
+     *
+     * @return bool
+     */
+    public function isComerciante()
+    {
+        return in_array($this->tipo_associado, ['comerciante', 'ambos']);
+    }
+
+    /**
+     * Verifica se o usuário é um morador
+     *
+     * @return bool
+     */
+    public function isMorador()
+    {
+        return in_array($this->tipo_associado, ['morador', 'ambos']);
+    }
 }

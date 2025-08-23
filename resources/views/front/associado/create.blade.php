@@ -24,6 +24,9 @@
     <!-- App Css-->
     <link href="{{asset('assets/css/app.min.css')}}" id="app-style" rel="stylesheet" type="text/css">
     
+    <!-- SweetAlert2 CSS -->
+    <link href="{{asset('assets/libs/sweetalert2/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
+    
     <!-- IMask para máscaras -->
     <script src="https://unpkg.com/imask"></script>
     
@@ -420,78 +423,79 @@
                     
                     <p class="mb-8 text-muted text-center">Preencha os dados abaixo para se tornar um associado</p>
                     
-                                         <form>
+                                         <form id="formAssociado" method="POST" action="{{ route('associado.store') }}">
+                        @csrf
                          <!-- Dados pessoais primeiro -->
                          <div class="row">
                              <div class="col-md-6 mb-4">
                                  <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="nome" placeholder="Digite seu nome completo" required>
+                                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome completo" required>
                              </div>
                              <div class="col-md-6 mb-4">
                                  <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" required>
+                                 <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" required>
                              </div>
                          </div>
                          
                          <div class="row">
                              <div class="col-md-6 mb-4">
                                  <label for="dataNascimento" class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                                 <input type="date" class="form-control" id="dataNascimento" required>
+                                 <input type="date" class="form-control" id="dataNascimento" name="data_nascimento" required>
                              </div>
                              <div class="col-md-6 mb-4">
                                  <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
-                                 <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000" required>
+                                 <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
                              </div>
                          </div>
                          
                          <div class="mb-4">
                              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                             <input type="email" class="form-control" id="email" placeholder="seu@email.com" required>
+                             <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
                          </div>
                          
                          <!-- CEP e Endereço -->
                          <div class="mb-4">
                              <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="cep" placeholder="00000-000" maxlength="9" required>
+                             <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
                              <div class="form-text">Digite o CEP para autopreenchimento do endereço</div>
                          </div>
                          
                          <div class="mb-4">
                              <label for="logradouro" class="form-label">Logradouro <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="logradouro" placeholder="Rua, Avenida, etc." required>
+                             <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Rua, Avenida, etc." required>
                          </div>
                          
                          <div class="row">
                              <div class="col-md-6 mb-4">
                                  <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="numero" placeholder="Número" required>
+                                 <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" required>
                              </div>
                              <div class="col-md-6 mb-4">
                                  <label for="complemento" class="form-label">Complemento</label>
-                                 <input type="text" class="form-control" id="complemento" placeholder="Apto, Casa, etc.">
+                                 <input type="text" class="form-control" id="complemento" name="complemento" placeholder="Apto, Casa, etc.">
                              </div>
                          </div>
                          
                          <div class="mb-4">
                              <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
-                             <input type="text" class="form-control" id="bairro" placeholder="Bairro" required>
+                             <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Bairro" required>
                          </div>
                          
                          <div class="row">
                              <div class="col-md-6 mb-4">
                                  <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="cidade" value="São Mateus" readonly>
+                                 <input type="text" class="form-control" id="cidade" name="cidade" value="São Mateus" readonly>
                                  <div class="form-text">Apenas moradores e comerciantes de São Mateus podem se associar</div>
                              </div>
                              <div class="col-md-6 mb-4">
                                  <label for="uf" class="form-label">UF <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="uf" value="ES" readonly>
+                                 <input type="text" class="form-control" id="uf" name="uf" value="ES" readonly>
                              </div>
                          </div>
                         
                                                  <div class="mb-4">
                              <label for="tipoAssociado" class="form-label">Tipo de Associado <span class="text-danger">*</span></label>
-                             <select class="form-select" id="tipoAssociado" required>
+                             <select class="form-select" id="tipoAssociado" name="tipo_associado" required>
                                  <option value="">Selecione o tipo</option>
                                  <option value="morador">Morador</option>
                                  <option value="comerciante">Comerciante</option>
@@ -505,17 +509,17 @@
                              
                              <div class="mb-4">
                                  <label for="nomeComercio" class="form-label">Nome do Comércio <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="nomeComercio" placeholder="Nome do estabelecimento comercial">
+                                 <input type="text" class="form-control" id="nomeComercio" name="nome_comercio" placeholder="Nome do estabelecimento comercial">
                              </div>
                              
                              <div class="mb-4">
                                  <label for="enderecoComercio" class="form-label">Endereço do Comércio <span class="text-danger">*</span></label>
-                                 <input type="text" class="form-control" id="enderecoComercio" placeholder="Endereço completo do comércio">
+                                 <input type="text" class="form-control" id="enderecoComercio" name="endereco_comercio" placeholder="Endereço completo do comércio">
                              </div>
                              
                              <div class="mb-4">
                                  <label for="ramoAtividade" class="form-label">Ramo de Atividade <span class="text-danger">*</span></label>
-                                 <select class="form-select" id="ramoAtividade">
+                                 <select class="form-select" id="ramoAtividade" name="ramo_atividade">
                                      <option value="">Selecione o ramo</option>
                                      <option value="alimentacao">Alimentação</option>
                                      <option value="varejo">Varejo</option>
@@ -533,7 +537,7 @@
                         <div class="mb-4">
                             <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
                             <div class="position-relative">
-                                <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+                                <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
                                 <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-senha" data-target="senha"><i class="ri-eye-off-line align-middle"></i></button>
                             </div>
                         </div>
@@ -541,7 +545,7 @@
                         <div class="mb-4">
                             <label for="confirmarSenha" class="form-label">Confirmar Senha <span class="text-danger">*</span></label>
                             <div class="position-relative">
-                                <input type="password" class="form-control" id="confirmarSenha" placeholder="Confirme sua senha" required>
+                                <input type="password" class="form-control" id="confirmarSenha" name="senha_confirmation" placeholder="Confirme sua senha" required>
                                 <button type="button" class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted toggle-password" id="toggle-confirmarSenha" data-target="confirmarSenha"><i class="ri-eye-off-line align-middle"></i></button>
                             </div>
                         </div>
@@ -577,6 +581,128 @@
 <script src="{{asset('assets/js/scroll-top.init.js')}}"></script>
 <script src="{{asset('assets/js/auth/auth.init.js')}}"></script>
 <script src="{{asset('assets/js/action.js')}}"></script>
+<script src="{{asset('assets/libs/sweetalert2/sweetalert2.min.js')}}"></script>
+
+<!-- Script para envio do formulário -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formAssociado');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Desabilita o botão para evitar múltiplos envios
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="ri-loader-4-line me-2"></i>Enviando...';
+        
+        // Coleta os dados do formulário
+        const formData = new FormData(form);
+        
+        // Envia via AJAX
+        fetch('{{ route("associado.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Sucesso
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: data.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Limpa o formulário
+                    form.reset();
+                    // Redireciona ou faz outras ações necessárias
+                    window.location.reload();
+                });
+            } else {
+                // Erro de validação
+                if (data.errors) {
+                    let errorMessage = 'Por favor, corrija os seguintes erros:\n\n';
+                    Object.keys(data.errors).forEach(field => {
+                        errorMessage += `• ${data.errors[field][0]}\n`;
+                    });
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro de Validação',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    // Outro tipo de erro
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: data.message || 'Ocorreu um erro ao processar sua solicitação.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Ocorreu um erro inesperado. Tente novamente.',
+                confirmButtonText: 'OK'
+            });
+        })
+        .finally(() => {
+            // Reabilita o botão
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Cadastrar como Associado';
+        });
+    });
+    
+    // Toggle para mostrar/ocultar campos do comércio
+    const tipoAssociado = document.getElementById('tipoAssociado');
+    const camposComercio = document.getElementById('camposComercio');
+    
+    tipoAssociado.addEventListener('change', function() {
+        if (this.value === 'comerciante' || this.value === 'ambos') {
+            camposComercio.classList.remove('d-none');
+            // Torna os campos obrigatórios
+            document.getElementById('nomeComercio').required = true;
+            document.getElementById('enderecoComercio').required = true;
+            document.getElementById('ramoAtividade').required = true;
+        } else {
+            camposComercio.classList.add('d-none');
+            // Remove a obrigatoriedade
+            document.getElementById('nomeComercio').required = false;
+            document.getElementById('enderecoComercio').required = false;
+            document.getElementById('ramoAtividade').required = false;
+        }
+    });
+    
+    // Máscaras para CPF e telefone
+    if (typeof IMask !== 'undefined') {
+        // Máscara para CPF
+        IMask(document.getElementById('cpf'), {
+            mask: '000.000.000-00'
+        });
+        
+        // Máscara para telefone
+        IMask(document.getElementById('telefone'), {
+            mask: '(00) 00000-0000'
+        });
+        
+        // Máscara para CEP
+        IMask(document.getElementById('cep'), {
+            mask: '00000-000'
+        });
+    }
+});
+</script>
 
 
 

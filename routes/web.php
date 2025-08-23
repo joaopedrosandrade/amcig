@@ -12,6 +12,7 @@
 */
 
 Route::get('/', 'FrontController@associadoCreate');
+Route::post('/associado/store', 'FrontController@associadoStore')->name('associado.store');
 
 Auth::routes();
 
