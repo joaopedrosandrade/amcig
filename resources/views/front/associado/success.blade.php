@@ -70,41 +70,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         
-        .btn-success-custom {
-            background: #10b981;
-            border: none;
-            border-radius: 12px;
-            padding: 14px 32px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-        }
-        
-        .btn-success-custom:hover {
-            background: #059669;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-outline-success-custom {
-            border: 2px solid #10b981;
-            color: #10b981;
-            background: transparent;
-            border-radius: 12px;
-            padding: 12px 28px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-outline-success-custom:hover {
-            background: #10b981;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
-        }
-        
         .text-primary {
             color: #3b82f6 !important;
         }
@@ -157,10 +122,10 @@
                     </div>
                     
                     <div class="mt-4">
-                        <a href="{{ route('login') }}" class="btn btn-success-custom me-3">
+                        <a href="{{ route('login') }}" class="btn btn-primary me-3">
                             <i class="ri-login-box-line me-2"></i>Fazer Login
                         </a>
-                        <a href="{{ url('/') }}" class="btn btn-outline-success-custom">
+                        <a href="{{ url('/') }}" class="btn btn-outline-primary">
                             <i class="ri-home-line me-2"></i>Voltar ao Início
                         </a>
                     </div>
