@@ -21,6 +21,16 @@ class FrontController extends Controller
     }
 
     /**
+     * Exibe a página de sucesso após o cadastro
+     *
+     * @return \Illuminate\View\View
+     */
+    public function associadoSuccess()
+    {
+        return view('front.associado.success');
+    }
+
+    /**
      * Salva os dados do novo associado
      *
      * @param Request $request
@@ -123,11 +133,7 @@ class FrontController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cadastro realizado com sucesso! Aguarde a aprovação da diretoria.',
-                'user_id' => $user->id
-            ], 201);
+            return redirect()->route('associado.success')->with('success', 'Cadastro realizado com sucesso!');
 
         } catch (\Exception $e) {
             DB::rollback();
