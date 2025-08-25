@@ -18,6 +18,10 @@
     <link rel="stylesheet" type="text/css" href="{{asset('assets/libs/jsvectormap/jsvectormap.min.css')}}">
 
     <!-- Simplebar Css -->
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <!--datatable responsive css-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
     <link rel="stylesheet" href="{{asset('assets/libs/simplebar/simplebar.min.css')}}">
     <!-- Swiper Css -->
     <link href="{{asset('assets/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet">
@@ -29,6 +33,8 @@
     <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css">
     <!-- App Css-->
     <link href="{{asset('assets/css/app.min.css')}}" id="app-style" rel="stylesheet" type="text/css">
+    
+    @stack('styles')
 </head>
 <body>
 <!-- begin::App -->
@@ -39,7 +45,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-inline-flex align-items-center gap-2">
                     <a href="index.html" class="align-items-end logo-main d-none me-5">
-                        <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="assets/images/logo-md.png">
+                        <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="{{asset('assets/images/logo-md.png')}}"">
                         <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">AMCIG</h3>
                     </a>
                     <button type="button" class="vertical-toggle btn header-btn" id="toggleSidebar" aria-label="Toggle Sidebar">
@@ -111,12 +117,12 @@
                                 <span class="d-block mb-0 fs-10 text-muted">    {{ Auth::guard('admin')->user()->email }}</span>
                             </div>
                             <span class="header-btn btn position-relative">
-                                <img src="assets/images/avatar/avatar-3.jpg" alt="Avatar Image" class="img-fluid rounded-circle">
+                                <img src="{{asset('assets/images/avatar/avatar-3.jpg')}}" alt="Avatar Image" class="img-fluid rounded-circle">
                             </span>
                         </button>
                         <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
                             <div class="border-bottom pb-2 mb-2 d-flex align-items-center gap-2">
-                                <img src="assets/images/avatar/avatar-3.jpg" alt="Avatar Image" class="avatar-md">
+                                <img src="{{asset('assets/images/avatar/avatar-3.jpg')}}" alt="Avatar Image" class="avatar-md">
                                 <div>
                                     <a href="javascript:void(0)">
                                         <h6 class="mb-0 lh-base">  {{ Auth::guard('admin')->user()->name }}</h6>
@@ -170,8 +176,8 @@
         <div class="pe-app-sidebar-logo px-6 d-flex align-items-center position-relative">
             <!--begin::Brand Image-->
             <a href="index.html" class="d-flex align-items-end logo-main">
-                <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="assets/images/logo-md.png">
-                <img height="35" width="34" class="logo-light" alt="Light Logo" src="assets/images/logo-md-light.png">
+                <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="{{asset('assets/images/logo-md.png')}}">
+                <img height="35" width="34" class="logo-light" alt="Light Logo" src="{{asset('assets/images/logo-md-light.png')}}">
                 <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">AMCIG</h3>
             </a>
             <button type="button" id="sidebarDefaultArrow" class="btn btn-sm p-0 fs-16 text-body-emphasis ms-auto float-end d-none icon-hover-btn d-none"><i class="ri-arrow-right-line fs-5"></i></button>
@@ -196,7 +202,7 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseAssociados">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Cadastrados</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.associados.index') }}" class="pe-nav-link">Cadastrados</a></li>
                             <li class="pe-slide-item"><a href="#" class="pe-nav-link">Aprovação</a></li>
                                 </ul>
                             </li>
@@ -224,7 +230,7 @@
                 </ul>
                 <!-- Widgets -->
                 <div class="sidebar-widget text-center">
-                    <img src="assets/images/sidebar-widget.png" alt="Widget Image">
+                    <img src="{{asset('assets/images/sidebar-widget.png')}}" alt="Widget Image">
                     <p class="text-muted fw-semibold">15 novas solicitações de associado</p>
                     <button class="btn btn-primary rounded-pill w-100">Ver Solicitações</button>
                 </div>
@@ -260,6 +266,8 @@
 <!-- End Begin page -->
 
 <!-- JAVASCRIPT -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script src="{{asset('assets/libs/swiper/swiper-bundle.min.js')}}"></script>
 <script src="{{asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 <script src="{{asset('assets/libs/simplebar/simplebar.min.js')}}"></script>
@@ -273,7 +281,22 @@
 <script src="{{asset('assets/js/dashboard/analytics.init.js')}}"></script>
 
 <!-- App js -->
+
+<!--datatable js-->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<script src="{{asset('assets/js/table/datatable.init.js')}}"></script>
 <script src="{{asset('assets/js/app.js')}}"></script>
+
+
 
 </body>
 

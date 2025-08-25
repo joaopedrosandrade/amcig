@@ -46,6 +46,14 @@ Route::prefix('/admin')->group(function() {
     Route::middleware(['auth:admin'])->group(function() {
         Route::get('/', 'AdminController@index')->name('admin.dashboard');
         Route::post('/logout', 'Auth\AdminLoginController@logout')->name('admin.logout');
+        
+        // Rotas para gerenciar associados
+        Route::prefix('associados')->group(function() {
+            Route::get('/', 'Admin\AssociadoController@index')->name('admin.associados.index');
+            Route::get('/data', 'Admin\AssociadoController@data')->name('admin.associados.data');
+            Route::get('/show', 'Admin\AssociadoController@show')->name('admin.associados.show');
+            Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
+        });
     });
 });
 
