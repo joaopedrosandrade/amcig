@@ -78,12 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         
         // Envia via AJAX
-        fetch('{{ route("associado.store") }}', {
+        const actionUrl = form.getAttribute('data-action');
+        fetch(actionUrl, {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
         })
         .then(response => response.json())
@@ -100,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.redirect) {
                         window.location.href = data.redirect;
                     } else {
-                        window.location.href = '{{ route("associado.success") }}';
+                        window.location.href = '/associado/success';
                     }
                 });
             } else {

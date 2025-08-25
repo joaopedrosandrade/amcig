@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta content="Cadastro de Associado AMCIG" name="description" />
     <meta content="AMCIG" name="author" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- layout setup -->
     <script type="module" src="{{asset('assets/js/layout-setup.js')}}"></script>
@@ -438,7 +439,7 @@
                     
                     <p class="mb-8 text-muted text-center">Preencha os dados abaixo para se tornar um associado</p>
                     
-                    <form id="formAssociado" method="POST" action="{{ route('associado.store') }}">
+                    <form id="formAssociado" method="POST" action="{{ route('associado.store') }}" data-action="{{ route('associado.store') }}">
                         @csrf
                         <!-- Dados pessoais primeiro -->
                         <div class="row">
