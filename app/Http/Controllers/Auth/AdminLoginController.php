@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AdminLoginController extends Controller
 {
     public function __construct() {
-        $this->middleware('guest:admin');
+        $this->middleware('guest:admin')->except('logout');
         // somente quem não estiver logado como admin terá acesso ao login
     }
 
@@ -52,6 +53,21 @@ class AdminLoginController extends Controller
         }
         
         // se não, redirecionar novamente para o login, passando novamente os parametros do request
-        return redirect()->back()->withInput($request->only('email','remember'));
+        return redirect()->back()
+            ->withInput($request->only('email','remember'))
+            ->withErrors(['email' => 'Email ou senha incorretos. Tente novamente.']);
+    }
+    
+    /**
+     * Logout do administrador
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('admin.login')->with('message', 'Você foi deslogado com sucesso');
     }
 }

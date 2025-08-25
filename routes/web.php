@@ -41,7 +41,12 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::prefix('/admin')->group(function() {
     Route::get('/login', 'Auth\AdminLoginController@index')->name('admin.login');
     Route::post('/login', 'Auth\AdminLoginController@login')->name('admin.login.submit');
-    Route::get('/', 'AdminController@index')->name('admin.dashboard');
+    
+    // Rotas protegidas por autenticação admin
+    Route::middleware(['auth:admin'])->group(function() {
+        Route::get('/', 'AdminController@index')->name('admin.dashboard');
+        Route::post('/logout', 'Auth\AdminLoginController@logout')->name('admin.logout');
+    });
 });
 
 

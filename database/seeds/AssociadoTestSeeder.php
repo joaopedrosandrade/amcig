@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin;
 use Illuminate\Database\Seeder;
 use App\User;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,8 @@ class AssociadoTestSeeder extends Seeder
             'ramo_atividade' => 'alimentacao',
             'status' => 'aprovado',
         ]);
+
+      
 
         $this->command->info('Associados de teste criados com sucesso!');
     }
