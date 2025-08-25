@@ -116,7 +116,9 @@
                         <ul class="text-muted mb-0">
                             <li>Aguardar análise da diretoria (1-3 dias úteis)</li>
                             <li>Receber email de confirmação</li>
+                           
                             <li>Fazer login na área do associado</li>
+                            <li>Realizar o pagamento da primeira mensalidade</li>
                             <li>Acessar recursos exclusivos da associação</li>
                         </ul>
                     </div>
