@@ -32,7 +32,7 @@
                                         <th>Email</th>
                                         <th>CPF</th>
                                         <th>Tipo</th>
-                                        <th>Status</th>
+                                       
                                         <th>Data Cadastro</th>
                                         <th>Ações</th>
                                     </tr>
@@ -61,11 +61,7 @@
                                             <td>{{ $associado->email }}</td>
                                             <td>{{ $associado->cpf ?? 'N/A' }}</td>
                                             <td>{{ $tipos[$associado->tipo_associado] ?? 'N/A' }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $badges[$status] ?? 'warning' }}">
-                                                    {{ ucfirst($status) }}
-                                                </span>
-                                            </td>
+                                           
                                             <td>{{ $associado->created_at ? $associado->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info view-associado" data-id="{{ $associado->id }}" title="Visualizar">
