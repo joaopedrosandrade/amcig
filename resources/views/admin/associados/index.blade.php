@@ -5,12 +5,12 @@
     <div class="container-fluid">
 
         <div class="main-breadcrumb d-flex align-items-center my-3 position-relative">
-            <h2 class="breadcrumb-title mb-0 flex-grow-1 fs-14">Associados Aprovados</h2>
+            <h2 class="breadcrumb-title mb-0 flex-grow-1 fs-14">Associados </h2>
             <div class="flex-shrink-0">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-end mb-0">
                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Associados Aprovados</li>
+                        <li class="breadcrumb-item active" aria-current="page">Associados </li>
                     </ol>
                 </nav>
             </div>
@@ -20,19 +20,18 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Lista de Associados Aprovados</h5>
+                        <h5 class="card-title mb-0">Lista de Associados </h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
+                            <table id="associados_datatable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Nome</th>
-                                        <th>Email</th>
+                                       
                                         <th>CPF</th>
                                         <th>Tipo</th>
-                                       
                                         <th>Data Cadastro</th>
                                         <th>Ações</th>
                                     </tr>
@@ -45,24 +44,15 @@
                                                 'comerciante' => 'Comerciante',
                                                 'ambos' => 'Morador e Comerciante'
                                             ];
-
-                                            $status = $associado->status ?? 'pendente';
-                                            $badges = [
-                                                'aprovado' => 'success',
-                                                'ativo' => 'success',
-                                                'inativo' => 'danger',
-                                                'pendente' => 'warning',
-                                                'suspenso' => 'secondary'
-                                            ];
                                         @endphp
                                         <tr>
                                             <td>{{ $associado->id }}</td>
                                             <td>{{ $associado->name }}</td>
-                                            <td>{{ $associado->email }}</td>
+                                          
                                             <td>{{ $associado->cpf ?? 'N/A' }}</td>
                                             <td>{{ $tipos[$associado->tipo_associado] ?? 'N/A' }}</td>
-                                           
-                                            <td>{{ $associado->created_at ? $associado->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                            <td>{{ $associado->created_at_formatted }}</td>
+                                            
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info view-associado" data-id="{{ $associado->id }}" title="Visualizar">
                                                     <i class="ri-eye-line"></i>
@@ -103,6 +93,62 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Inicializa a DataTable
+    var table = $('#associados_datatable').DataTable({
+        processing: true,
+        serverSide: false,
+        order: [[0, 'desc']],
+        language: {
+            "sEmptyTable": "Nenhum registro encontrado",
+            "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+            "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ".",
+            "sLengthMenu": "_MENU_ resultados por página",
+            "sLoadingRecords": "Carregando...",
+            "sProcessing": "Processando...",
+            "sZeroRecords": "Nenhum registro encontrado",
+            "sSearch": "Pesquisar",
+            "oPaginate": {
+                "sNext": "Próximo",
+                "sPrevious": "Anterior",
+                "sFirst": "Primeiro",
+                "sLast": "Último"
+            },
+            "oAria": {
+                "sSortAscending": ": Ordenar colunas de forma ascendente",
+                "sSortDescending": ": Ordenar colunas de forma descendente"
+            },
+            "select": {
+                "rows": {
+                    "_": "Selecionado %d linhas",
+                    "0": "Clique em uma linha para selecioná-la",
+                    "1": "Selecionado 1 linha"
+                }
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "copyTitle": "Cópia bem sucedida",
+                "copySuccess": {
+                    "1": "Uma linha copiada com sucesso",
+                    "_": "%d linhas copiadas com sucesso"
+                },
+                "print": "Imprimir",
+                "csv": "CSV",
+                "excel": "Excel",
+                "pdf": "PDF"
+            }
+        },
+        responsive: true,
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ],
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
+    });
+
     // Evento para visualizar detalhes do associado
     $(document).on('click', '.view-associado', function() {
         var associadoId = $(this).data('id');

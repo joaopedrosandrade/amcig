@@ -125,16 +125,16 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td class="fw-semibold">Data de Cadastro:</td>
-                                <td>{{ $associado->created_at ? $associado->created_at->format('d/m/Y H:i') : 'Não informado' }}</td>
+                                <td>{{ $associado->created_at ? $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') : 'Não informado' }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold">Última Atualização:</td>
-                                <td>{{ $associado->updated_at ? $associado->updated_at->format('d/m/Y H:i') : 'Não informado' }}</td>
+                                <td>{{ $associado->updated_at ? $associado->updated_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') : 'Não informado' }}</td>
                             </tr>
                             @if($associado->data_aprovacao)
                             <tr>
                                 <td class="fw-semibold">Data de Aprovação:</td>
-                                <td>{{ $associado->data_aprovacao->format('d/m/Y H:i') }}</td>
+                                <td>{{ $associado->data_aprovacao->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') }}</td>
                             </tr>
                             @endif
                         </table>

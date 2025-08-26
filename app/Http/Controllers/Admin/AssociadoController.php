@@ -36,6 +36,15 @@ class AssociadoController extends Controller
             'created_at'
         ])->where('status', 'aprovado')->get();
 
+        // Formata as datas no fuso horário de São Paulo
+        foreach ($associados as $associado) {
+            if ($associado->created_at) {
+                $associado->created_at_formatted = $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i');
+            } else {
+                $associado->created_at_formatted = 'N/A';
+            }
+        }
+
         return view('admin.associados.index', compact('associados'));
     }
 
@@ -81,7 +90,7 @@ class AssociadoController extends Controller
                 'cpf' => $associado->cpf ?? 'N/A',
                 'tipo_associado' => $tipos[$associado->tipo_associado] ?? 'N/A',
                 'status' => $badges[$status] ?? '<span class="badge bg-warning">Pendente</span>',
-                'created_at' => $associado->created_at ? $associado->created_at->format('d/m/Y H:i') : 'N/A',
+                'created_at' => $associado->created_at ? $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') : 'N/A',
                 'actions' => '<button type="button" class="btn btn-sm btn-info view-associado" data-id="' . $associado->id . '" title="Visualizar">
                                 <i class="ri-eye-line"></i>
                             </button>'
