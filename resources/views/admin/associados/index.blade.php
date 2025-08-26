@@ -24,7 +24,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="associados_datatable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -38,7 +38,42 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Dados serão carregados via AJAX -->
+                                    @foreach($associados as $associado)
+                                        @php
+                                            $tipos = [
+                                                'morador' => 'Morador',
+                                                'comerciante' => 'Comerciante',
+                                                'ambos' => 'Morador e Comerciante'
+                                            ];
+
+                                            $status = $associado->status ?? 'pendente';
+                                            $badges = [
+                                                'aprovado' => 'success',
+                                                'ativo' => 'success',
+                                                'inativo' => 'danger',
+                                                'pendente' => 'warning',
+                                                'suspenso' => 'secondary'
+                                            ];
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $associado->id }}</td>
+                                            <td>{{ $associado->name }}</td>
+                                            <td>{{ $associado->email }}</td>
+                                            <td>{{ $associado->cpf ?? 'N/A' }}</td>
+                                            <td>{{ $tipos[$associado->tipo_associado] ?? 'N/A' }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $badges[$status] ?? 'warning' }}">
+                                                    {{ ucfirst($status) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $associado->created_at ? $associado->created_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info view-associado" data-id="{{ $associado->id }}" title="Visualizar">
+                                                    <i class="ri-eye-line"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -72,40 +107,6 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Inicializa a DataTable
-    var table = $('#associados_datatable').DataTable({
-        processing: true,
-        serverSide: false,
-        ajax: {
-            url: '{{ route("admin.associados.data") }}',
-            type: 'GET',
-            dataSrc: 'data'
-        },
-        columns: [
-            { data: 'id' },
-            { data: 'name' },
-            { data: 'email' },
-            { data: 'cpf' },
-            { data: 'tipo_associado' },
-            { data: 'status' },
-            { data: 'created_at' },
-            { 
-                data: 'actions',
-                orderable: false,
-                searchable: false
-            }
-        ],
-        order: [[0, 'desc']],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
-        },
-        responsive: true,
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]
-    });
-
     // Evento para visualizar detalhes do associado
     $(document).on('click', '.view-associado', function() {
         var associadoId = $(this).data('id');

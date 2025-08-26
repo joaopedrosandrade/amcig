@@ -26,7 +26,17 @@ class AssociadoController extends Controller
      */
     public function index()
     {
-        return view('admin.associados.index');
+        $associados = User::select([
+            'id',
+            'name',
+            'email',
+            'cpf',
+            'tipo_associado',
+            'status',
+            'created_at'
+        ])->where('status', 'aprovado')->get();
+
+        return view('admin.associados.index', compact('associados'));
     }
 
     /**
