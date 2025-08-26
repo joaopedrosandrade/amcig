@@ -45,7 +45,7 @@ class AssociadoController extends Controller
             'tipo_associado',
             'status',
             'created_at'
-        ])->get();
+        ])->where('status', 'aprovado')->get();
 
         $data = [];
         foreach ($associados as $associado) {
@@ -57,6 +57,7 @@ class AssociadoController extends Controller
 
             $status = $associado->status ?? 'pendente';
             $badges = [
+                'aprovado' => '<span class="badge bg-success">Aprovado</span>',
                 'ativo' => '<span class="badge bg-success">Ativo</span>',
                 'inativo' => '<span class="badge bg-danger">Inativo</span>',
                 'pendente' => '<span class="badge bg-warning">Pendente</span>',

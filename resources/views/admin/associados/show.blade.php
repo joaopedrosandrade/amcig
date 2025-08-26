@@ -48,6 +48,7 @@
                                     @php
                                         $status = $associado->status ?? 'pendente';
                                         $badges = [
+                                            'aprovado' => 'success',
                                             'ativo' => 'success',
                                             'inativo' => 'danger',
                                             'pendente' => 'warning',
