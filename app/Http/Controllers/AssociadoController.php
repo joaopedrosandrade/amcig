@@ -84,7 +84,7 @@ class AssociadoController extends Controller
         }
 
         // Validações específicas para comerciantes
-        if (in_array($user->tipo_associado, ['comerciante', 'ambos'])) {
+        if ($user->tipo_associado === 'comerciante') {
             if (empty($request->nome_comercio) || empty($request->endereco_comercio) || empty($request->ramo_atividade)) {
                 return redirect()->back()
                     ->withErrors(['tipo_associado' => 'Para comerciantes, todos os campos do comércio são obrigatórios.'])

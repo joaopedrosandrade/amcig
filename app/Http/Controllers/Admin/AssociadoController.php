@@ -70,8 +70,7 @@ class AssociadoController extends Controller
         foreach ($associados as $associado) {
             $tipos = [
                 'morador' => 'Morador',
-                'comerciante' => 'Comerciante',
-                'ambos' => 'Morador e Comerciante'
+                'comerciante' => 'Comerciante'
             ];
 
             $status = $associado->status ?? 'pendente';

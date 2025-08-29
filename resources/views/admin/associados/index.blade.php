@@ -41,8 +41,7 @@
                                         @php
                                             $tipos = [
                                                 'morador' => 'Morador',
-                                                'comerciante' => 'Comerciante',
-                                                'ambos' => 'Morador e Comerciante'
+                                                'comerciante' => 'Comerciante'
                                             ];
                                         @endphp
                                         <tr>

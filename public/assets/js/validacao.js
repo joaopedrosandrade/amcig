@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const camposComercio = document.getElementById('camposComercio');
     
     tipoAssociado.addEventListener('change', function() {
-        if (this.value === 'comerciante' || this.value === 'ambos') {
+        if (this.value === 'comerciante') {
             camposComercio.classList.remove('d-none');
             // Torna os campos obrigatórios
             document.getElementById('nomeComercio').required = true;

@@ -35,8 +35,7 @@
                                     @php
                                         $tipos = [
                                             'morador' => 'Morador',
-                                            'comerciante' => 'Comerciante',
-                                            'ambos' => 'Morador e Comerciante'
+                                            'comerciante' => 'Comerciante'
                                         ];
                                     @endphp
                                     {{ $tipos[$associado->tipo_associado] ?? 'Não definido' }}
@@ -97,7 +96,7 @@
                     </div>
                 </div>
 
-                @if(in_array($associado->tipo_associado, ['comerciante', 'ambos']))
+                @if($associado->tipo_associado === 'comerciante')
                 <div class="row mt-4">
                     <div class="col-12">
                         <h6 class="text-muted mb-3">Informações do Comércio</h6>

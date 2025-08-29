@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     public function isComerciante()
     {
-        return in_array($this->tipo_associado, ['comerciante', 'ambos']);
+        return $this->tipo_associado === 'comerciante';
     }
 
     /**
@@ -67,6 +67,6 @@ class User extends Authenticatable
      */
     public function isMorador()
     {
-        return in_array($this->tipo_associado, ['morador', 'ambos']);
+        return $this->tipo_associado === 'morador';
     }
 }

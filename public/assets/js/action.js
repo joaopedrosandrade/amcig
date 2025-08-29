@@ -324,7 +324,7 @@
         // Função para verificar se todo o formulário é válido
         function verificarFormularioValido() {
             const tipoSelecionado = tipoAssociadoInput.value;
-            const precisaComercio = tipoSelecionado === 'comerciante' || tipoSelecionado === 'ambos';
+            const precisaComercio = tipoSelecionado === 'comerciante';
             
             const camposObrigatorios = [
                 nomeInput.value.trim().length > 0,

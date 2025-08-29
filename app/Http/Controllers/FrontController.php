@@ -53,7 +53,7 @@ class FrontController extends Controller
                 'bairro' => 'required|string',
                 'cidade' => 'required|string',
                 'uf' => 'required|string',
-                'tipo_associado' => 'required|in:morador,comerciante,ambos',
+                'tipo_associado' => 'required|in:morador,comerciante',
                 'nome_comercio' => 'nullable|string',
                 'endereco_comercio' => 'nullable|string',
                 'ramo_atividade' => 'nullable|string',
@@ -120,7 +120,7 @@ class FrontController extends Controller
             }
 
             // Validações específicas para comerciantes
-            if (in_array($request->tipo_associado, ['comerciante', 'ambos'])) {
+            if ($request->tipo_associado === 'comerciante') {
                 $errosComercio = [];
                 
                 if (empty($request->nome_comercio)) {

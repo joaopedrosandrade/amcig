@@ -524,7 +524,6 @@
                                 <option value="">Selecione o tipo</option>
                                 <option value="morador">Morador</option>
                                 <option value="comerciante">Comerciante</option>
-                                <option value="ambos">Morador e Comerciante</option>
                             </select>
                             <div class="error-message" id="tipoAssociado-error"></div>
                         </div>
