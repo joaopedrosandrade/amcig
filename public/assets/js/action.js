@@ -105,7 +105,7 @@
         // Função para controlar exibição dos campos do comércio
         function controlarCamposComercio() {
             const tipoSelecionado = tipoAssociadoInput.value;
-            const precisaComercio = tipoSelecionado === 'comerciante' || tipoSelecionado === 'ambos';
+            const precisaComercio = tipoSelecionado === 'comerciante';
             
             if (precisaComercio) {
                 camposComercio.classList.remove('d-none');
@@ -135,7 +135,7 @@
         // Função para atualizar a barra de progresso
         function atualizarBarraProgresso() {
             const tipoSelecionado = tipoAssociadoInput.value;
-            const precisaComercio = tipoSelecionado === 'comerciante' || tipoSelecionado === 'ambos';
+            const precisaComercio = tipoSelecionado === 'comerciante';
             
             // Lista de todos os campos obrigatórios
             const todosCampos = [

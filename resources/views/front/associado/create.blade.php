@@ -450,7 +450,7 @@
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" inputmode="numeric" pattern="[0-9]*" required>
+                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" inputmode="numeric" required>
                                 <div class="error-message" id="cpf-error"></div>
                             </div>
                         </div>
@@ -463,7 +463,7 @@
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" inputmode="numeric" pattern="[0-9]*" required>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" inputmode="numeric" required>
                                 <div class="error-message" id="telefone-error"></div>
                             </div>
                         </div>
@@ -477,7 +477,7 @@
                         <!-- CEP e Endereço -->
                         <div class="mb-4">
                             <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" pattern="[0-9]*" required>
+                            <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" required>
                             <div class="form-text">Digite o CEP para autopreenchimento do endereço</div>
                             <div class="error-message" id="cep-error"></div>
                         </div>
@@ -491,7 +491,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" inputmode="numeric" pattern="[0-9]*" required>
+                                <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" inputmode="numeric" required>
                                 <div class="error-message" id="numero-error"></div>
                             </div>
                             <div class="col-md-6 mb-4">
