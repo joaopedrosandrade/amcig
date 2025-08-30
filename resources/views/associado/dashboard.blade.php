@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard do Associado</h4>
+                    <h4 class="mb-0"></h4>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('associado.dashboard') }}">Início</a></li>
@@ -21,32 +21,7 @@
         </div>
         <!-- end page title -->
 
-        <!-- Status do Associado -->
-        <div class="row">
-            <div class="col-12">
-                @if($user->status === 'pendente')
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="ri-information-line me-2"></i>
-                        <strong>Atenção:</strong> Sua conta ainda está pendente de aprovação pela diretoria. 
-                        Você receberá uma notificação por email quando for aprovado.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @elseif($user->status === 'aprovado')
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="ri-check-line me-2"></i>
-                        <strong>Parabéns!</strong> Sua conta foi aprovada e você tem acesso completo ao sistema.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @else
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="ri-error-warning-line me-2"></i>
-                        <strong>Status:</strong> Sua conta está com status "{{ ucfirst($user->status) }}". 
-                        Entre em contato com a diretoria para mais informações.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-            </div>
-        </div>
+        
 
         <!-- Informações do Associado -->
         <div class="row">
@@ -60,23 +35,39 @@
                             <div class="flex-grow-1">
                                 <h5 class="mb-1">{{ $user->name }}</h5>
                                 <p class="text-muted mb-0">{{ $user->email }}</p>
-                                <span class="badge bg-{{ $user->status === 'aprovado' ? 'success' : ($user->status === 'pendente' ? 'warning' : 'danger') }} mt-1">
-                                    {{ ucfirst($user->status) }}
-                                </span>
+                            
                             </div>
                         </div>
                         
                         <div class="border-top pt-3">
                             <div class="row text-center">
                                 <div class="col-6">
-                                    <h6 class="mb-1">{{ ucfirst($user->tipo_associado) }}</h6>
                                     <p class="text-muted mb-0">Tipo</p>
+                                    <h6 class="mb-1">{{ ucfirst($user->tipo_associado) }}</h6>
                                 </div>
                                 <div class="col-6">
-                                    <h6 class="mb-1">{{ $user->telefone }}</h6>
                                     <p class="text-muted mb-0">Telefone</p>
+                                    <h6 class="mb-1">{{ $user->telefone }}</h6>
                                 </div>
                             </div>
+                            
+                            @if($user->status === 'aprovado')
+                                <div class="border-top pt-3 mt-3">
+                                    <div class="text-center">
+                                        <h6 class="text-primary mb-2">Carteirinha de Associado</h6>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="#" class="btn btn-outline-primary btn-sm" title="Visualizar Carteirinha">
+                                                <i class="ri-eye-line me-1"></i>
+                                                Visualizar
+                                            </a>
+                                            <a href="#" class="btn btn-outline-success btn-sm" title="Baixar Carteirinha">
+                                                <i class="ri-download-line me-1"></i>
+                                                Baixar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
