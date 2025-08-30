@@ -158,22 +158,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Toggle para mostrar/ocultar senha
-    document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', function() {
-            const target = this.getAttribute('data-target');
-            const input = document.getElementById(target);
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('ri-eye-off-line');
-                icon.classList.add('ri-eye-line');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('ri-eye-line');
-                icon.classList.add('ri-eye-off-line');
-            }
-        });
-    });
+
 });

@@ -42,6 +42,25 @@
             animation: spin 1s linear infinite;
         }
         
+        .toggle-password {
+            z-index: 10;
+            pointer-events: auto;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+        }
+        
+        .toggle-password:hover {
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+        
+        .toggle-password:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }

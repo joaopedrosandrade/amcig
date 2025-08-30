@@ -24,6 +24,27 @@
   <!-- App Css-->
   <link href="{{asset('assets/css/app.min.css')}}" id="app-style" rel="stylesheet" type="text/css">
 
+  <style>
+    .toggle-password {
+      z-index: 10;
+      pointer-events: auto;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      padding: 8px 12px;
+    }
+    
+    .toggle-password:hover {
+      background-color: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    
+    .toggle-password:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+  </style>
+
 </head>
 
 <body>
@@ -112,22 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     
-    // Toggle para mostrar/ocultar senha
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordField = document.getElementById('password');
-    
-    togglePassword.addEventListener('click', function() {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        
-        const icon = this.querySelector('i');
-        if (type === 'password') {
-            icon.className = 'ri-eye-off-line align-middle';
-        } else {
-            icon.className = 'ri-eye-line align-middle';
-        }
-    });
-    
     // Validação do formulário
     form.addEventListener('submit', function(e) {
         const email = document.getElementById('email').value.trim();
@@ -142,8 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loginBtn.disabled = true;
         loginBtn.innerHTML = '<i class="ri-loader-4-line me-2"></i>Acessando...';
     });
-    
-
 });
 </script>
 </body>

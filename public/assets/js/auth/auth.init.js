@@ -12,10 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function initPasswordToggle() {
   const toggles = document.querySelectorAll(".toggle-password");
+  
   if (!toggles.length) return;
 
   toggles.forEach((toggle) => {
-    toggle.addEventListener("click", function () {
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const targetId = this.getAttribute("data-target");
       if (!targetId) return;
 
@@ -27,10 +31,12 @@ function initPasswordToggle() {
 
       if (targetInput.type === "password") {
         targetInput.type = "text";
-        icon.classList.replace("ri-eye-off-line", "ri-eye-line");
+        icon.classList.remove("ri-eye-off-line");
+        icon.classList.add("ri-eye-line");
       } else {
         targetInput.type = "password";
-        icon.classList.replace("ri-eye-line", "ri-eye-off-line");
+        icon.classList.remove("ri-eye-line");
+        icon.classList.add("ri-eye-off-line");
       }
     });
   });
