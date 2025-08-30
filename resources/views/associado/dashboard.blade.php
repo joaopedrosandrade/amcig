@@ -3,320 +3,318 @@
 @section('title', 'Dashboard - AMCIG')
 
 @section('content')
-<div class="main-content">
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- start page title -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="page-title-box d-flex align-items-center justify-content-between">
-                        <h4 class="mb-0">Dashboard do Associado</h4>
-                        <div class="page-title-right">
-                            <ol class="breadcrumb m-0">
-                                <li class="breadcrumb-item"><a href="{{ route('associado.dashboard') }}">Início</a></li>
-                                <li class="breadcrumb-item active">Dashboard</li>
-                            </ol>
+<main class="app-wrapper">
+    <div class="container-fluid">
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">Dashboard do Associado</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('associado.dashboard') }}">Início</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
+        <!-- Status do Associado -->
+        <div class="row">
+            <div class="col-12">
+                @if($user->status === 'pendente')
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>Atenção:</strong> Sua conta ainda está pendente de aprovação pela diretoria. 
+                        Você receberá uma notificação por email quando for aprovado.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @elseif($user->status === 'aprovado')
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="ri-check-line me-2"></i>
+                        <strong>Parabéns!</strong> Sua conta foi aprovada e você tem acesso completo ao sistema.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @else
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="ri-error-warning-line me-2"></i>
+                        <strong>Status:</strong> Sua conta está com status "{{ ucfirst($user->status) }}". 
+                        Entre em contato com a diretoria para mais informações.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Informações do Associado -->
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <img src="{{asset('assets/images/avatar/avatar-1.jpg')}}" alt="Avatar" class="avatar-lg rounded-circle">
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $user->name }}</h5>
+                                <p class="text-muted mb-0">{{ $user->email }}</p>
+                                <span class="badge bg-{{ $user->status === 'aprovado' ? 'success' : ($user->status === 'pendente' ? 'warning' : 'danger') }} mt-1">
+                                    {{ ucfirst($user->status) }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-top pt-3">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h6 class="mb-1">{{ ucfirst($user->tipo_associado) }}</h6>
+                                    <p class="text-muted mb-0">Tipo</p>
+                                </div>
+                                <div class="col-6">
+                                    <h6 class="mb-1">{{ $user->telefone }}</h6>
+                                    <p class="text-muted mb-0">Telefone</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- end page title -->
 
-            <!-- Status do Associado -->
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Informações de Endereço</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Endereço:</strong><br>
+                                    {{ $user->logradouro }}, {{ $user->numero }}
+                                    @if($user->complemento)
+                                        - {{ $user->complemento }}
+                                    @endif
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Bairro:</strong> {{ $user->bairro }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Cidade:</strong> {{ $user->cidade }}/{{ $user->uf }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>CEP:</strong> {{ $user->cep }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        @if($user->isComerciante())
+                            <div class="border-top pt-3 mt-3">
+                                <h6 class="text-primary mb-2">Informações do Comércio</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Nome:</strong> {{ $user->nome_comercio }}</p>
+                                        <p class="mb-1"><strong>Ramo:</strong> {{ ucfirst($user->ramo_atividade) }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Endereço:</strong> {{ $user->endereco_comercio }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Acesso Rápido -->
+        @if($user->status === 'aprovado')
             <div class="row">
-                <div class="col-12">
-                    @if($user->status === 'pendente')
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <i class="ri-information-line me-2"></i>
-                            <strong>Atenção:</strong> Sua conta ainda está pendente de aprovação pela diretoria. 
-                            Você receberá uma notificação por email quando for aprovado.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card mini-stats-wid">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <p class="text-muted fw-medium">Próximas Reuniões</p>
+                                    <h4 class="mb-0">2</h4>
+                                </div>
+                                <div class="flex-shrink-0 align-self-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-items-center justify-content-center">
+                                        <span class="avatar-title">
+                                            <i class="ri-calendar-event-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="#" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                            </div>
                         </div>
-                    @elseif($user->status === 'aprovado')
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="ri-check-line me-2"></i>
-                            <strong>Parabéns!</strong> Sua conta foi aprovada e você tem acesso completo ao sistema.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card mini-stats-wid">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <p class="text-muted fw-medium">Documentos</p>
+                                    <h4 class="mb-0">15</h4>
+                                </div>
+                                <div class="flex-shrink-0 align-self-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-items-center justify-content-center">
+                                        <span class="avatar-title">
+                                            <i class="ri-file-text-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="#" class="btn btn-success btn-sm">Acessar</a>
+                            </div>
                         </div>
-                    @else
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="ri-error-warning-line me-2"></i>
-                            <strong>Status:</strong> Sua conta está com status "{{ ucfirst($user->status) }}". 
-                            Entre em contato com a diretoria para mais informações.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card mini-stats-wid">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <p class="text-muted fw-medium">Mensalidades</p>
+                                    <h4 class="mb-0">Em dia</h4>
+                                </div>
+                                <div class="flex-shrink-0 align-self-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-items-center justify-content-center">
+                                        <span class="avatar-title">
+                                            <i class="ri-bank-card-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="#" class="btn btn-info btn-sm">Ver Detalhes</a>
+                            </div>
                         </div>
-                    @endif
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card mini-stats-wid">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <p class="text-muted fw-medium">Notificações</p>
+                                    <h4 class="mb-0">3</h4>
+                                </div>
+                                <div class="flex-shrink-0 align-self-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-items-center justify-content-center">
+                                        <span class="avatar-title">
+                                            <i class="ri-notification-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="#" class="btn btn-warning btn-sm">Ver Todas</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Informações do Associado -->
+            <!-- Atividades Recentes -->
             <div class="row">
-                <div class="col-xl-4">
+                <div class="col-xl-6">
                     <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Próximas Assembleias</h5>
+                        </div>
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{asset('assets/images/avatar/avatar-1.jpg')}}" alt="Avatar" class="avatar-lg rounded-circle">
+                                    <div class="avatar-xs">
+                                        <span class="avatar-title rounded-circle bg-primary">
+                                            <i class="ri-calendar-event-line"></i>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <h5 class="mb-1">{{ $user->name }}</h5>
-                                    <p class="text-muted mb-0">{{ $user->email }}</p>
-                                    <span class="badge bg-{{ $user->status === 'aprovado' ? 'success' : ($user->status === 'pendente' ? 'warning' : 'danger') }} mt-1">
-                                        {{ ucfirst($user->status) }}
-                                    </span>
+                                    <h6 class="mb-1">Assembleia Geral Ordinária</h6>
+                                    <p class="text-muted mb-0">28 de Agosto, 2024 - 19:00</p>
+                                    <small class="text-muted">Local: Sede da AMCIG</small>
                                 </div>
                             </div>
                             
-                            <div class="border-top pt-3">
-                                <div class="row text-center">
-                                    <div class="col-6">
-                                        <h6 class="mb-1">{{ ucfirst($user->tipo_associado) }}</h6>
-                                        <p class="text-muted mb-0">Tipo</p>
-                                    </div>
-                                    <div class="col-6">
-                                        <h6 class="mb-1">{{ $user->telefone }}</h6>
-                                        <p class="text-muted mb-0">Telefone</p>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <span class="avatar-title rounded-circle bg-success">
+                                            <i class="ri-calendar-event-line"></i>
+                                        </span>
                                     </div>
                                 </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Reunião do Comitê</h6>
+                                    <p class="text-muted mb-0">30 de Agosto, 2024 - 15:00</p>
+                                    <small class="text-muted">Local: Online</small>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="#" class="btn btn-outline-primary btn-sm">Ver Todas as Reuniões</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-xl-8">
+                <div class="col-xl-6">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Informações de Endereço</h5>
+                            <h5 class="card-title mb-0">Documentos Recentes</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-2">
-                                        <strong>Endereço:</strong><br>
-                                        {{ $user->logradouro }}, {{ $user->numero }}
-                                        @if($user->complemento)
-                                            - {{ $user->complemento }}
-                                        @endif
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>Bairro:</strong> {{ $user->bairro }}
-                                    </p>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <span class="avatar-title rounded-circle bg-info">
+                                            <i class="ri-file-text-line"></i>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="mb-2">
-                                        <strong>Cidade:</strong> {{ $user->cidade }}/{{ $user->uf }}
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>CEP:</strong> {{ $user->cep }}
-                                    </p>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Estatuto Atualizado</h6>
+                                    <p class="text-muted mb-0">Atualizado em 26/08/2024</p>
+                                    <small class="text-muted">Versão 2.1</small>
                                 </div>
                             </div>
                             
-                            @if($user->isComerciante())
-                                <div class="border-top pt-3 mt-3">
-                                    <h6 class="text-primary mb-2">Informações do Comércio</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="mb-1"><strong>Nome:</strong> {{ $user->nome_comercio }}</p>
-                                            <p class="mb-1"><strong>Ramo:</strong> {{ ucfirst($user->ramo_atividade) }}</p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p class="mb-1"><strong>Endereço:</strong> {{ $user->endereco_comercio }}</p>
-                                        </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <span class="avatar-title rounded-circle bg-warning">
+                                            <i class="ri-file-text-line"></i>
+                                        </span>
                                     </div>
                                 </div>
-                            @endif
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Regimento Interno</h6>
+                                    <p class="text-muted mb-0">Atualizado em 25/08/2024</p>
+                                    <small class="text-muted">Versão 1.5</small>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="#" class="btn btn-outline-info btn-sm">Ver Todos os Documentos</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Cards de Acesso Rápido -->
-            @if($user->status === 'aprovado')
-                <div class="row">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Próximas Reuniões</p>
-                                        <h4 class="mb-0">2</h4>
-                                    </div>
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-items-center justify-content-center">
-                                            <span class="avatar-title">
-                                                <i class="ri-calendar-event-line font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <a href="#" class="btn btn-primary btn-sm">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Documentos</p>
-                                        <h4 class="mb-0">15</h4>
-                                    </div>
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-items-center justify-content-center">
-                                            <span class="avatar-title">
-                                                <i class="ri-file-text-line font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <a href="#" class="btn btn-success btn-sm">Acessar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Mensalidades</p>
-                                        <h4 class="mb-0">Em dia</h4>
-                                    </div>
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-items-center justify-content-center">
-                                            <span class="avatar-title">
-                                                <i class="ri-bank-card-line font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <a href="#" class="btn btn-info btn-sm">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Notificações</p>
-                                        <h4 class="mb-0">3</h4>
-                                    </div>
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-items-center justify-content-center">
-                                            <span class="avatar-title">
-                                                <i class="ri-notification-line font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <a href="#" class="btn btn-warning btn-sm">Ver Todas</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Atividades Recentes -->
-                <div class="row">
-                    <div class="col-xl-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Próximas Assembleias</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="avatar-xs">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="ri-calendar-event-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Assembleia Geral Ordinária</h6>
-                                        <p class="text-muted mb-0">28 de Agosto, 2024 - 19:00</p>
-                                        <small class="text-muted">Local: Sede da AMCIG</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="avatar-xs">
-                                            <span class="avatar-title rounded-circle bg-success">
-                                                <i class="ri-calendar-event-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Reunião do Comitê</h6>
-                                        <p class="text-muted mb-0">30 de Agosto, 2024 - 15:00</p>
-                                        <small class="text-muted">Local: Online</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center">
-                                    <a href="#" class="btn btn-outline-primary btn-sm">Ver Todas as Reuniões</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Documentos Recentes</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="avatar-xs">
-                                            <span class="avatar-title rounded-circle bg-info">
-                                                <i class="ri-file-text-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Estatuto Atualizado</h6>
-                                        <p class="text-muted mb-0">Atualizado em 26/08/2024</p>
-                                        <small class="text-muted">Versão 2.1</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="avatar-xs">
-                                            <span class="avatar-title rounded-circle bg-warning">
-                                                <i class="ri-file-text-line"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Regimento Interno</h6>
-                                        <p class="text-muted mb-0">Atualizado em 25/08/2024</p>
-                                        <small class="text-muted">Versão 1.5</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center">
-                                    <a href="#" class="btn btn-outline-info btn-sm">Ver Todos os Documentos</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-        </div>
-    </div>
-</div>
+        @endif
+    </div><!--End container-fluid-->
+</main><!--End app-wrapper-->
 @endsection
