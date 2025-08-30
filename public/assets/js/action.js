@@ -44,33 +44,6 @@
             mask: '00000-000'
         });
         
-        // Função para validar CPF
-        function validarCPF(cpf) {
-            cpf = cpf.replace(/\D/g, '');
-            if (cpf.length !== 11) return false;
-            
-            // Verifica se todos os dígitos são iguais
-            if (/^(\d)\1+$/.test(cpf)) return false;
-            
-            // Validação do primeiro dígito verificador
-            let soma = 0;
-            for (let i = 0; i < 9; i++) {
-                soma += parseInt(cpf.charAt(i)) * (10 - i);
-            }
-            let resto = 11 - (soma % 11);
-            let dv1 = resto < 2 ? 0 : resto;
-            
-            // Validação do segundo dígito verificador
-            soma = 0;
-            for (let i = 0; i < 10; i++) {
-                soma += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            resto = 11 - (soma % 11);
-            let dv2 = resto < 2 ? 0 : resto;
-            
-            return parseInt(cpf.charAt(9)) === dv1 && parseInt(cpf.charAt(10)) === dv2;
-        }
-        
         // Função para validar email
         function validarEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -174,11 +147,11 @@
                 } else if (campo.type === 'select-one') {
                     valido = campo.value !== '';
                 } else if (campo.id === 'cpf') {
-                    valido = campo.value.replace(/\D/g, '').length === 11 && validarCPF(campo.value);
+                    valido = campo.value.replace(/\D/g, '').length === 11;
                 } else if (campo.id === 'telefone') {
                     valido = campo.value.replace(/\D/g, '').length >= 10;
                 } else if (campo.id === 'cep') {
-                    valido = campo.value.replace(/\D/g, '').length === 8 && validarCepSaoMateus(campo.value);
+                    valido = campo.value.replace(/\D/g, '').length === 8;
                 } else if (campo.id === 'confirmarSenha') {
                     valido = campo.value === senhaInput.value && campo.value.length > 0;
                 } else if (campo.id === 'dataNascimento') {
@@ -222,15 +195,6 @@
              }
         }
         
-        // Função para validar se o CEP é de São Mateus-ES
-        function validarCepSaoMateus(cep) {
-            const cepLimpo = cep.replace(/\D/g, '');
-            const cepNumero = parseInt(cepLimpo);
-            
-            // Range de CEPs de São Mateus-ES: 29940-000 a 29949-999
-            return cepNumero >= 29940000 && cepNumero <= 29949999;
-        }
-        
         // Função para buscar CEP
         async function buscarCep(cep) {
             try {
@@ -238,25 +202,6 @@
                 
                 if (cep.length !== 8) {
                     throw new Error('CEP deve ter 8 dígitos');
-                }
-                
-                // Verificar se o CEP é de São Mateus-ES
-                if (!validarCepSaoMateus(cep)) {
-                    // Mostrar modal de CEP inválido
-                    const modal = new bootstrap.Modal(document.getElementById('cepInvalidoModal'));
-                    modal.show();
-                    
-                    // Limpar campos e aplicar validação inválida
-                    cepInput.value = '';
-                    logradouroInput.value = '';
-                    bairroInput.value = '';
-                    validarCampo(cepInput, false);
-                    validarCampo(logradouroInput, false);
-                    validarCampo(bairroInput, false);
-                    
-                    // Focar no campo CEP para correção
-                    cepInput.focus();
-                    return;
                 }
                 
                 cepInput.classList.add('is-loading');
@@ -328,11 +273,11 @@
             
             const camposObrigatorios = [
                 nomeInput.value.trim().length > 0,
-                cpfInput.value.replace(/\D/g, '').length === 11 && validarCPF(cpfInput.value),
+                cpfInput.value.replace(/\D/g, '').length === 11,
                 dataNascimentoInput.value && validarDataNascimento(dataNascimentoInput.value),
                 telefoneInput.value.replace(/\D/g, '').length >= 10,
                 emailInput.value && validarEmail(emailInput.value),
-                cepInput.value.replace(/\D/g, '').length === 8 && validarCepSaoMateus(cepInput.value),
+                cepInput.value.replace(/\D/g, '').length === 8,
                 logradouroInput.value.trim().length > 0,
                 bairroInput.value.trim().length > 0,
                 // cidadeInput.value.trim().length > 0, // Campo fixo - sempre válido
@@ -368,7 +313,7 @@
         });
         
         cpfInput.addEventListener('input', () => {
-            const cpfValido = cpfInput.value.replace(/\D/g, '').length === 11 && validarCPF(cpfInput.value);
+            const cpfValido = cpfInput.value.replace(/\D/g, '').length === 11;
             validarCampo(cpfInput, cpfValido);
             verificarFormularioValido();
         });

@@ -32,30 +32,6 @@
     <!-- IMask para máscaras -->
     <script src="https://unpkg.com/imask"></script>
     
-    <!-- Modal de CEP Inválido -->
-    <div class="modal fade" id="cepInvalidoModal" tabindex="-1" aria-labelledby="cepInvalidoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="cepInvalidoModalLabel">
-                        <i class="ri-error-warning-line me-2"></i>CEP Não Permitido
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-0">
-                        <strong>O CEP informado não é permitido.</strong>
-                    </p>
-                    <p class="text-muted mb-0">
-                        Devido a restrições da associação, apenas moradores e comerciantes residentes em <strong>São Mateus-ES</strong> podem se cadastrar.
-                    </p>
-                    
-                </div>
-               
-            </div>
-        </div>
-    </div>
-    
     <!-- CSS personalizado para validação -->
     <style>
         .is-loading {
@@ -510,7 +486,7 @@
                             <div class="col-md-6 mb-4">
                                 <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="cidade" name="cidade" value="São Mateus" readonly>
-                                <div class="form-text">Apenas moradores e comerciantes de São Mateus podem se associar</div>
+                                <div class="form-text">Cidade padrão da associação</div>
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="uf" class="form-label">UF <span class="text-danger">*</span></label>
