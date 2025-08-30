@@ -142,7 +142,7 @@
                                     <h4 class="mb-0">2</h4>
                                 </div>
                                 <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-items-center justify-content-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center">
                                         <span class="avatar-title">
                                             <i class="ri-calendar-event-line font-size-24"></i>
                                         </span>
@@ -165,7 +165,7 @@
                                     <h4 class="mb-0">15</h4>
                                 </div>
                                 <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-items-center justify-content-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center">
                                         <span class="avatar-title">
                                             <i class="ri-file-text-line font-size-24"></i>
                                         </span>
@@ -188,7 +188,7 @@
                                     <h4 class="mb-0">Em dia</h4>
                                 </div>
                                 <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-items-center justify-content-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-info d-flex align-items-center justify-content-center">
                                         <span class="avatar-title">
                                             <i class="ri-bank-card-line font-size-24"></i>
                                         </span>
@@ -211,7 +211,7 @@
                                     <h4 class="mb-0">3</h4>
                                 </div>
                                 <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-items-center justify-content-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center">
                                         <span class="avatar-title">
                                             <i class="ri-notification-line font-size-24"></i>
                                         </span>
@@ -234,34 +234,16 @@
                             <h5 class="card-title mb-0">Próximas Assembleias</h5>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar-xs">
-                                        <span class="avatar-title rounded-circle bg-primary">
-                                            <i class="ri-calendar-event-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Assembleia Geral Ordinária</h6>
-                                    <p class="text-muted mb-0">28 de Agosto, 2024 - 19:00</p>
-                                    <small class="text-muted">Local: Sede da AMCIG</small>
-                                </div>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Assembleia Geral Ordinária</h6>
+                                <p class="text-muted mb-0">28 de Agosto, 2024 - 19:00</p>
+                                <small class="text-muted">Local: Sede da AMCIG</small>
                             </div>
                             
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar-xs">
-                                        <span class="avatar-title rounded-circle bg-success">
-                                            <i class="ri-calendar-event-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Reunião do Comitê</h6>
-                                    <p class="text-muted mb-0">30 de Agosto, 2024 - 15:00</p>
-                                    <small class="text-muted">Local: Online</small>
-                                </div>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Reunião do Comitê</h6>
+                                <p class="text-muted mb-0">30 de Agosto, 2024 - 15:00</p>
+                                <small class="text-muted">Local: Online</small>
                             </div>
                             
                             <div class="text-center">
@@ -277,34 +259,16 @@
                             <h5 class="card-title mb-0">Documentos Recentes</h5>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar-xs">
-                                        <span class="avatar-title rounded-circle bg-info">
-                                            <i class="ri-file-text-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Estatuto Atualizado</h6>
-                                    <p class="text-muted mb-0">Atualizado em 26/08/2024</p>
-                                    <small class="text-muted">Versão 2.1</small>
-                                </div>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Estatuto Atualizado</h6>
+                                <p class="text-muted mb-0">Atualizado em 26/08/2024</p>
+                                <small class="text-muted">Versão 2.1</small>
                             </div>
                             
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar-xs">
-                                        <span class="avatar-title rounded-circle bg-warning">
-                                            <i class="ri-file-text-line"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Regimento Interno</h6>
-                                    <p class="text-muted mb-0">Atualizado em 25/08/2024</p>
-                                    <small class="text-muted">Versão 1.5</small>
-                                </div>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Regimento Interno</h6>
+                                <p class="text-muted mb-0">Atualizado em 25/08/2024</p>
+                                <small class="text-muted">Versão 1.5</small>
                             </div>
                             
                             <div class="text-center">
