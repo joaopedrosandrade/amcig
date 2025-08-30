@@ -124,53 +124,9 @@
         <!-- Cards de Acesso Rápido -->
         @if($user->status === 'aprovado')
             <div class="row">
-                <div class="col-xl-3 col-md-6">
-                    <div class="card mini-stats-wid">
-                        <div class="card-body">
-                            <div class="d-flex">
-                                <div class="flex-grow-1">
-                                    <p class="text-muted fw-medium">Próximas Reuniões</p>
-                                    <h4 class="mb-0">2</h4>
-                                </div>
-                                <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center">
-                                        <span class="avatar-title">
-                                            <i class="ri-calendar-event-line font-size-24"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <a href="#" class="btn btn-primary btn-sm">Ver Detalhes</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
 
-                <div class="col-xl-3 col-md-6">
-                    <div class="card mini-stats-wid">
-                        <div class="card-body">
-                            <div class="d-flex">
-                                <div class="flex-grow-1">
-                                    <p class="text-muted fw-medium">Documentos</p>
-                                    <h4 class="mb-0">15</h4>
-                                </div>
-                                <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center">
-                                        <span class="avatar-title">
-                                            <i class="ri-file-text-line font-size-24"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <a href="#" class="btn btn-success btn-sm">Acessar</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
+                <div class="col-xl-12 col-md-6">
                     <div class="card mini-stats-wid">
                         <div class="card-body">
                             <div class="d-flex">
@@ -193,28 +149,7 @@
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6">
-                    <div class="card mini-stats-wid">
-                        <div class="card-body">
-                            <div class="d-flex">
-                                <div class="flex-grow-1">
-                                    <p class="text-muted fw-medium">Notificações</p>
-                                    <h4 class="mb-0">3</h4>
-                                </div>
-                                <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center">
-                                        <span class="avatar-title">
-                                            <i class="ri-notification-line font-size-24"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <a href="#" class="btn btn-warning btn-sm">Ver Todas</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              
             </div>
 
             <!-- Atividades Recentes -->
