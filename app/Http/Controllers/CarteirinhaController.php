@@ -22,12 +22,12 @@ class CarteirinhaController extends Controller
         $user = User::where('matricula', $matricula)->first();
         
         if (!$user) {
-            abort(404, 'Associado não encontrado');
+            return view('carteirinha.invalida', ['matricula' => $matricula]);
         }
         
         // Verifica se o associado está aprovado
         if ($user->status !== 'aprovado') {
-            abort(403, 'Associado não está aprovado');
+            return view('carteirinha.invalida', ['matricula' => $matricula, 'motivo' => 'nao_aprovado']);
         }
         
         // Gera um token único para a carteirinha (baseado na matrícula e timestamp)
@@ -55,12 +55,12 @@ class CarteirinhaController extends Controller
         $user = User::where('matricula', $matricula)->first();
         
         if (!$user) {
-            abort(404, 'Associado não encontrado');
+            return view('carteirinha.invalida', ['matricula' => $matricula]);
         }
         
         // Verifica se o associado está aprovado
         if ($user->status !== 'aprovado') {
-            abort(403, 'Associado não está aprovado');
+            return view('carteirinha.invalida', ['matricula' => $matricula, 'motivo' => 'nao_aprovado']);
         }
         
         // Gera um token único para a carteirinha

@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/', 'FrontController@associadoCreate');
+Route::get('/', 'FrontController@associadoCreate')->name('associado.index');;
 Route::post('/associado/store', 'FrontController@associadoStore')->name('associado.store');
 Route::get('/associado/success', 'FrontController@associadoSuccess')->name('associado.success');
 
