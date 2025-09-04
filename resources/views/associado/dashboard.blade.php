@@ -60,13 +60,13 @@
                                     <div class="text-center">
                                         <h6 class="text-primary mb-2">Carteirinha de Associado</h6>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="#" class="btn btn-outline-primary btn-sm" title="Visualizar Carteirinha">
+                                            <a href="{{ route('carteirinha.show', $user->matricula) }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Visualizar Carteirinha">
                                                 <i class="ri-eye-line me-1"></i>
                                                 Visualizar
                                             </a>
-                                            <a href="#" class="btn btn-outline-success btn-sm" title="Baixar Carteirinha">
-                                                <i class="ri-download-line me-1"></i>
-                                                Baixar
+                                            <a href="{{ route('carteirinha.print', $user->matricula) }}" target="_blank" class="btn btn-outline-success btn-sm" title="Imprimir Carteirinha">
+                                                <i class="ri-printer-line me-1"></i>
+                                                Imprimir
                                             </a>
                                         </div>
                                     </div>

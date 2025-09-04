@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
+
+class CarteirinhaController extends Controller
+{
+    /**
+     * Exibe a carteirinha virtual do associado
+     *
+     * @param string $matricula
+     * @return \Illuminate\View\View
+     */
+    public function show($matricula)
+    {
+        // Busca o usuário pela matrícula
+        $user = User::where('matricula', $matricula)->first();
+        
+        if (!$user) {
+            abort(404, 'Associado não encontrado');
+        }
+        
+        // Verifica se o associado está aprovado
+        if ($user->status !== 'aprovado') {
+            abort(403, 'Associado não está aprovado');
+        }
+        
+        // Gera um token único para a carteirinha (baseado na matrícula e timestamp)
+        $token = $this->gerarTokenCarteirinha($user);
+        
+        return view('carteirinha.show', compact('user', 'token'));
+    }
+    
+    /**
+     * Exibe a carteirinha para impressão
+     *
+     * @param string $matricula
+     * @return \Illuminate\View\View
+     */
+    public function print($matricula)
+    {
+        // Busca o usuário pela matrícula
+        $user = User::where('matricula', $matricula)->first();
+        
+        if (!$user) {
+            abort(404, 'Associado não encontrado');
+        }
+        
+        // Verifica se o associado está aprovado
+        if ($user->status !== 'aprovado') {
+            abort(403, 'Associado não está aprovado');
+        }
+        
+        // Gera um token único para a carteirinha
+        $token = $this->gerarTokenCarteirinha($user);
+        
+        return view('carteirinha.print', compact('user', 'token'));
+    }
+    
+    /**
+     * Gera um token único para a carteirinha
+     *
+     * @param User $user
+     * @return string
+     */
+    private function gerarTokenCarteirinha($user)
+    {
+        // Cria um token único baseado na matrícula, ID e timestamp
+        $dados = $user->matricula . '|' . $user->id . '|' . now()->timestamp;
+        return base64_encode($dados);
+    }
+    
+    /**
+     * Valida se o token da carteirinha é válido
+     *
+     * @param string $token
+     * @return bool
+     */
+    public function validarToken($token)
+    {
+        try {
+            $dados = base64_decode($token);
+            $partes = explode('|', $dados);
+            
+            if (count($partes) !== 3) {
+                return false;
+            }
+            
+            $matricula = $partes[0];
+            $userId = $partes[1];
+            $timestamp = $partes[2];
+            
+            // Verifica se o token não expirou (24 horas)
+            if (now()->timestamp - $timestamp > 86400) {
+                return false;
+            }
+            
+            // Verifica se o usuário existe e está aprovado
+            $user = User::where('matricula', $matricula)
+                       ->where('id', $userId)
+                       ->where('status', 'aprovado')
+                       ->first();
+            
+            return $user !== null;
+            
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
