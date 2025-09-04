@@ -14,6 +14,10 @@
                                 <td>{{ $associado->name }}</td>
                             </tr>
                             <tr>
+                                <td class="fw-semibold">Matrícula:</td>
+                                <td>{{ $associado->matricula ?? 'Não informado' }}</td>
+                            </tr>
+                            <tr>
                                 <td class="fw-semibold">Email:</td>
                                 <td>{{ $associado->email }}</td>
                             </tr>

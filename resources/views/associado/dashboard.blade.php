@@ -41,11 +41,15 @@
                         
                         <div class="border-top pt-3">
                             <div class="row text-center">
-                                <div class="col-6">
+                                <div class="col-4">
                                     <p class="text-muted mb-0">Tipo</p>
                                     <h6 class="mb-1">{{ ucfirst($user->tipo_associado) }}</h6>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
+                                    <p class="text-muted mb-0">Matrícula</p>
+                                    <h6 class="mb-1">{{ $user->matricula }}</h6>
+                                </div>
+                                <div class="col-4">
                                     <p class="text-muted mb-0">Telefone</p>
                                     <h6 class="mb-1">{{ $user->telefone }}</h6>
                                 </div>

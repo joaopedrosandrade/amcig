@@ -29,7 +29,7 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Nome</th>
-                                       
+                                        <th>Matrícula</th>
                                         <th>CPF</th>
                                         <th>Tipo</th>
                                         <th>Data Cadastro</th>
@@ -47,7 +47,7 @@
                                         <tr>
                                             <td>{{ $associado->id }}</td>
                                             <td>{{ $associado->name }}</td>
-                                          
+                                            <td>{{ $associado->matricula ?? 'N/A' }}</td>
                                             <td>{{ $associado->cpf ?? 'N/A' }}</td>
                                             <td>{{ $tipos[$associado->tipo_associado] ?? 'N/A' }}</td>
                                             <td>{{ $associado->created_at_formatted }}</td>

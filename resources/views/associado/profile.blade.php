@@ -57,7 +57,13 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <label for="matricula" class="form-label">Matrícula</label>
+                                    <input type="text" class="form-control" value="{{ $user->matricula }}" readonly>
+                                    <small class="text-muted">Matrícula gerada automaticamente</small>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
                                     <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
                                     <input type="tel" class="form-control @error('telefone') is-invalid @enderror" id="telefone" name="telefone" value="{{ old('telefone', $user->telefone) }}" required>
                                     @error('telefone')
@@ -65,7 +71,7 @@
                                     @enderror
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="tipo_associado" class="form-label">Tipo de Associado</label>
                                     <input type="text" class="form-control" value="{{ ucfirst($user->tipo_associado) }}" readonly>
                                 </div>

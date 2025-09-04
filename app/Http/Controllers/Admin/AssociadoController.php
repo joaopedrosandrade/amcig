@@ -31,6 +31,7 @@ class AssociadoController extends Controller
             'name',
             'email',
             'cpf',
+            'matricula',
             'tipo_associado',
             'status',
             'created_at'
@@ -61,6 +62,7 @@ class AssociadoController extends Controller
             'name',
             'email',
             'cpf',
+            'matricula',
             'tipo_associado',
             'status',
             'created_at'
@@ -87,6 +89,7 @@ class AssociadoController extends Controller
                 'name' => $associado->name,
                 'email' => $associado->email,
                 'cpf' => $associado->cpf ?? 'N/A',
+                'matricula' => $associado->matricula ?? 'N/A',
                 'tipo_associado' => $tipos[$associado->tipo_associado] ?? 'N/A',
                 'status' => $badges[$status] ?? '<span class="badge bg-warning">Pendente</span>',
                 'created_at' => $associado->created_at ? $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') : 'N/A',
