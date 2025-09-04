@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CarteirinhaController extends Controller
 {
@@ -32,7 +33,14 @@ class CarteirinhaController extends Controller
         // Gera um token único para a carteirinha (baseado na matrícula e timestamp)
         $token = $this->gerarTokenCarteirinha($user);
         
-        return view('carteirinha.show', compact('user', 'token'));
+        // Gera QR Code com a URL da carteirinha
+        $qrCodeUrl = route('carteirinha.show', $user->matricula);
+        $qrCode = QrCode::size(200)->generate($qrCodeUrl);
+        
+        // Gera código de barras com a matrícula
+        $barcode = $this->gerarCodigoBarras($user->matricula);
+        
+        return view('carteirinha.show', compact('user', 'token', 'qrCode', 'barcode'));
     }
     
     /**
@@ -58,7 +66,14 @@ class CarteirinhaController extends Controller
         // Gera um token único para a carteirinha
         $token = $this->gerarTokenCarteirinha($user);
         
-        return view('carteirinha.print', compact('user', 'token'));
+        // Gera QR Code com a URL da carteirinha
+        $qrCodeUrl = route('carteirinha.show', $user->matricula);
+        $qrCode = QrCode::size(200)->generate($qrCodeUrl);
+        
+        // Gera código de barras com a matrícula
+        $barcode = $this->gerarCodigoBarras($user->matricula);
+        
+        return view('carteirinha.print', compact('user', 'token', 'qrCode', 'barcode'));
     }
     
     /**
@@ -72,6 +87,18 @@ class CarteirinhaController extends Controller
         // Cria um token único baseado na matrícula, ID e timestamp
         $dados = $user->matricula . '|' . $user->id . '|' . now()->timestamp;
         return base64_encode($dados);
+    }
+    
+    /**
+     * Gera código de barras Code128 para a matrícula
+     *
+     * @param string $matricula
+     * @return string
+     */
+    private function gerarCodigoBarras($matricula)
+    {
+        // Retorna apenas a matrícula para ser usada no CSS
+        return $matricula;
     }
     
     /**

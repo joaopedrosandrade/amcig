@@ -173,6 +173,61 @@
             line-height: 1.2;
         }
         
+        .qr-code {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+        
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .barcode {
+            width: 250px;
+            height: 50px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 4px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+            letter-spacing: 3px;
+        }
+        
+        .barcode::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 3px;
+            background: repeating-linear-gradient(
+                to right,
+                #000 0px,
+                #000 3px,
+                transparent 3px,
+                transparent 6px
+            );
+            transform: translateY(-50%);
+        }
+        
         .watermark {
             position: absolute;
             top: 50%;
@@ -237,6 +292,11 @@
                     </div>
                     
                     <div class="info-row">
+                        <span class="info-label">Membro desde:</span>
+                        <span class="info-value">{{ $user->data_aprovacao ? $user->data_aprovacao->format('d/m/Y') : $user->created_at->format('d/m/Y') }}</span>
+                    </div>
+                    
+                    <div class="info-row">
                         <span class="info-label">Cidade:</span>
                         <span class="info-value">{{ $user->cidade }}/{{ $user->uf }}</span>
                     </div>
@@ -244,6 +304,14 @@
                 
                 <div class="matricula">
                     {{ $user->matricula }}
+                </div>
+                
+                <div class="qr-code">
+                    {!! $qrCode !!}
+                </div>
+                
+                <div class="barcode">
+                    {{ $barcode }}
                 </div>
             </div>
             

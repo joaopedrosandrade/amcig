@@ -55,7 +55,7 @@
         .header {
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 10px 20px;
             text-align: center;
             position: relative;
         }
@@ -207,24 +207,26 @@
         .qr-code {
             width: 100px;
             height: 100px;
-            background: #f8f9fa;
+            background: white;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 5px;
         }
         
-        .qr-code i {
-            font-size: 50px;
-            color: #6c757d;
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .barcode {
             width: 200px;
             height: 40px;
-            background: #f8f9fa;
+            background: white;
             border: 2px solid #e9ecef;
             border-radius: 4px;
             margin: 0 auto 15px;
@@ -232,6 +234,12 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            letter-spacing: 2px;
         }
         
         .barcode::before {
@@ -345,7 +353,7 @@
                     </div>
                     <div>
                         <div class="titulo">AMCIG</div>
-                        <div class="subtitulo">Associação de Moradores e Comerciantes da Ilha de Guriri</div>
+                        <div class="subtitulo">Associação de Moradores e Comerciantes da <br> Ilha de Guriri-ES</div>
                     </div>
                 </div>
             </div>
@@ -372,6 +380,12 @@
                             <span class="info-value">{{ $user->cpf }}</span>
                         </div>
                         
+                        <div class="info-row">
+                            <span class="info-label">Associado desde:</span>
+                            <span class="info-value">{{ $user->data_aprovacao ? $user->data_aprovacao->format('d/m/Y') : $user->created_at->format('d/m/Y') }}</span>
+                        </div>
+                        
+                        
                        
                     </div>
                     
@@ -391,16 +405,18 @@
             <div class="watermark">AMCIG</div>
             
             <div class="verso-header">
-                <h3>  {{ $user->matricula }}</h3>
+                <h3> MATRÍCULA: {{ $user->matricula }}</h3>
             </div>
             
             <div class="verso-content">
                 <div>
                     <div class="qr-code">
-                        <i class="fas fa-qrcode"></i>
+                        {!! $qrCode !!}
                     </div>
                     
-                    <div class="barcode"></div>
+                    <div class="barcode">
+                        {{ $barcode }}
+                    </div>
                 </div>
                 
                 <div class="validade">
