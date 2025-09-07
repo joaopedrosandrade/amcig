@@ -48,8 +48,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="watermark" patternUnits="userSpaceOnUse" width="25" height="25"><text x="12.5" y="12.5" font-size="10" fill="rgba(0,0,0,0.02)" text-anchor="middle">AMCIG</text></pattern></defs><rect width="100" height="100" fill="url(%23watermark)"/></svg>');
+            background: url('{{ asset("assets/images/guriri.jpg") }}') center center;
+            background-size: cover;
+            opacity: 0.07;
             pointer-events: none;
+            z-index: 0;
         }
         
         .header {

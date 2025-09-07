@@ -81,3 +81,4 @@ class MatriculaTestSeeder extends Seeder
         $this->command->info('Verifique as matrículas geradas automaticamente.');
     }
 }
+
