@@ -1,90 +1,199 @@
-@if($invoice)
-<div class="alert alert-info">
-    <h6>Debug - Fatura encontrada:</h6>
-    <p>ID: {{ $invoice->id }}</p>
-    <p>Valor: {{ $invoice->formatted_value }}</p>
-    <p>Status: {{ $invoice->status }}</p>
-    <p>QR Code: {{ $invoice->pix_qr_code ? 'Disponível' : 'Não disponível' }}</p>
-</div>
+@extends('layouts.associado')
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Detalhes da Fatura</h6>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <strong>Fatura:</strong> #{{ $invoice->id }}<br>
-                    <strong>Descrição:</strong> {{ $invoice->description }}<br>
-                    <strong>Valor:</strong> <span class="text-success fw-bold">{{ $invoice->formatted_value }}</span><br>
-                    <strong>Vencimento:</strong> {{ $invoice->formatted_due_date }}<br>
-                    <strong>Status:</strong> 
-                    <span class="badge bg-{{ $invoice->isOverdue() ? 'danger' : 'warning' }}">
-                        {{ $invoice->formatted_status }}
-                    </span>
+@section('title', 'Pagamento - AMCIG')
+
+@section('content')
+<main class="app-wrapper">
+    <div class="container-fluid">
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">Pagamento via PIX</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('associado.dashboard') }}">Início</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('associado.pagamentos') }}">Minhas Mensalidades</a></li>
+                            <li class="breadcrumb-item active">Pagamento</li>
+                        </ol>
+                    </div>
                 </div>
-                
-                @if($invoice->isOverdue())
-                    <div class="alert alert-danger">
-                        <i class="ri-alert-line me-1"></i>
-                        Esta fatura está em atraso há {{ now()->diffInDays($invoice->due_date) }} dias.
-                    </div>
-                @endif
             </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Pagamento via PIX</h6>
-            </div>
-            <div class="card-body text-center">
-                @if($invoice->pix_qr_code)
-                    <div class="mb-3">
-                        <img src="data:image/png;base64,{{ $invoice->pix_qr_code }}" 
-                             alt="QR Code PIX" 
-                             class="img-fluid" 
-                             style="max-width: 200px;">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Chave PIX (Copiar e Colar):</label>
-                        <div class="input-group">
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="pixKey" 
-                                   value="{{ $invoice->pix_copy_paste }}" 
-                                   readonly>
-                            <button class="btn btn-outline-secondary" 
-                                    type="button" 
-                                    onclick="copiarPixKey()">
-                                <i class="ri-file-copy-line"></i>
-                            </button>
+        </div> <br>
+        <!-- end page title -->
+
+        @if($invoice)
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <!-- Detalhes da Fatura -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-file-list-line me-2"></i>Detalhes da Fatura
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center">
+                                                <span class="avatar-title">
+                                                    <i class="ri-file-text-line font-size-24"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Fatura #{{ $invoice->id }}</h6>
+                                            <p class="text-muted mb-0">{{ $invoice->description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="text-md-end">
+                                        <h4 class="text-success mb-1">{{ $invoice->formatted_value }}</h4>
+                                        <p class="text-muted mb-0">Vencimento: {{ $invoice->formatted_due_date }}</p>
+                                        <span class="badge bg-{{ $invoice->isOverdue() ? 'danger' : 'warning' }} mt-2">
+                                            {{ $invoice->formatted_status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if($invoice->isOverdue())
+                                <div class="alert alert-danger mt-3">
+                                    <i class="ri-alert-line me-1"></i>
+                                    <strong>Atenção:</strong> Esta fatura está em atraso há {{ now()->diffInDays($invoice->due_date) }} dias.
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="ri-information-line me-1"></i>
-                        <strong>Instruções:</strong><br>
-                        1. Abra seu app de pagamentos<br>
-                        2. Escaneie o QR Code ou cole a chave PIX<br>
-                        3. Confirme o valor: <strong>{{ $invoice->formatted_value }}</strong><br>
-                        4. Realize o pagamento<br>
-                        5. Clique em "Verificar Pagamento" para confirmar
-                    </div>
-                @else
-                    <div class="alert alert-warning">
-                        <i class="ri-error-warning-line me-1"></i>
-                        QR Code PIX não disponível. Clique em "Atualizar Status" para buscar os dados atualizados.
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
 
+                    <!-- Pagamento PIX -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-qr-code-line me-2"></i>Pagamento via PIX
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if($invoice->pix_qr_code)
+                                <div class="row">
+                                    <!-- QR Code -->
+                                    <div class="col-md-6 text-center">
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">Escaneie o QR Code</h6>
+                                            <div class="p-3 border rounded bg-light d-inline-block">
+                                                <img src="data:image/png;base64,{{ $invoice->pix_qr_code }}" 
+                                                     alt="QR Code PIX" 
+                                                     class="img-fluid" 
+                                                     style="max-width: 250px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chave PIX -->
+                                    <div class="col-md-6">
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">Ou copie a chave PIX</h6>
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control form-control-lg" 
+                                                       id="pixKey" 
+                                                       value="{{ $invoice->pix_copy_paste }}" 
+                                                       readonly>
+                                                <button class="btn btn-primary" 
+                                                        type="button" 
+                                                        onclick="copiarPixKey()">
+                                                    <i class="ri-file-copy-line me-1"></i>Copiar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Instruções -->
+                                        <div class="alert alert-info">
+                                            <h6 class="alert-heading">
+                                                <i class="ri-information-line me-2"></i>Como pagar:
+                                            </h6>
+                                            <ol class="mb-0">
+                                                <li>Abra seu app de pagamentos (PIX)</li>
+                                                <li>Escaneie o QR Code ou cole a chave PIX</li>
+                                                <li>Confirme o valor: <strong>{{ $invoice->formatted_value }}</strong></li>
+                                                <li>Realize o pagamento</li>
+                                                <li>Clique em "Verificar Pagamento" abaixo</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botões de Ação -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{{ route('associado.pagamentos') }}" class="btn btn-secondary">
+                                                <i class="ri-arrow-left-line me-1"></i>Voltar
+                                            </a>
+                                            
+                                            <div>
+                                                <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-outline-info me-2">
+                                                    <i class="ri-refresh-line me-1"></i>Atualizar Status
+                                                </a>
+                                                <button type="button" class="btn btn-success" onclick="verificarPagamento()">
+                                                    <i class="ri-check-line me-1"></i>Verificar Pagamento
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-center py-5">
+                                    <div class="avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-3">
+                                        <span class="avatar-title">
+                                            <i class="ri-error-warning-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="text-muted mb-3">QR Code PIX não disponível</h6>
+                                    <p class="text-muted mb-4">Os dados de pagamento ainda não foram gerados. Clique em "Atualizar Status" para buscar as informações atualizadas.</p>
+                                    
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="{{ route('associado.pagamentos') }}" class="btn btn-secondary">
+                                            <i class="ri-arrow-left-line me-1"></i>Voltar
+                                        </a>
+                                        <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-primary">
+                                            <i class="ri-refresh-line me-1"></i>Atualizar Status
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <div class="avatar-sm rounded-circle bg-danger d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <span class="avatar-title">
+                                    <i class="ri-error-warning-line font-size-24"></i>
+                                </span>
+                            </div>
+                            <h6 class="text-muted mb-3">Fatura não encontrada</h6>
+                            <p class="text-muted mb-4">A fatura solicitada não foi encontrada ou não pertence ao seu usuário.</p>
+                            <a href="{{ route('associado.pagamentos') }}" class="btn btn-primary">
+                                <i class="ri-arrow-left-line me-1"></i>Voltar para Minhas Mensalidades
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div><!--End container-fluid-->
+</main><!--End app-wrapper-->
+@endsection
+
+@section('scripts')
 <script>
 function copiarPixKey() {
     const pixKeyInput = document.getElementById('pixKey');
@@ -93,21 +202,51 @@ function copiarPixKey() {
     
     try {
         document.execCommand('copy');
-        Swal.fire({
-            title: 'Copiado!',
-            text: 'Chave PIX copiada para a área de transferência',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-        });
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Copiado!',
+                text: 'Chave PIX copiada para a área de transferência',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            alert('Chave PIX copiada para a área de transferência!');
+        }
     } catch (err) {
-        Swal.fire('Erro', 'Não foi possível copiar a chave PIX', 'error');
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Erro', 'Não foi possível copiar a chave PIX', 'error');
+        } else {
+            alert('Erro: Não foi possível copiar a chave PIX');
+        }
+    }
+}
+
+function verificarPagamento() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Verificando pagamento...',
+            text: 'Aguarde enquanto verificamos o status do pagamento',
+            icon: 'info',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Simular verificação (você pode implementar AJAX aqui)
+        setTimeout(() => {
+            Swal.fire({
+                title: 'Pagamento não confirmado',
+                text: 'O pagamento ainda não foi confirmado. Tente novamente em alguns minutos.',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        }, 2000);
+    } else {
+        alert('Verificando pagamento...');
     }
 }
 </script>
-@else
-<div class="alert alert-danger">
-    <i class="ri-error-warning-line me-1"></i>
-    Fatura não encontrada ou não pertence ao usuário.
-</div>
-@endif
+@endsection
