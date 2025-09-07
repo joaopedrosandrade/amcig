@@ -145,3 +145,22 @@ class User extends Authenticatable
     {
         return $this->tipo_associado === 'comerciante' ? 15.00 : 10.00;
     }
+
+    /**
+     * Boot do modelo para gerar matrícula automaticamente
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::created(function ($user) {
+            // Gera a matrícula após o usuário ser criado (quando o ID já existe)
+            $matricula = $user->gerarMatricula();
+            
+            // Atualiza apenas o campo matricula sem disparar eventos
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update(['matricula' => $matricula]);
+        });
+    }
+}

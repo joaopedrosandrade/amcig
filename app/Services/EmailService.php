@@ -312,7 +312,22 @@ class EmailService
                         </ul>
                     </div>
                     
+                    <div class="info-box" style="background-color: #fff3cd; border-left-color: #ffc107;">
+                        <h3 style="color: #856404;">💳 IMPORTANTE - Pagamento da Mensalidade</h3>
+                        <p style="color: #856404;"><strong>Sua assinatura foi criada automaticamente!</strong></p>
+                        <p style="color: #856404;"><strong>Valor da mensalidade:</strong> R$ ' . number_format($dadosAssociado['valor_mensalidade'], 2, ',', '.') . ' por mês</p>
+                        <p style="color: #856404;"><strong>Forma de pagamento:</strong> PIX (mais rápido e seguro)</p>
+                        <p style="color: #856404;"><strong>Próximo vencimento:</strong> ' . ($dadosAssociado['proximo_vencimento'] ?? 'Em breve') . '</p>
+                        <p style="color: #856404; margin-top: 15px;"><strong>⚠️ Atenção:</strong> Para manter sua associação ativa, é necessário quitar a mensalidade até a data de vencimento.</p>
+                    </div>
+                    
                     <div style="text-align: center; margin: 30px 0;">
+                        <a href="' . route('associado.pagamentos') . '" class="cta-button" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                            💰 Acessar Minhas Mensalidades
+                        </a>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
                         <a href="' . route('carteirinha.show', $dadosAssociado['matricula']) . '" class="cta-button">
                             🎫 Acessar Minha Carteirinha Virtual
                         </a>
@@ -321,6 +336,19 @@ class EmailService
                     <div class="message">
                         <p><strong>📞 Precisa de ajuda?</strong></p>
                         <p>Se você tiver alguma dúvida ou precisar de ajuda, entre em contato conosco através dos canais oficiais da AMCIG.</p>
+                    </div>
+                    
+                    <div class="info-box" style="background-color: #e7f3ff; border-left-color: #007bff;">
+                        <h3 style="color: #004085;">📋 Instruções para Pagamento</h3>
+                        <p style="color: #004085;"><strong>Como pagar sua mensalidade:</strong></p>
+                        <ol style="color: #004085; margin-left: 20px; margin-top: 10px;">
+                            <li>Acesse o link "Minhas Mensalidades" acima</li>
+                            <li>Visualize sua fatura pendente</li>
+                            <li>Escaneie o QR Code PIX com seu aplicativo bancário</li>
+                            <li>Ou copie a chave PIX e cole no seu app</li>
+                            <li>Confirme o pagamento</li>
+                        </ol>
+                        <p style="color: #004085; margin-top: 15px;"><strong>💡 Dica:</strong> O pagamento via PIX é instantâneo e você receberá confirmação imediatamente!</p>
                     </div>
                 </div>
                 

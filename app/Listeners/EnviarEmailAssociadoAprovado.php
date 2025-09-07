@@ -33,6 +33,9 @@ class EnviarEmailAssociadoAprovado
         try {
             Log::info('Iniciando envio de email de aprovação para: ' . $event->user->email);
             
+            // Buscar assinatura ativa do usuário
+            $subscription = $event->user->activeSubscription();
+            
             $dadosAssociado = [
                 'nome' => $event->user->name,
                 'email' => $event->user->email,
@@ -40,6 +43,8 @@ class EnviarEmailAssociadoAprovado
                 'matricula' => $event->user->matricula,
                 'tipo_associado' => $event->user->tipo_associado,
                 'data_aprovacao' => $event->user->data_aprovacao,
+                'valor_mensalidade' => $event->user->getMonthlyValue(),
+                'proximo_vencimento' => $subscription ? $subscription->next_due_date->format('d/m/Y') : null,
             ];
 
             $resultado = $this->emailService->enviarEmailAprovacao(

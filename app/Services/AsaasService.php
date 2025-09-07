@@ -6,7 +6,8 @@ use App\User;
 use App\Subscription;
 use App\Invoice;
 use App\Payment;
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class AsaasService
@@ -30,38 +31,46 @@ class AsaasService
     public function createCustomer(User $user): array
     {
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->post($this->baseUrl . '/customers', [
-                'name' => $user->name,
-                'email' => $user->email,
-                'cpfCnpj' => preg_replace('/[^0-9]/', '', $user->cpf),
-                'phone' => $user->telefone,
-                'mobilePhone' => $user->telefone,
-                'postalCode' => preg_replace('/[^0-9]/', '', $user->cep),
-                'address' => $user->logradouro,
-                'addressNumber' => $user->numero,
-                'complement' => $user->complemento,
-                'province' => $user->bairro,
-                'city' => $user->cidade,
-                'state' => $user->uf,
-                'externalReference' => $user->id,
-                'notificationDisabled' => false
+            $client = new Client();
+            
+            $response = $client->post($this->baseUrl . '/customers', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'cpfCnpj' => preg_replace('/[^0-9]/', '', $user->cpf),
+                    'phone' => $user->telefone,
+                    'mobilePhone' => $user->telefone,
+                    'postalCode' => preg_replace('/[^0-9]/', '', $user->cep),
+                    'address' => $user->logradouro,
+                    'addressNumber' => $user->numero,
+                    'complement' => $user->complemento,
+                    'province' => $user->bairro,
+                    'city' => $user->cidade,
+                    'state' => $user->uf,
+                    'externalReference' => $user->id,
+                    'notificationDisabled' => false
+                ]
             ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                Log::info('Cliente criado no Asaas', ['user_id' => $user->id, 'asaas_customer_id' => $data['id']]);
-                return $data;
-            } else {
-                Log::error('Erro ao criar cliente no Asaas', [
-                    'user_id' => $user->id,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao criar cliente no Asaas: ' . $response->body());
-            }
+            $data = json_decode($response->getBody()->getContents(), true);
+            Log::info('Cliente criado no Asaas', ['user_id' => $user->id, 'asaas_customer_id' => $data['id']]);
+            return $data;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao criar cliente no Asaas', [
+                'user_id' => $user->id,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao criar cliente no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao criar cliente no Asaas', [
                 'user_id' => $user->id,
@@ -77,42 +86,49 @@ class AsaasService
     public function createSubscription(User $user, string $asaasCustomerId): array
     {
         try {
+            $client = new Client();
             $monthlyValue = $user->getMonthlyValue();
             $nextDueDate = now()->addMonth()->format('Y-m-d');
 
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->post($this->baseUrl . '/subscriptions', [
-                'customer' => $asaasCustomerId,
-                'billingType' => 'PIX',
-                'value' => $monthlyValue,
-                'nextDueDate' => $nextDueDate,
-                'cycle' => 'MONTHLY',
-                'description' => 'Mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
-                'externalReference' => 'AMCIG_' . $user->id,
-                'endDate' => null, // Assinatura sem data de fim
-                'maxPayments' => null, // Sem limite de pagamentos
-                'sendPaymentByEmail' => true,
-                'notificationDisabled' => false
+            $response = $client->post($this->baseUrl . '/subscriptions', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => [
+                    'customer' => $asaasCustomerId,
+                    'billingType' => 'PIX',
+                    'value' => $monthlyValue,
+                    'nextDueDate' => $nextDueDate,
+                    'cycle' => 'MONTHLY',
+                    'description' => 'Mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
+                    'externalReference' => 'AMCIG_' . $user->id,
+                    'endDate' => null, // Assinatura sem data de fim
+                    'maxPayments' => null, // Sem limite de pagamentos
+                    'sendPaymentByEmail' => true,
+                    'notificationDisabled' => false
+                ]
             ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                Log::info('Assinatura criada no Asaas', [
-                    'user_id' => $user->id,
-                    'asaas_subscription_id' => $data['id'],
-                    'value' => $monthlyValue
-                ]);
-                return $data;
-            } else {
-                Log::error('Erro ao criar assinatura no Asaas', [
-                    'user_id' => $user->id,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao criar assinatura no Asaas: ' . $response->body());
-            }
+            $data = json_decode($response->getBody()->getContents(), true);
+            Log::info('Assinatura criada no Asaas', [
+                'user_id' => $user->id,
+                'asaas_subscription_id' => $data['id'],
+                'value' => $monthlyValue
+            ]);
+            return $data;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao criar assinatura no Asaas', [
+                'user_id' => $user->id,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao criar assinatura no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao criar assinatura no Asaas', [
                 'user_id' => $user->id,
@@ -128,21 +144,28 @@ class AsaasService
     public function getSubscription(string $asaasSubscriptionId): array
     {
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->get($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId);
+            $client = new Client();
+            
+            $response = $client->get($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId, [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                Log::error('Erro ao obter assinatura no Asaas', [
-                    'subscription_id' => $asaasSubscriptionId,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao obter assinatura no Asaas: ' . $response->body());
-            }
+            return json_decode($response->getBody()->getContents(), true);
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao obter assinatura no Asaas', [
+                'subscription_id' => $asaasSubscriptionId,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao obter assinatura no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao obter assinatura no Asaas', [
                 'subscription_id' => $asaasSubscriptionId,
@@ -158,21 +181,28 @@ class AsaasService
     public function getSubscriptionPayments(string $asaasSubscriptionId): array
     {
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->get($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId . '/payments');
+            $client = new Client();
+            
+            $response = $client->get($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId . '/payments', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                Log::error('Erro ao obter cobranças da assinatura no Asaas', [
-                    'subscription_id' => $asaasSubscriptionId,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao obter cobranças da assinatura no Asaas: ' . $response->body());
-            }
+            return json_decode($response->getBody()->getContents(), true);
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao obter cobranças da assinatura no Asaas', [
+                'subscription_id' => $asaasSubscriptionId,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao obter cobranças da assinatura no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao obter cobranças da assinatura no Asaas', [
                 'subscription_id' => $asaasSubscriptionId,
@@ -188,21 +218,28 @@ class AsaasService
     public function getPayment(string $asaasPaymentId): array
     {
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->get($this->baseUrl . '/payments/' . $asaasPaymentId);
+            $client = new Client();
+            
+            $response = $client->get($this->baseUrl . '/payments/' . $asaasPaymentId, [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                Log::error('Erro ao obter pagamento no Asaas', [
-                    'payment_id' => $asaasPaymentId,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao obter pagamento no Asaas: ' . $response->body());
-            }
+            return json_decode($response->getBody()->getContents(), true);
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao obter pagamento no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao obter pagamento no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao obter pagamento no Asaas', [
                 'payment_id' => $asaasPaymentId,
@@ -218,25 +255,32 @@ class AsaasService
     public function cancelSubscription(string $asaasSubscriptionId): array
     {
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->delete($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId);
+            $client = new Client();
+            
+            $response = $client->delete($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId, [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                Log::info('Assinatura cancelada no Asaas', [
-                    'subscription_id' => $asaasSubscriptionId
-                ]);
-                return $data;
-            } else {
-                Log::error('Erro ao cancelar assinatura no Asaas', [
-                    'subscription_id' => $asaasSubscriptionId,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
-                throw new \Exception('Erro ao cancelar assinatura no Asaas: ' . $response->body());
-            }
+            $data = json_decode($response->getBody()->getContents(), true);
+            Log::info('Assinatura cancelada no Asaas', [
+                'subscription_id' => $asaasSubscriptionId
+            ]);
+            return $data;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao cancelar assinatura no Asaas', [
+                'subscription_id' => $asaasSubscriptionId,
+                'status' => $statusCode,
+                'response' => $body
+            ]);
+            throw new \Exception('Erro ao cancelar assinatura no Asaas: ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao cancelar assinatura no Asaas', [
                 'subscription_id' => $asaasSubscriptionId,
