@@ -86,6 +86,119 @@ Route::get('/test-asaas', function() {
     return response()->json($result);
 })->name('test.asaas');
 
+// Rota para testar criação de cliente no Asaas (apenas para desenvolvimento)
+Route::get('/test-create-customer', function() {
+    // Buscar um usuário para teste
+    $user = App\User::where('status', 'aprovado')->first();
+    
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Nenhum usuário aprovado encontrado para teste'
+        ]);
+    }
+    
+    $asaasService = new App\Services\AsaasService();
+    
+    try {
+        $result = $asaasService->createCustomer($user);
+        return response()->json([
+            'success' => true,
+            'message' => 'Cliente criado com sucesso',
+            'data' => $result
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'user_data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'cpf' => $user->cpf
+            ]
+        ]);
+    }
+})->name('test.create.customer');
+
+// Rota para testar validação de CPF (apenas para desenvolvimento)
+Route::get('/test-cpf/{cpf}', function($cpf) {
+    $asaasService = new App\Services\AsaasService();
+    
+    try {
+        // Usar reflexão para acessar o método privado
+        $reflection = new ReflectionClass($asaasService);
+        $method = $reflection->getMethod('validarCPF');
+        $method->setAccessible(true);
+        
+        $cpfValidado = $method->invoke($asaasService, $cpf);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'CPF válido',
+            'cpf_original' => $cpf,
+            'cpf_validado' => $cpfValidado
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'cpf_original' => $cpf
+        ]);
+    }
+})->name('test.cpf');
+
+// Rota para testar criação de assinatura no Asaas (apenas para desenvolvimento)
+Route::get('/test-create-subscription/{user_id}', function($user_id) {
+    try {
+        $user = App\User::find($user_id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Usuário não encontrado']);
+        }
+
+        $asaasService = new App\Services\AsaasService();
+        
+        // Primeiro criar cliente
+        $customerData = $asaasService->createCustomer($user);
+        $asaasCustomerId = $customerData['id'];
+        
+        // Depois criar assinatura
+        $subscriptionData = $asaasService->createSubscription($user, $asaasCustomerId);
+        
+        return response()->json([
+            'success' => true,
+            'customer' => $customerData,
+            'subscription' => $subscriptionData
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('test.create.subscription');
+
+// Rota para testar busca de pagamentos de uma assinatura (apenas para desenvolvimento)
+Route::get('/test-subscription-payments/{subscription_id}', function($subscription_id) {
+    try {
+        $asaasService = new App\Services\AsaasService();
+        $payments = $asaasService->getSubscriptionPayments($subscription_id);
+        
+        return response()->json([
+            'success' => true,
+            'subscription_id' => $subscription_id,
+            'payments' => $payments
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('test.subscription.payments');
+
 
 
 

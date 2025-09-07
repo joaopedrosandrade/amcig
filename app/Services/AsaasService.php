@@ -26,6 +26,38 @@ class AsaasService
     }
 
     /**
+     * Validar e formatar CPF
+     */
+    private function validarCPF($cpf): string
+    {
+        // Remove caracteres não numéricos
+        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+        
+        // Verifica se tem 11 dígitos
+        if (strlen($cpf) !== 11) {
+            throw new \Exception('CPF deve ter 11 dígitos');
+        }
+        
+        // Verifica se não é uma sequência de números iguais
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            throw new \Exception('CPF inválido: sequência de números iguais');
+        }
+        
+        // Validação básica do CPF
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cpf[$c] != $d) {
+                throw new \Exception('CPF inválido: dígito verificador incorreto');
+            }
+        }
+        
+        return $cpf;
+    }
+
+    /**
      * Criar cliente no Asaas
      */
     public function createCustomer(User $user): array
@@ -33,6 +65,13 @@ class AsaasService
         // Validar dados obrigatórios
         if (empty($user->name) || empty($user->email) || empty($user->cpf)) {
             throw new \Exception('Dados obrigatórios não encontrados: nome, email ou CPF');
+        }
+
+        // Validar e formatar CPF
+        try {
+            $cpfValidado = $this->validarCPF($user->cpf);
+        } catch (\Exception $e) {
+            throw new \Exception('CPF inválido: ' . $e->getMessage());
         }
 
         try {
@@ -44,7 +83,7 @@ class AsaasService
             $data = [
                 'name' => $user->name,
                 'email' => $user->email,
-                'cpfCnpj' => preg_replace('/[^0-9]/', '', $user->cpf),
+                'cpfCnpj' => $cpfValidado,
                 'phone' => $user->telefone ?: '',
                 'mobilePhone' => $user->telefone ?: '',
                 'postalCode' => preg_replace('/[^0-9]/', '', $user->cep ?: ''),
@@ -62,7 +101,22 @@ class AsaasService
                 'user_id' => $user->id,
                 'url' => $this->baseUrl . '/customers',
                 'data' => $data,
-                'api_key_preview' => substr($this->apiKey, 0, 20) . '...'
+                'api_key_preview' => substr($this->apiKey, 0, 20) . '...',
+                'cpf_original' => $user->cpf,
+                'cpf_validado' => $cpfValidado,
+                'user_data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'cpf' => $user->cpf,
+                    'telefone' => $user->telefone,
+                    'cep' => $user->cep,
+                    'logradouro' => $user->logradouro,
+                    'numero' => $user->numero,
+                    'complemento' => $user->complemento,
+                    'bairro' => $user->bairro,
+                    'cidade' => $user->cidade,
+                    'uf' => $user->uf
+                ]
             ]);
             
             $response = $client->post($this->baseUrl . '/customers', [
@@ -87,7 +141,9 @@ class AsaasService
                 'status' => $statusCode,
                 'response' => $body,
                 'message' => $e->getMessage(),
-                'url' => $this->baseUrl . '/customers'
+                'url' => $this->baseUrl . '/customers',
+                'cpf_original' => $user->cpf,
+                'cpf_validado' => $cpfValidado ?? 'não validado'
             ]);
             throw new \Exception('Erro ao criar cliente no Asaas (Status: ' . $statusCode . '): ' . $body);
         } catch (\Exception $e) {
@@ -95,7 +151,8 @@ class AsaasService
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'url' => $this->baseUrl . '/customers'
+                'url' => $this->baseUrl . '/customers',
+                'cpf_original' => $user->cpf
             ]);
             throw new \Exception('Exceção ao criar cliente no Asaas: ' . $e->getMessage());
         }
@@ -111,31 +168,43 @@ class AsaasService
             $monthlyValue = $user->getMonthlyValue();
             $nextDueDate = now()->addMonth()->format('Y-m-d');
 
+            $subscriptionData = [
+                'customer' => $asaasCustomerId,
+                'billingType' => 'PIX',
+                'value' => $monthlyValue,
+                'nextDueDate' => $nextDueDate,
+                'cycle' => 'MONTHLY',
+                'description' => 'Mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
+                'externalReference' => 'AMCIG_' . $user->id,
+                'endDate' => null, // Assinatura sem data de fim
+                'maxPayments' => null, // Sem limite de pagamentos
+                'sendPaymentByEmail' => true,
+                'notificationDisabled' => false
+            ];
+
+            Log::info('Tentando criar assinatura no Asaas', [
+                'user_id' => $user->id,
+                'url' => $this->baseUrl . '/subscriptions',
+                'data' => $subscriptionData,
+                'api_key_preview' => substr($this->apiKey, 0, 20) . '...'
+            ]);
+
             $response = $client->post($this->baseUrl . '/subscriptions', [
                 'headers' => [
                     'access_token' => $this->apiKey,
                     'Content-Type' => 'application/json'
                 ],
-                'json' => [
-                    'customer' => $asaasCustomerId,
-                    'billingType' => 'PIX',
-                    'value' => $monthlyValue,
-                    'nextDueDate' => $nextDueDate,
-                    'cycle' => 'MONTHLY',
-                    'description' => 'Mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
-                    'externalReference' => 'AMCIG_' . $user->id,
-                    'endDate' => null, // Assinatura sem data de fim
-                    'maxPayments' => null, // Sem limite de pagamentos
-                    'sendPaymentByEmail' => true,
-                    'notificationDisabled' => false
-                ]
+                'json' => $subscriptionData,
+                'timeout' => 30,
+                'verify' => false // Para desenvolvimento
             ]);
 
             $data = json_decode($response->getBody()->getContents(), true);
             Log::info('Assinatura criada no Asaas', [
                 'user_id' => $user->id,
                 'asaas_subscription_id' => $data['id'],
-                'value' => $monthlyValue
+                'value' => $monthlyValue,
+                'response_data' => $data
             ]);
             return $data;
 
@@ -144,18 +213,22 @@ class AsaasService
             $statusCode = $response ? $response->getStatusCode() : 'unknown';
             $body = $response ? $response->getBody()->getContents() : 'unknown';
             
-            Log::error('Erro ao criar assinatura no Asaas', [
+            Log::error('Erro ao criar assinatura no Asaas (RequestException)', [
                 'user_id' => $user->id,
                 'status' => $statusCode,
-                'response' => $body
+                'response' => $body,
+                'message' => $e->getMessage(),
+                'url' => $this->baseUrl . '/subscriptions'
             ]);
-            throw new \Exception('Erro ao criar assinatura no Asaas: ' . $body);
+            throw new \Exception('Erro ao criar assinatura no Asaas (Status: ' . $statusCode . '): ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao criar assinatura no Asaas', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $this->baseUrl . '/subscriptions'
             ]);
-            throw $e;
+            throw new \Exception('Exceção ao criar assinatura no Asaas: ' . $e->getMessage());
         }
     }
 
