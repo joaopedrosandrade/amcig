@@ -1,5 +1,15 @@
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Verificar se estamos na página de cadastro de associado
+        // Se não houver barra de progresso, não executar o script
+        const barraProgresso = document.getElementById('barraProgresso');
+        const progressoTexto = document.getElementById('progressoTexto');
+        
+        if (!barraProgresso || !progressoTexto) {
+            console.log('Action.js: Elementos de barra de progresso não encontrados. Script não será executado.');
+            return;
+        }
+        
         // Elementos do formulário
         const form = document.querySelector('form');
         const submitBtn = document.querySelector('button[type="submit"]');
@@ -28,9 +38,15 @@
         const ufInput = document.getElementById('uf');
         
         // Elementos da barra de progresso
-        const barraProgresso = document.getElementById('barraProgresso');
-        const progressoTexto = document.getElementById('progressoTexto');
         const camposRestantes = document.getElementById('camposRestantes');
+        
+        // Verificar se todos os elementos essenciais existem
+        if (!form || !submitBtn || !cepInput || !cpfInput || !telefoneInput || !emailInput || 
+            !nomeInput || !dataNascimentoInput || !tipoAssociadoInput || !senhaInput || 
+            !confirmarSenhaInput || !aceiteTermosInput) {
+            console.log('Action.js: Elementos essenciais do formulário não encontrados. Script não será executado.');
+            return;
+        }
         
         // Aplicar máscaras com IMask
         const cpfMask = IMask(cpfInput, {
@@ -162,7 +178,12 @@
                 } else if (campo.id === 'dataNascimento') {
                     valido = campo.value && validarDataNascimento(campo.value);
                 } else if (campo.id === 'email') {
-                    valido = campo.value.trim().length > 0 && validarEmail(campo.value);
+                    // Se está validando, usar o estado anterior para evitar inconsistências
+                    if (emailValidating) {
+                        valido = campo.classList.contains('is-valid');
+                    } else {
+                        valido = campo.value.trim().length > 0 && validarEmail(campo.value);
+                    }
                 } else {
                     valido = campo.value.trim().length > 0;
                 }
@@ -177,6 +198,18 @@
             // Calcular porcentagem
             const totalCampos = todosCampos.length;
             const porcentagem = Math.round((camposPreenchidos / totalCampos) * 100);
+            
+            // Debug para identificar problemas
+            if (porcentagem === 92) {
+                console.log('Debug: Barra em 92% - Campos:', {
+                    total: totalCampos,
+                    preenchidos: camposPreenchidos,
+                    faltando: camposFaltando,
+                    emailValidating: emailValidating,
+                    emailValue: emailInput.value,
+                    emailValid: emailInput.classList.contains('is-valid')
+                });
+            }
             
             // Atualizar barra de progresso
             barraProgresso.style.width = porcentagem + '%';
@@ -334,16 +367,35 @@
             verificarFormularioValido();
         });
         
-        // Debounce para validação de email
+        // Validação de email com debounce melhorado
         let emailTimeout;
+        let emailValidating = false;
         
         emailInput.addEventListener('input', () => {
+            // Marcar como validando para evitar inconsistências
+            emailValidating = true;
+            
+            // Limpar timeout anterior
             clearTimeout(emailTimeout);
+            
+            // Validação imediata para feedback visual
+            const emailValido = emailInput.value.trim().length > 0 && validarEmail(emailInput.value);
+            validarCampo(emailInput, emailValido);
+            
+            // Debounce para atualização da barra de progresso
             emailTimeout = setTimeout(() => {
-                const emailValido = emailInput.value.trim().length > 0 && validarEmail(emailInput.value);
-                validarCampo(emailInput, emailValido);
+                emailValidating = false;
                 verificarFormularioValido();
             }, 300); // Aguarda 300ms após parar de digitar
+        });
+        
+        // Validação adicional no blur do email
+        emailInput.addEventListener('blur', () => {
+            clearTimeout(emailTimeout);
+            emailValidating = false;
+            const emailValido = emailInput.value.trim().length > 0 && validarEmail(emailInput.value);
+            validarCampo(emailInput, emailValido);
+            verificarFormularioValido();
         });
         
         cepInput.addEventListener('blur', () => {

@@ -120,26 +120,153 @@ class AssociadoController extends Controller
     }
 
     /**
-     * Atualiza o status de um associado
+     * Exibe a listagem de associados pendentes
+     *
+     * @return \Illuminate\View\View
+     */
+    public function pendentes()
+    {
+        $associadosPendentes = User::select([
+            'id',
+            'name',
+            'email',
+            'cpf',
+            'matricula',
+            'tipo_associado',
+            'status',
+            'created_at'
+        ])->where('status', 'pendente')->get();
+
+        // Formata as datas no fuso horário de São Paulo
+        foreach ($associadosPendentes as $associado) {
+            if ($associado->created_at) {
+                $associado->created_at_formatted = $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i');
+            } else {
+                $associado->created_at_formatted = 'N/A';
+            }
+        }
+
+        return view('admin.associados.pendentes', compact('associadosPendentes'));
+    }
+
+    /**
+     * Retorna os dados para o DataTable dos associados pendentes
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateStatus(Request $request)
+    public function pendentesData(Request $request)
     {
-        $request->validate([
-            'id' => 'required|exists:users,id',
-            'status' => 'required|in:ativo,inativo,suspenso'
-        ]);
+        $associados = User::select([
+            'id',
+            'name',
+            'email',
+            'cpf',
+            'matricula',
+            'tipo_associado',
+            'status',
+            'created_at'
+        ])->where('status', 'pendente')->get();
 
-        $associado = User::findOrFail($request->id);
-        $associado->update(['status' => $request->status]);
+        $data = [];
+        foreach ($associados as $associado) {
+            $tipos = [
+                'morador' => 'Morador',
+                'comerciante' => 'Comerciante'
+            ];
+
+            $data[] = [
+                'id' => $associado->id,
+                'name' => $associado->name,
+                'email' => $associado->email,
+                'cpf' => $associado->cpf ?? 'N/A',
+                'matricula' => $associado->matricula ?? 'N/A',
+                'tipo_associado' => $tipos[$associado->tipo_associado] ?? 'N/A',
+                'created_at' => $associado->created_at ? $associado->created_at->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') : 'N/A',
+                'actions' => '<div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info view-associado" data-id="' . $associado->id . '" title="Visualizar">
+                                    <i class="ri-eye-line"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success aprovar-associado" data-id="' . $associado->id . '" title="Aprovar">
+                                    <i class="ri-check-line"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger rejeitar-associado" data-id="' . $associado->id . '" title="Rejeitar">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>'
+            ];
+        }
 
         return response()->json([
-            'success' => true,
-            'message' => 'Status atualizado com sucesso!'
+            'data' => $data,
+            'recordsTotal' => count($data),
+            'recordsFiltered' => count($data)
         ]);
     }
 
+    /**
+     * Aprova um associado
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function aprovar(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id'
+        ]);
 
+        $associado = User::findOrFail($request->id);
+        
+        // Verifica se o associado está pendente
+        if ($associado->status !== 'pendente') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este associado não está pendente de aprovação.'
+            ], 400);
+        }
+
+        $associado->update([
+            'status' => 'aprovado',
+            'data_aprovacao' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Associado aprovado com sucesso!'
+        ]);
+    }
+
+    /**
+     * Rejeita um associado
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function rejeitar(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'motivo' => 'nullable|string|max:500'
+        ]);
+
+        $associado = User::findOrFail($request->id);
+        
+        // Verifica se o associado está pendente
+        if ($associado->status !== 'pendente') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este associado não está pendente de aprovação.'
+            ], 400);
+        }
+
+        $associado->update([
+            'status' => 'rejeitado'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Associado rejeitado com sucesso!'
+        ]);
+    }
 }

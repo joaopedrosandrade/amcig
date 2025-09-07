@@ -203,7 +203,7 @@
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseAssociados">
                             <li class="pe-slide-item"><a href="{{ route('admin.associados.index') }}" class="pe-nav-link">Cadastrados</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Aprovação</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.associados.pendentes') }}" class="pe-nav-link">Aprovação</a></li>
                                 </ul>
                             </li>
                     <li class="pe-slide pe-has-sub">
@@ -231,8 +231,8 @@
                 <!-- Widgets -->
                 <div class="sidebar-widget text-center">
                     <img src="{{asset('assets/images/sidebar-widget.png')}}" alt="Widget Image">
-                    <p class="text-muted fw-semibold">15 novas solicitações de associado</p>
-                    <button class="btn btn-primary rounded-pill w-100">Ver Solicitações</button>
+                    <p class="text-muted fw-semibold">{{ \App\User::where('status', 'pendente')->count() }} novas solicitações de associado</p>
+                    <a href="{{ route('admin.associados.pendentes') }}" class="btn btn-primary rounded-pill w-100">Ver Solicitações</a>
                 </div>
             </div>
         </nav>

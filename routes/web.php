@@ -57,6 +57,12 @@ Route::prefix('/admin')->group(function() {
             Route::get('/data', 'Admin\AssociadoController@data')->name('admin.associados.data');
             Route::get('/show', 'Admin\AssociadoController@show')->name('admin.associados.show');
             Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
+            
+            // Rotas para associados pendentes
+            Route::get('/pendentes', 'Admin\AssociadoController@pendentes')->name('admin.associados.pendentes');
+            Route::get('/pendentes/data', 'Admin\AssociadoController@pendentesData')->name('admin.associados.pendentes.data');
+            Route::post('/aprovar', 'Admin\AssociadoController@aprovar')->name('admin.associados.aprovar');
+            Route::post('/rejeitar', 'Admin\AssociadoController@rejeitar')->name('admin.associados.rejeitar');
         });
     });
 });

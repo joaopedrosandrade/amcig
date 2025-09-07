@@ -103,6 +103,7 @@ class EmailService
         <body>
             <div class="email-container">
                 <div class="header">
+                    <img src="' . asset('assets/images/logo-md.png') . '" alt="Logo AMCIG" class="logo">
                     <h1>AMCIG</h1>
                     <p>Associação de Moradores e Comerciantes da Ilha de Guriri</p>
                 </div>

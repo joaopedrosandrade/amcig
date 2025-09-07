@@ -31,11 +31,11 @@
                                             <i class="ri-user-star-line"></i>
                                         </div>
                                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                                            <span class="counter-value" data-target="20">117</span>
+                                            <span class="counter-value" data-target="{{ \App\User::where('status', 'aprovado')->count() }}">{{ \App\User::where('status', 'aprovado')->count() }}</span>
                                         </h2>
                                         <p class="mb-0 text-truncate fs-16 mb-1">Associados Ativos</p>
                                         <div class="mt-3">
-                                            <a href="#" class="btn btn-sm btn-primary">Ver Detalhes</a>
+                                            <a href="{{ route('admin.associados.index') }}" class="btn btn-sm btn-primary">Ver Detalhes</a>
                                         </div>
                                     </div>
                                 </div>
@@ -43,15 +43,15 @@
                             <div class="col-md-6 col-xl-3">
                                 <div class="card border shadow-none mb-0">
                                     <div class="card-body">
-                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-primary bg-light-subtle rounded-2 fs-4">
+                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-warning bg-light-subtle rounded-2 fs-4">
                                             <i class="ri-time-line"></i>
                                         </div>
                                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                                            <span class="counter-value" data-target="1">17</span>
+                                            <span class="counter-value" data-target="{{ \App\User::where('status', 'pendente')->count() }}">{{ \App\User::where('status', 'pendente')->count() }}</span>
                                         </h2>
                                         <p class="mb-0 text-truncate fs-16 mb-1">Associados aguardando aprovação</p>
                                         <div class="mt-3">
-                                            <a href="#" class="btn btn-sm btn-primary">Detalhes</a>
+                                            <a href="{{ route('admin.associados.pendentes') }}" class="btn btn-sm btn-warning">Ver Pendentes</a>
                                         </div>
                                     </div>
                                 </div>
@@ -59,11 +59,11 @@
                             <div class="col-md-6 col-xl-3">
                                 <div class="card border shadow-none mb-0">
                                     <div class="card-body">
-                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-primary bg-light-subtle rounded-2 fs-4">
+                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-success bg-light-subtle rounded-2 fs-4">
                                             <i class="ri-home-line"></i>
                                         </div>
                                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                                            <span class="counter-value" data-target="500">100</span>
+                                            <span class="counter-value" data-target="{{ \App\User::where('status', 'aprovado')->where('tipo_associado', 'morador')->count() }}">{{ \App\User::where('status', 'aprovado')->where('tipo_associado', 'morador')->count() }}</span>
                                         </h2>
                                         <p class="mb-0 text-truncate fs-16 mb-1">Moradores Associados</p>
                                         <div class="mt-3">
@@ -75,11 +75,11 @@
                             <div class="col-md-6 col-xl-3">
                                 <div class="card border shadow-none mb-0">
                                     <div class="card-body">
-                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-primary bg-light-subtle rounded-2 fs-4">
+                                        <div class="h-50px w-50px position-relative d-flex justify-content-center align-items-center text-info bg-light-subtle rounded-2 fs-4">
                                             <i class="ri-store-line"></i>
                                         </div>
                                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                                            <span class="counter-value" data-target="400">15</span>
+                                            <span class="counter-value" data-target="{{ \App\User::where('status', 'aprovado')->where('tipo_associado', 'comerciante')->count() }}">{{ \App\User::where('status', 'aprovado')->where('tipo_associado', 'comerciante')->count() }}</span>
                                         </h2>
                                         <p class="mb-0 text-truncate fs-16 mb-1">Comerciantes Associados</p>
                                         <div class="mt-3">
