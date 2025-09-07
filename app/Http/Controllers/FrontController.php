@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Events\AssociadoCadastrado;
 
 class FrontController extends Controller
 {
@@ -171,6 +172,9 @@ class FrontController extends Controller
             ]);
 
             DB::commit();
+
+            // Disparar evento para envio de email
+            event(new AssociadoCadastrado($user));
 
             return response()->json([
                 'success' => true,

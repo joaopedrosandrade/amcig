@@ -22,6 +22,7 @@
         
         // Campos de endereço
         const logradouroInput = document.getElementById('logradouro');
+        const numeroInput = document.getElementById('numero');
         const bairroInput = document.getElementById('bairro');
         const cidadeInput = document.getElementById('cidade');
         const ufInput = document.getElementById('uf');
@@ -46,8 +47,11 @@
         
         // Função para validar email
         function validarEmail(email) {
+            if (!email || email.trim().length === 0) {
+                return false;
+            }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+            return emailRegex.test(email.trim());
         }
         
         // Função para validar senha
@@ -119,6 +123,7 @@
                 { campo: emailInput, nome: 'Email' },
                 { campo: cepInput, nome: 'CEP' },
                 { campo: logradouroInput, nome: 'Logradouro' },
+                { campo: numeroInput, nome: 'Número' },
                 { campo: bairroInput, nome: 'Bairro' },
                 { campo: tipoAssociadoInput, nome: 'Tipo de Associado' },
                 { campo: senhaInput, nome: 'Senha' },
@@ -157,7 +162,7 @@
                 } else if (campo.id === 'dataNascimento') {
                     valido = campo.value && validarDataNascimento(campo.value);
                 } else if (campo.id === 'email') {
-                    valido = campo.value && validarEmail(campo.value);
+                    valido = campo.value.trim().length > 0 && validarEmail(campo.value);
                 } else {
                     valido = campo.value.trim().length > 0;
                 }
@@ -276,9 +281,10 @@
                 cpfInput.value.replace(/\D/g, '').length === 11,
                 dataNascimentoInput.value && validarDataNascimento(dataNascimentoInput.value),
                 telefoneInput.value.replace(/\D/g, '').length >= 10,
-                emailInput.value && validarEmail(emailInput.value),
+                emailInput.value.trim().length > 0 && validarEmail(emailInput.value),
                 cepInput.value.replace(/\D/g, '').length === 8,
                 logradouroInput.value.trim().length > 0,
+                numeroInput.value.trim().length > 0,
                 bairroInput.value.trim().length > 0,
                 // cidadeInput.value.trim().length > 0, // Campo fixo - sempre válido
                 // ufInput.value.trim().length === 2 && validarUF(ufInput.value), // Campo fixo - sempre válido
@@ -328,9 +334,16 @@
             verificarFormularioValido();
         });
         
+        // Debounce para validação de email
+        let emailTimeout;
+        
         emailInput.addEventListener('input', () => {
-            validarCampo(emailInput, emailInput.value && validarEmail(emailInput.value));
-            verificarFormularioValido();
+            clearTimeout(emailTimeout);
+            emailTimeout = setTimeout(() => {
+                const emailValido = emailInput.value.trim().length > 0 && validarEmail(emailInput.value);
+                validarCampo(emailInput, emailValido);
+                verificarFormularioValido();
+            }, 300); // Aguarda 300ms após parar de digitar
         });
         
         cepInput.addEventListener('blur', () => {
@@ -343,6 +356,11 @@
         
         logradouroInput.addEventListener('input', () => {
             validarCampo(logradouroInput, logradouroInput.value.trim().length > 0);
+            verificarFormularioValido();
+        });
+        
+        numeroInput.addEventListener('input', () => {
+            validarCampo(numeroInput, numeroInput.value.trim().length > 0);
             verificarFormularioValido();
         });
         
