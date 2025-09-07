@@ -109,8 +109,14 @@
                 <p class="text-muted">Esta ação não pode ser desfeita.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="confirmarAprovacao">Confirmar Aprovação</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelarAprovacao">Cancelar</button>
+                <button type="button" class="btn btn-success" id="confirmarAprovacao">
+                    <span class="btn-text">Confirmar Aprovação</span>
+                    <span class="btn-loading d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Processando...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -132,14 +138,72 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmarRejeicao">Confirmar Rejeição</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelarRejeicao">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmarRejeicao">
+                    <span class="btn-text">Confirmar Rejeição</span>
+                    <span class="btn-loading d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Processando...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de carregamento -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <h5 class="mb-2">Processando solicitação...</h5>
+                <p class="text-muted mb-0">Por favor, aguarde enquanto processamos sua solicitação.</p>
             </div>
         </div>
     </div>
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+    .btn-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    #loadingModal .modal-content {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    #loadingModal .spinner-border {
+        border-width: 0.3em;
+    }
+    
+    .btn-group .btn {
+        margin-right: 2px;
+    }
+    
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -203,6 +267,35 @@ $(document).ready(function() {
     var associadoIdParaAprovar = null;
     var associadoIdParaRejeitar = null;
 
+    // Função para mostrar estado de carregamento
+    function mostrarCarregamento(btnId, isLoading) {
+        const btn = document.getElementById(btnId);
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+        
+        if (isLoading) {
+            btn.disabled = true;
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+        } else {
+            btn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+        }
+    }
+
+    // Função para mostrar modal de carregamento
+    function mostrarModalCarregamento() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+        return loadingModal;
+    }
+
+    // Função para esconder modal de carregamento
+    function esconderModalCarregamento(modal) {
+        modal.hide();
+    }
+
     // Evento para visualizar detalhes do associado
     $(document).on('click', '.view-associado', function() {
         var associadoId = $(this).data('id');
@@ -237,6 +330,15 @@ $(document).ready(function() {
     // Confirmar aprovação
     $('#confirmarAprovacao').click(function() {
         if (associadoIdParaAprovar) {
+            // Mostrar estado de carregamento no botão
+            mostrarCarregamento('confirmarAprovacao', true);
+            
+            // Mostrar modal de carregamento
+            const loadingModal = mostrarModalCarregamento();
+            
+            // Fechar modal de confirmação
+            $('#aprovarModal').modal('hide');
+            
             $.ajax({
                 url: '{{ route("admin.associados.aprovar") }}',
                 type: 'POST',
@@ -246,14 +348,21 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#aprovarModal').modal('hide');
-                        // Recarrega a página para atualizar a tabela
-                        location.reload();
+                        // Mostrar mensagem de sucesso
+                        setTimeout(function() {
+                            esconderModalCarregamento(loadingModal);
+                            // Recarrega a página para atualizar a tabela
+                            location.reload();
+                        }, 1000);
                     } else {
+                        esconderModalCarregamento(loadingModal);
+                        mostrarCarregamento('confirmarAprovacao', false);
                         alert('Erro: ' + response.message);
                     }
                 },
                 error: function() {
+                    esconderModalCarregamento(loadingModal);
+                    mostrarCarregamento('confirmarAprovacao', false);
                     alert('Erro ao aprovar associado.');
                 }
             });
@@ -263,6 +372,15 @@ $(document).ready(function() {
     // Confirmar rejeição
     $('#confirmarRejeicao').click(function() {
         if (associadoIdParaRejeitar) {
+            // Mostrar estado de carregamento no botão
+            mostrarCarregamento('confirmarRejeicao', true);
+            
+            // Mostrar modal de carregamento
+            const loadingModal = mostrarModalCarregamento();
+            
+            // Fechar modal de confirmação
+            $('#rejeitarModal').modal('hide');
+            
             $.ajax({
                 url: '{{ route("admin.associados.rejeitar") }}',
                 type: 'POST',
@@ -273,18 +391,34 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#rejeitarModal').modal('hide');
-                        // Recarrega a página para atualizar a tabela
-                        location.reload();
+                        // Mostrar mensagem de sucesso
+                        setTimeout(function() {
+                            esconderModalCarregamento(loadingModal);
+                            // Recarrega a página para atualizar a tabela
+                            location.reload();
+                        }, 1000);
                     } else {
+                        esconderModalCarregamento(loadingModal);
+                        mostrarCarregamento('confirmarRejeicao', false);
                         alert('Erro: ' + response.message);
                     }
                 },
                 error: function() {
+                    esconderModalCarregamento(loadingModal);
+                    mostrarCarregamento('confirmarRejeicao', false);
                     alert('Erro ao rejeitar associado.');
                 }
             });
         }
+    });
+
+    // Resetar estado dos botões quando modais são fechados
+    $('#aprovarModal').on('hidden.bs.modal', function() {
+        mostrarCarregamento('confirmarAprovacao', false);
+    });
+
+    $('#rejeitarModal').on('hidden.bs.modal', function() {
+        mostrarCarregamento('confirmarRejeicao', false);
     });
 });
 </script>
