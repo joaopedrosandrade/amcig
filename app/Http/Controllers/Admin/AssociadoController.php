@@ -266,7 +266,31 @@ class AssociadoController extends Controller
             ]);
 
             // As faturas serão criadas automaticamente via webhook quando o Asaas gerar os pagamentos
-            // Não precisamos criar faturas manualmente aqui
+            // Mas vamos criar a primeira fatura se ela foi gerada imediatamente
+            if (isset($subscriptionData['first_payment'])) {
+                $firstPayment = $subscriptionData['first_payment'];
+                
+                Invoice::create([
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $associado->id,
+                    'asaas_payment_id' => $firstPayment['id'],
+                    'value' => $firstPayment['value'],
+                    'due_date' => \Carbon\Carbon::parse($firstPayment['dueDate']),
+                    'status' => $firstPayment['status'],
+                    'billing_type' => $firstPayment['billingType'],
+                    'description' => $firstPayment['description'],
+                    'invoice_url' => $firstPayment['invoiceUrl'] ?? null,
+                    'pix_qr_code' => $firstPayment['pixTransaction']['qrCode'] ?? null,
+                    'pix_copy_paste' => $firstPayment['pixTransaction']['payload'] ?? null,
+                    'asaas_data' => $firstPayment
+                ]);
+
+                Log::info('Primeira fatura criada localmente', [
+                    'user_id' => $associado->id,
+                    'invoice_id' => $firstPayment['id'],
+                    'subscription_id' => $subscription->id
+                ]);
+            }
 
             DB::commit();
 

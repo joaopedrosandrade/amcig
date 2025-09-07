@@ -3,216 +3,221 @@
 @section('title', 'Minhas Mensalidades - AMCIG')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Início</a></li>
-                        <li class="breadcrumb-item active">Minhas Mensalidades</li>
-                    </ol>
-                </div>
-                <h4 class="page-title">Minhas Mensalidades</h4>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Resumo da Assinatura -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="ri-subscription-line me-2"></i>Minha Assinatura
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if($subscription)
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Status:</span>
-                            <span class="badge bg-{{ $subscription->isActive() ? 'success' : ($subscription->isCancelled() ? 'danger' : 'warning') }}">
-                                {{ $subscription->isActive() ? 'Ativa' : ($subscription->isCancelled() ? 'Cancelada' : 'Inativa') }}
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Valor:</span>
-                            <span class="fw-semibold">{{ $subscription->formatted_value }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Próximo Vencimento:</span>
-                            <span class="fw-semibold">{{ $subscription->formatted_next_due_date }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Tipo:</span>
-                            <span class="fw-semibold">{{ ucfirst($subscription->billing_type) }}</span>
-                        </div>
-                        
-                        @if($subscription->isActive())
-                            <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="cancelarAssinatura()">
-                                <i class="ri-close-line me-1"></i>Cancelar Assinatura
-                            </button>
-                        @endif
-                    @else
-                        <div class="text-center py-3">
-                            <i class="ri-error-warning-line text-warning" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2 mb-0">Nenhuma assinatura encontrada</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Faturas Pendentes -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="ri-file-list-line me-2"></i>Faturas Pendentes
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if($invoices->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Fatura</th>
-                                        <th>Vencimento</th>
-                                        <th>Valor</th>
-                                        <th>Status</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($invoices as $invoice)
-                                        <tr>
-                                            <td>
-                                                <div>
-                                                    <strong>#{{ $invoice->id }}</strong>
-                                                    <br>
-                                                    <small class="text-muted">{{ $invoice->description }}</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="{{ $invoice->isOverdue() ? 'text-danger' : '' }}">
-                                                    {{ $invoice->formatted_due_date }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-semibold">{{ $invoice->formatted_value }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ $invoice->isOverdue() ? 'danger' : 'warning' }}">
-                                                    {{ $invoice->formatted_status }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="verFatura({{ $invoice->id }})">
-                                                        <i class="ri-eye-line"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="atualizarFatura({{ $invoice->id }})">
-                                                        <i class="ri-refresh-line"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="ri-checkbox-circle-line text-success" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2 mb-0">Nenhuma fatura pendente</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Histórico de Pagamentos -->
-    @if($payments->count() > 0)
-        <div class="row mt-4">
+<main class="app-wrapper">
+    <div class="container-fluid">
+        <!-- start page title -->
+        <div class="row">
             <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">Minhas Mensalidades</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('associado.dashboard') }}">Início</a></li>
+                            <li class="breadcrumb-item active">Minhas Mensalidades</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div> <br>
+        <!-- end page title -->
+
+        <!-- Mensagens de Sucesso/Erro -->
+        @if(session('success'))
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="row">
+            <!-- Resumo da Assinatura -->
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        @if($subscription)
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center">
+                                        <span class="avatar-title">
+                                            <i class="ri-subscription-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">Minha Assinatura</h5>
+                                    <p class="text-muted mb-0">Status: 
+                                        <span class="badge bg-{{ $subscription->isActive() ? 'success' : ($subscription->isCancelled() ? 'danger' : 'warning') }}">
+                                            {{ $subscription->isActive() ? 'Ativa' : ($subscription->isCancelled() ? 'Cancelada' : 'Inativa') }}
+                                        </span>
+                                    </p>
+                                    @if($subscription->isActive())
+                                        <p class="text-muted mb-0">Pagamentos: 
+                                            @if($user->getStatusPagamento() === 'inadimplente')
+                                                <span class="badge bg-danger">Inadimplente</span>
+                                                <small class="text-danger d-block">{{ $user->getDiasAtraso() }} dias em atraso</small>
+                                            @else
+                                                <span class="badge bg-success">Em dia</span>
+                                            @endif
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="border-top pt-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <p class="text-muted mb-0">Valor</p>
+                                        <h6 class="mb-1">{{ $subscription->formatted_value }}</h6>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="text-muted mb-0">Próximo Vencimento</p>
+                                        <h6 class="mb-1">{{ $subscription->formatted_next_due_date }}</h6>
+                                    </div>
+                                </div>
+                                
+                                <div class="row text-center mt-3">
+                                    <div class="col-12">
+                                        <p class="text-muted mb-0">Tipo de Pagamento</p>
+                                        <h6 class="mb-1">{{ ucfirst($subscription->billing_type) }}</h6>
+                                    </div>
+                                </div>
+                                
+                                @if($subscription->isActive())
+                                    <div class="border-top pt-3 mt-3">
+                                        <a href="{{ route('associado.cancelar-view') }}" class="btn btn-outline-danger btn-sm w-100">
+                                            <i class="ri-close-line me-1"></i>Cancelar Assinatura
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="text-center py-3">
+                                <div class="avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-3">
+                                    <span class="avatar-title">
+                                        <i class="ri-error-warning-line font-size-24"></i>
+                                    </span>
+                                </div>
+                                <h6 class="text-muted mb-0">Nenhuma assinatura encontrada</h6>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faturas Pendentes -->
+            <div class="col-xl-8 col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="ri-history-line me-2"></i>Histórico de Pagamentos
+                            <i class="ri-file-list-line me-2"></i>Faturas Pendentes
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Valor</th>
-                                        <th>Método</th>
-                                        <th>Status</th>
-                                        <th>Descrição</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($payments as $payment)
+                        @if($invoices->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $payment->formatted_payment_date }}</td>
-                                            <td>
-                                                <span class="fw-semibold">{{ $payment->formatted_value }}</span>
-                                            </td>
-                                            <td>{{ $payment->payment_method ?? 'N/A' }}</td>
-                                            <td>
-                                                <span class="badge bg-success">{{ $payment->formatted_status }}</span>
-                                            </td>
-                                            <td>{{ $payment->description ?? 'N/A' }}</td>
+                                            <th>Fatura</th>
+                                            <th>Vencimento</th>
+                                            <th>Valor</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($invoices as $invoice)
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <strong>#{{ $invoice->id }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">{{ $invoice->description }}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="{{ $invoice->isOverdue() ? 'text-danger' : '' }}">
+                                                        {{ $invoice->formatted_due_date }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-semibold">{{ $invoice->formatted_value }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ $invoice->isOverdue() ? 'danger' : 'warning' }}">
+                                                        {{ $invoice->formatted_status }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ route('associado.ver-fatura', $invoice->id) }}" class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
+                                                            <i class="ri-eye-line"></i>
+                                                        </a>
+                                                        @if($invoice->status === 'PENDING' || $invoice->status === 'OVERDUE')
+                                                            <a href="{{ route('associado.pagar-fatura', $invoice->id) }}" class="btn btn-sm btn-success" title="Pagar Fatura">
+                                                                <i class="ri-money-dollar-circle-line"></i>
+                                                            </a>
+                                                        @endif
+                                                        <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-sm btn-outline-info" title="Atualizar Status">
+                                                            <i class="ri-refresh-line"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <div class="avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center mx-auto mb-3">
+                                    <span class="avatar-title">
+                                        <i class="ri-checkbox-circle-line font-size-24"></i>
+                                    </span>
+                                </div>
+                                <h6 class="text-muted mb-0">Nenhuma fatura pendente</h6>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    @endif
-</div>
+    </div><!--End container-fluid-->
+</main><!--End app-wrapper-->
 
-<!-- Modal para exibir fatura -->
-<div class="modal fade" id="faturaModal" tabindex="-1" aria-labelledby="faturaModalLabel" aria-hidden="true">
+<!-- Modal de Pagamento -->
+<div class="modal fade" id="pagamentoModal" tabindex="-1" aria-labelledby="pagamentoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="faturaModalLabel">Detalhes da Fatura</h5>
+                <h5 class="modal-title" id="pagamentoModalLabel">Pagamento via PIX</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="faturaContent">
+            <div class="modal-body" id="pagamentoContent">
                 <!-- Conteúdo será carregado via AJAX -->
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmação para cancelar assinatura -->
-<div class="modal fade" id="cancelarModal" tabindex="-1" aria-labelledby="cancelarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cancelarModalLabel">Cancelar Assinatura</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja cancelar sua assinatura?</p>
-                <p class="text-muted">Esta ação não pode ser desfeita e você não receberá mais cobranças automáticas.</p>
-            </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmarCancelamento">
-                    <span class="btn-text">Sim, Cancelar</span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success" id="verificarPagamento">
+                    <span class="btn-text">Verificar Pagamento</span>
                     <span class="btn-loading d-none">
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Processando...
+                        Verificando...
                     </span>
                 </button>
             </div>
@@ -223,90 +228,11 @@
 
 @section('scripts')
 <script>
-function verFatura(invoiceId) {
-    $.ajax({
-        url: '{{ route("associado.fatura") }}',
-        method: 'GET',
-        data: { id: invoiceId },
-        success: function(response) {
-            $('#faturaContent').html(response);
-            $('#faturaModal').modal('show');
-        },
-        error: function(xhr) {
-            Swal.fire('Erro', 'Erro ao carregar fatura', 'error');
-        }
-    });
-}
-
-function atualizarFatura(invoiceId) {
-    $.ajax({
-        url: '{{ route("associado.atualizar") }}',
-        method: 'POST',
-        data: { 
-            id: invoiceId,
-            _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Swal.fire('Sucesso', response.message, 'success').then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Erro', response.message, 'error');
-            }
-        },
-        error: function(xhr) {
-            Swal.fire('Erro', 'Erro ao atualizar fatura', 'error');
-        }
-    });
-}
-
-function cancelarAssinatura() {
-    $('#cancelarModal').modal('show');
-}
-
-$('#confirmarCancelamento').click(function() {
-    mostrarCarregamento('confirmarCancelamento', true);
-    
-    $.ajax({
-        url: '{{ route("associado.cancelar") }}',
-        method: 'POST',
-        data: { 
-            _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Swal.fire('Sucesso', response.message, 'success').then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Erro', response.message, 'error');
-            }
-        },
-        error: function(xhr) {
-            Swal.fire('Erro', 'Erro ao cancelar assinatura', 'error');
-        },
-        complete: function() {
-            mostrarCarregamento('confirmarCancelamento', false);
-            $('#cancelarModal').modal('hide');
-        }
-    });
+// Auto-dismiss alerts após 5 segundos
+$(document).ready(function() {
+    setTimeout(function() {
+        $('.alert').fadeOut('slow');
+    }, 5000);
 });
-
-function mostrarCarregamento(btnId, isLoading) {
-    const btn = $('#' + btnId);
-    const btnText = btn.find('.btn-text');
-    const btnLoading = btn.find('.btn-loading');
-    
-    if (isLoading) {
-        btnText.addClass('d-none');
-        btnLoading.removeClass('d-none');
-        btn.prop('disabled', true);
-    } else {
-        btnText.removeClass('d-none');
-        btnLoading.addClass('d-none');
-        btn.prop('disabled', false);
-    }
-}
 </script>
 @endsection

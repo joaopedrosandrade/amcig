@@ -147,6 +147,70 @@ class User extends Authenticatable
     }
 
     /**
+     * Verificar se o associado está inadimplente
+     */
+    public function isInadimplente(): bool
+    {
+        if (!$this->hasActiveSubscription()) {
+            return false;
+        }
+
+        // Buscar faturas em atraso (vencidas e não pagas)
+        $invoicesOverdue = $this->invoices()
+            ->where('due_date', '<', now())
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->count();
+
+        return $invoicesOverdue > 0;
+    }
+
+    /**
+     * Obter faturas em atraso
+     */
+    public function getFaturasEmAtraso()
+    {
+        return $this->invoices()
+            ->where('due_date', '<', now())
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->orderBy('due_date', 'asc')
+            ->get();
+    }
+
+    /**
+     * Obter status de pagamento do associado
+     */
+    public function getStatusPagamento(): string
+    {
+        if (!$this->hasActiveSubscription()) {
+            return 'sem_assinatura';
+        }
+
+        if ($this->isInadimplente()) {
+            return 'inadimplente';
+        }
+
+        return 'em_dia';
+    }
+
+    /**
+     * Obter dias de atraso da primeira fatura em atraso
+     */
+    public function getDiasAtraso(): int
+    {
+        $primeiraFaturaAtraso = $this->invoices()
+            ->where('due_date', '<', now())
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->orderBy('due_date', 'asc')
+            ->first();
+
+        if (!$primeiraFaturaAtraso) {
+            return 0;
+        }
+
+        return now()->diffInDays($primeiraFaturaAtraso->due_date);
+    }
+
+    /**
      * Boot do modelo para gerar matrícula automaticamente
      */
     protected static function boot()

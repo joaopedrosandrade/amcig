@@ -136,10 +136,17 @@
                             <div class="d-flex">
                                 <div class="flex-grow-1">
                                     <p class="text-muted fw-medium">Mensalidades</p>
-                                    <h4 class="mb-0">Em dia</h4>
+                                    @if($user->getStatusPagamento() === 'inadimplente')
+                                        <h4 class="mb-0 text-danger">Inadimplente</h4>
+                                        <small class="text-danger">{{ $user->getDiasAtraso() }} dias em atraso</small>
+                                    @elseif($user->getStatusPagamento() === 'em_dia')
+                                        <h4 class="mb-0 text-success">Em dia</h4>
+                                    @else
+                                        <h4 class="mb-0 text-muted">Sem assinatura</h4>
+                                    @endif
                                 </div>
                                 <div class="flex-shrink-0 align-self-center">
-                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-info d-flex align-items-center justify-content-center">
+                                    <div class="mini-stat-icon avatar-sm rounded-circle bg-{{ $user->getStatusPagamento() === 'inadimplente' ? 'danger' : ($user->getStatusPagamento() === 'em_dia' ? 'success' : 'secondary') }} d-flex align-items-center justify-content-center">
                                         <span class="avatar-title">
                                             <i class="ri-bank-card-line font-size-24"></i>
                                         </span>
@@ -147,7 +154,7 @@
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <a href="#" class="btn btn-info btn-sm">Ver Detalhes</a>
+                                <a href="{{ route('associado.pagamentos') }}" class="btn btn-{{ $user->getStatusPagamento() === 'inadimplente' ? 'danger' : 'info' }} btn-sm">Ver Detalhes</a>
                             </div>
                         </div>
                     </div>

@@ -71,8 +71,17 @@ Route::prefix('/admin')->group(function() {
 Route::middleware(['auth'])->group(function() {
     Route::get('/minhas-mensalidades', 'AssociadoPagamentoController@index')->name('associado.pagamentos');
     Route::get('/fatura', 'AssociadoPagamentoController@show')->name('associado.fatura');
+    Route::get('/pagamento', 'AssociadoPagamentoController@pagamento')->name('associado.pagamento');
     Route::post('/atualizar-fatura', 'AssociadoPagamentoController@atualizar')->name('associado.atualizar');
+    Route::post('/verificar-pagamento', 'AssociadoPagamentoController@verificarPagamento')->name('associado.verificar-pagamento');
+    Route::get('/primeira-fatura-atraso', 'AssociadoPagamentoController@primeiraFaturaAtraso')->name('associado.primeira-fatura-atraso');
     Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
+    
+    // Novas rotas para ações diretas
+    Route::get('/ver-fatura/{id}', 'AssociadoPagamentoController@verFatura')->name('associado.ver-fatura');
+    Route::get('/pagar-fatura/{id}', 'AssociadoPagamentoController@pagarFatura')->name('associado.pagar-fatura');
+    Route::get('/atualizar-fatura/{id}', 'AssociadoPagamentoController@atualizarFatura')->name('associado.atualizar-fatura');
+    Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
 });
 
 // Rotas para webhooks (sem middleware de autenticação)
@@ -198,6 +207,69 @@ Route::get('/test-subscription-payments/{subscription_id}', function($subscripti
         ]);
     }
 })->name('test.subscription.payments');
+
+// Rota para testar criação de primeira cobrança (apenas para desenvolvimento)
+Route::get('/test-create-first-payment/{user_id}', function($user_id) {
+    try {
+        $user = App\User::find($user_id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Usuário não encontrado']);
+        }
+
+        $asaasService = new App\Services\AsaasService();
+        
+        // Primeiro criar cliente
+        $customerData = $asaasService->createCustomer($user);
+        $asaasCustomerId = $customerData['id'];
+        
+        // Criar primeira cobrança diretamente
+        $reflection = new ReflectionClass($asaasService);
+        $method = $reflection->getMethod('createFirstPayment');
+        $method->setAccessible(true);
+        
+        $firstPaymentData = $method->invoke($asaasService, $user, $asaasCustomerId, $user->getMonthlyValue());
+        
+        return response()->json([
+            'success' => true,
+            'customer' => $customerData,
+            'first_payment' => $firstPaymentData
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('test.create.first.payment');
+
+// Rota para testar pagamento (apenas para desenvolvimento)
+Route::get('/test-pagamento/{invoice_id}', function($invoice_id) {
+    try {
+        $invoice = App\Invoice::find($invoice_id);
+        if (!$invoice) {
+            return response()->json(['success' => false, 'message' => 'Fatura não encontrada']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'invoice' => [
+                'id' => $invoice->id,
+                'value' => $invoice->value,
+                'status' => $invoice->status,
+                'due_date' => $invoice->due_date,
+                'pix_qr_code' => $invoice->pix_qr_code ? 'Disponível' : 'Não disponível',
+                'pix_copy_paste' => $invoice->pix_copy_paste ? 'Disponível' : 'Não disponível'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('test.pagamento');
 
 
 

@@ -179,7 +179,8 @@ class AsaasService
                 'endDate' => null, // Assinatura sem data de fim
                 'maxPayments' => null, // Sem limite de pagamentos
                 'sendPaymentByEmail' => true,
-                'notificationDisabled' => false
+                'notificationDisabled' => false,
+                'split' => null // Sem split
             ];
 
             Log::info('Tentando criar assinatura no Asaas', [
@@ -206,6 +207,25 @@ class AsaasService
                 'value' => $monthlyValue,
                 'response_data' => $data
             ]);
+
+            // Gerar primeira cobrança imediatamente
+            try {
+                $firstPaymentData = $this->createFirstPayment($user, $asaasCustomerId, $monthlyValue);
+                $data['first_payment'] = $firstPaymentData;
+                
+                Log::info('Primeira cobrança criada', [
+                    'user_id' => $user->id,
+                    'payment_id' => $firstPaymentData['id'],
+                    'value' => $monthlyValue
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Erro ao criar primeira cobrança', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+                // Não falha a criação da assinatura se a primeira cobrança falhar
+            }
+
             return $data;
 
         } catch (RequestException $e) {
@@ -229,6 +249,78 @@ class AsaasService
                 'url' => $this->baseUrl . '/subscriptions'
             ]);
             throw new \Exception('Exceção ao criar assinatura no Asaas: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Criar primeira cobrança imediatamente após aprovação
+     */
+    private function createFirstPayment(User $user, string $asaasCustomerId, float $value): array
+    {
+        try {
+            $client = new Client();
+            $dueDate = now()->format('Y-m-d'); // Vencimento para hoje
+
+            $paymentData = [
+                'customer' => $asaasCustomerId,
+                'billingType' => 'PIX',
+                'value' => $value,
+                'dueDate' => $dueDate,
+                'description' => 'Primeira mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
+                'externalReference' => 'AMCIG_FIRST_' . $user->id,
+                'sendPaymentByEmail' => true,
+                'notificationDisabled' => false
+            ];
+
+            Log::info('Tentando criar primeira cobrança no Asaas', [
+                'user_id' => $user->id,
+                'url' => $this->baseUrl . '/payments',
+                'data' => $paymentData,
+                'api_key_preview' => substr($this->apiKey, 0, 20) . '...'
+            ]);
+
+            $response = $client->post($this->baseUrl . '/payments', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => $paymentData,
+                'timeout' => 30,
+                'verify' => false // Para desenvolvimento
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            Log::info('Primeira cobrança criada no Asaas', [
+                'user_id' => $user->id,
+                'asaas_payment_id' => $data['id'],
+                'value' => $value,
+                'due_date' => $dueDate,
+                'response_data' => $data
+            ]);
+
+            return $data;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao criar primeira cobrança no Asaas (RequestException)', [
+                'user_id' => $user->id,
+                'status' => $statusCode,
+                'response' => $body,
+                'message' => $e->getMessage(),
+                'url' => $this->baseUrl . '/payments'
+            ]);
+            throw new \Exception('Erro ao criar primeira cobrança no Asaas (Status: ' . $statusCode . '): ' . $body);
+        } catch (\Exception $e) {
+            Log::error('Exceção ao criar primeira cobrança no Asaas', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $this->baseUrl . '/payments'
+            ]);
+            throw new \Exception('Exceção ao criar primeira cobrança no Asaas: ' . $e->getMessage());
         }
     }
 
