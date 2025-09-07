@@ -79,6 +79,13 @@ Route::middleware(['auth'])->group(function() {
 Route::post('/webhook/asaas', 'WebhookController@asaas')->name('webhook.asaas');
 Route::get('/webhook/test', 'WebhookController@test')->name('webhook.test');
 
+// Rota para testar conexão com Asaas (apenas para desenvolvimento)
+Route::get('/test-asaas', function() {
+    $asaasService = new App\Services\AsaasService();
+    $result = $asaasService->testConnection();
+    return response()->json($result);
+})->name('test.asaas');
+
 
 
 

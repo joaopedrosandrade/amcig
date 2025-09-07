@@ -30,53 +30,74 @@ class AsaasService
      */
     public function createCustomer(User $user): array
     {
+        // Validar dados obrigatórios
+        if (empty($user->name) || empty($user->email) || empty($user->cpf)) {
+            throw new \Exception('Dados obrigatórios não encontrados: nome, email ou CPF');
+        }
+
         try {
-            $client = new Client();
+            $client = new Client([
+                'timeout' => 30,
+                'verify' => false // Para desenvolvimento, desabilita verificação SSL
+            ]);
+            
+            $data = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'cpfCnpj' => preg_replace('/[^0-9]/', '', $user->cpf),
+                'phone' => $user->telefone ?: '',
+                'mobilePhone' => $user->telefone ?: '',
+                'postalCode' => preg_replace('/[^0-9]/', '', $user->cep ?: ''),
+                'address' => $user->logradouro ?: '',
+                'addressNumber' => $user->numero ?: '',
+                'complement' => $user->complemento ?: '',
+                'province' => $user->bairro ?: '',
+                'city' => $user->cidade ?: '',
+                'state' => $user->uf ?: '',
+                'externalReference' => (string)$user->id,
+                'notificationDisabled' => false
+            ];
+
+            Log::info('Tentando criar cliente no Asaas', [
+                'user_id' => $user->id,
+                'url' => $this->baseUrl . '/customers',
+                'data' => $data,
+                'api_key_preview' => substr($this->apiKey, 0, 20) . '...'
+            ]);
             
             $response = $client->post($this->baseUrl . '/customers', [
                 'headers' => [
                     'access_token' => $this->apiKey,
                     'Content-Type' => 'application/json'
                 ],
-                'json' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'cpfCnpj' => preg_replace('/[^0-9]/', '', $user->cpf),
-                    'phone' => $user->telefone,
-                    'mobilePhone' => $user->telefone,
-                    'postalCode' => preg_replace('/[^0-9]/', '', $user->cep),
-                    'address' => $user->logradouro,
-                    'addressNumber' => $user->numero,
-                    'complement' => $user->complemento,
-                    'province' => $user->bairro,
-                    'city' => $user->cidade,
-                    'state' => $user->uf,
-                    'externalReference' => $user->id,
-                    'notificationDisabled' => false
-                ]
+                'json' => $data
             ]);
 
-            $data = json_decode($response->getBody()->getContents(), true);
-            Log::info('Cliente criado no Asaas', ['user_id' => $user->id, 'asaas_customer_id' => $data['id']]);
-            return $data;
+            $responseData = json_decode($response->getBody()->getContents(), true);
+            Log::info('Cliente criado no Asaas', ['user_id' => $user->id, 'asaas_customer_id' => $responseData['id']]);
+            return $responseData;
 
         } catch (RequestException $e) {
             $response = $e->getResponse();
             $statusCode = $response ? $response->getStatusCode() : 'unknown';
             $body = $response ? $response->getBody()->getContents() : 'unknown';
             
-            Log::error('Erro ao criar cliente no Asaas', [
+            Log::error('Erro ao criar cliente no Asaas (RequestException)', [
                 'user_id' => $user->id,
                 'status' => $statusCode,
-                'response' => $body
+                'response' => $body,
+                'message' => $e->getMessage(),
+                'url' => $this->baseUrl . '/customers'
             ]);
-            throw new \Exception('Erro ao criar cliente no Asaas: ' . $body);
+            throw new \Exception('Erro ao criar cliente no Asaas (Status: ' . $statusCode . '): ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao criar cliente no Asaas', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $this->baseUrl . '/customers'
             ]);
-            throw $e;
+            throw new \Exception('Exceção ao criar cliente no Asaas: ' . $e->getMessage());
         }
     }
 
@@ -287,6 +308,72 @@ class AsaasService
                 'error' => $e->getMessage()
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Testar conectividade com a API do Asaas
+     */
+    public function testConnection(): array
+    {
+        try {
+            $client = new Client([
+                'timeout' => 30,
+                'verify' => false
+            ]);
+            
+            Log::info('Testando conexão com Asaas', [
+                'url' => $this->baseUrl,
+                'api_key_length' => strlen($this->apiKey)
+            ]);
+            
+            $response = $client->get($this->baseUrl . '/customers', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ],
+                'query' => [
+                    'limit' => 1
+                ]
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            Log::info('Conexão com Asaas OK', ['status' => $response->getStatusCode()]);
+            
+            return [
+                'success' => true,
+                'status' => $response->getStatusCode(),
+                'data' => $data
+            ];
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao testar conexão com Asaas', [
+                'status' => $statusCode,
+                'response' => $body,
+                'message' => $e->getMessage()
+            ]);
+            
+            return [
+                'success' => false,
+                'status' => $statusCode,
+                'error' => $body,
+                'message' => $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            Log::error('Exceção ao testar conexão com Asaas', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ];
         }
     }
 
