@@ -19,6 +19,12 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\AssociadoCadastrado::class => [
             \App\Listeners\EnviarEmailAssociadoCadastrado::class,
         ],
+        \App\Events\AssociadoAprovado::class => [
+            \App\Listeners\EnviarEmailAssociadoAprovado::class,
+        ],
+        \App\Events\AssociadoRejeitado::class => [
+            \App\Listeners\EnviarEmailAssociadoRejeitado::class,
+        ],
     ];
 
     /**

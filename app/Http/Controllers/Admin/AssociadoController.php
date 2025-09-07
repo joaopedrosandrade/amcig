@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Events\AssociadoAprovado;
+use App\Events\AssociadoRejeitado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -231,6 +233,9 @@ class AssociadoController extends Controller
             'data_aprovacao' => now()
         ]);
 
+        // Disparar evento de aprovação
+        event(new AssociadoAprovado($associado));
+
         return response()->json([
             'success' => true,
             'message' => 'Associado aprovado com sucesso!'
@@ -264,6 +269,9 @@ class AssociadoController extends Controller
             'status' => 'rejeitado',
             'motivo_rejeicao' => $request->motivo
         ]);
+
+        // Disparar evento de rejeição
+        event(new AssociadoRejeitado($associado, $request->motivo));
 
         return response()->json([
             'success' => true,
