@@ -19,7 +19,7 @@ class User extends Authenticatable
         'name', 'matricula', 'cpf', 'data_nascimento', 'telefone', 'email', 'password',
         'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf',
         'tipo_associado', 'nome_comercio', 'endereco_comercio', 'ramo_atividade',
-        'status', 'data_aprovacao'
+        'status', 'data_aprovacao', 'motivo_rejeicao'
     ];
 
     /**

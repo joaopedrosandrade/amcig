@@ -55,6 +55,7 @@
                                             'ativo' => 'success',
                                             'inativo' => 'danger',
                                             'pendente' => 'warning',
+                                            'rejeitado' => 'danger',
                                             'suspenso' => 'secondary'
                                         ];
                                     @endphp
@@ -138,6 +139,16 @@
                             <tr>
                                 <td class="fw-semibold">Data de Aprovação:</td>
                                 <td>{{ $associado->data_aprovacao->setTimezone('America/Sao_Paulo')->format('d/m/Y H:i') }}</td>
+                            </tr>
+                            @endif
+                            @if($associado->status === 'rejeitado' && $associado->motivo_rejeicao)
+                            <tr>
+                                <td class="fw-semibold">Motivo da Rejeição:</td>
+                                <td>
+                                    <div class="alert alert-danger mb-0 p-2">
+                                        <small>{{ $associado->motivo_rejeicao }}</small>
+                                    </div>
+                                </td>
                             </tr>
                             @endif
                         </table>

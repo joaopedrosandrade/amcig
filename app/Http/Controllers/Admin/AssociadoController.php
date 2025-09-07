@@ -261,7 +261,8 @@ class AssociadoController extends Controller
         }
 
         $associado->update([
-            'status' => 'rejeitado'
+            'status' => 'rejeitado',
+            'motivo_rejeicao' => $request->motivo
         ]);
 
         return response()->json([
