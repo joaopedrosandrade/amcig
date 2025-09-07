@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -98,20 +99,49 @@ class User extends Authenticatable
     }
 
     /**
-     * Boot do modelo para gerar matrícula automaticamente
+     * Relacionamento com Subscriptions
      */
-    protected static function boot()
+    public function subscriptions(): HasMany
     {
-        parent::boot();
-        
-        static::created(function ($user) {
-            // Gera a matrícula após o usuário ser criado (quando o ID já existe)
-            $matricula = $user->gerarMatricula();
-            
-            // Atualiza apenas o campo matricula sem disparar eventos
-            DB::table('users')
-                ->where('id', $user->id)
-                ->update(['matricula' => $matricula]);
-        });
+        return $this->hasMany(Subscription::class);
     }
-}
+
+    /**
+     * Relacionamento com Invoices
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * Relacionamento com Payments
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Obtém a assinatura ativa do usuário
+     */
+    public function activeSubscription(): ?Subscription
+    {
+        return $this->subscriptions()->where('status', 'ACTIVE')->first();
+    }
+
+    /**
+     * Verifica se o usuário tem assinatura ativa
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscriptions()->where('status', 'ACTIVE')->exists();
+    }
+
+    /**
+     * Obtém o valor da mensalidade baseado no tipo de associado
+     */
+    public function getMonthlyValue(): float
+    {
+        return $this->tipo_associado === 'comerciante' ? 15.00 : 10.00;
+    }

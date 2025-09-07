@@ -67,6 +67,18 @@ Route::prefix('/admin')->group(function() {
     });
 });
 
+// Rotas para associados autenticados
+Route::middleware(['auth'])->group(function() {
+    Route::get('/minhas-mensalidades', 'AssociadoPagamentoController@index')->name('associado.pagamentos');
+    Route::get('/fatura', 'AssociadoPagamentoController@show')->name('associado.fatura');
+    Route::post('/atualizar-fatura', 'AssociadoPagamentoController@atualizar')->name('associado.atualizar');
+    Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
+});
+
+// Rotas para webhooks (sem middleware de autenticação)
+Route::post('/webhook/asaas', 'WebhookController@asaas')->name('webhook.asaas');
+Route::get('/webhook/test', 'WebhookController@test')->name('webhook.test');
+
 
 
 

@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Subscription;
+use App\Invoice;
 use App\Events\AssociadoAprovado;
 use App\Events\AssociadoRejeitado;
+use App\Services\AsaasService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssociadoController extends Controller
 {
@@ -228,18 +232,88 @@ class AssociadoController extends Controller
             ], 400);
         }
 
-        $associado->update([
-            'status' => 'aprovado',
-            'data_aprovacao' => now()
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Disparar evento de aprovação
-        event(new AssociadoAprovado($associado));
+            // Atualizar status do associado
+            $associado->update([
+                'status' => 'aprovado',
+                'data_aprovacao' => now()
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Associado aprovado com sucesso!'
-        ]);
+            // Criar cliente e assinatura no Asaas
+            $asaasService = new AsaasService();
+            
+            // Criar cliente no Asaas
+            $customerData = $asaasService->createCustomer($associado);
+            $asaasCustomerId = $customerData['id'];
+
+            // Criar assinatura no Asaas
+            $subscriptionData = $asaasService->createSubscription($associado, $asaasCustomerId);
+            $asaasSubscriptionId = $subscriptionData['id'];
+
+            // Salvar assinatura no banco local
+            $subscription = Subscription::create([
+                'user_id' => $associado->id,
+                'asaas_subscription_id' => $asaasSubscriptionId,
+                'asaas_customer_id' => $asaasCustomerId,
+                'value' => $associado->getMonthlyValue(),
+                'billing_type' => 'PIX',
+                'next_due_date' => \Carbon\Carbon::parse($subscriptionData['nextDueDate']),
+                'status' => 'ACTIVE',
+                'description' => 'Mensalidade AMCIG - ' . ucfirst($associado->tipo_associado),
+                'asaas_data' => $subscriptionData
+            ]);
+
+            // Criar primeira fatura se existir
+            if (isset($subscriptionData['payments']) && count($subscriptionData['payments']) > 0) {
+                $firstPayment = $subscriptionData['payments'][0];
+                
+                Invoice::create([
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $associado->id,
+                    'asaas_payment_id' => $firstPayment['id'],
+                    'value' => $firstPayment['value'],
+                    'due_date' => \Carbon\Carbon::parse($firstPayment['dueDate']),
+                    'status' => $firstPayment['status'],
+                    'billing_type' => $firstPayment['billingType'],
+                    'description' => $firstPayment['description'],
+                    'invoice_url' => $firstPayment['invoiceUrl'] ?? null,
+                    'pix_qr_code' => $firstPayment['pixTransaction']['qrCode'] ?? null,
+                    'pix_copy_paste' => $firstPayment['pixTransaction']['payload'] ?? null,
+                    'asaas_data' => $firstPayment
+                ]);
+            }
+
+            DB::commit();
+
+            // Disparar evento de aprovação
+            event(new AssociadoAprovado($associado));
+
+            Log::info('Associado aprovado e assinatura criada', [
+                'user_id' => $associado->id,
+                'subscription_id' => $subscription->id,
+                'asaas_subscription_id' => $asaasSubscriptionId
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Associado aprovado e assinatura criada com sucesso!'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            Log::error('Erro ao aprovar associado e criar assinatura', [
+                'user_id' => $associado->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao aprovar associado: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
