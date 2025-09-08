@@ -58,6 +58,32 @@ class AsaasService
     }
 
     /**
+     * Formatar telefone para o padrão do Asaas
+     */
+    private function formatarTelefone($telefone): string
+    {
+        if (empty($telefone)) {
+            return '';
+        }
+        
+        // Remove caracteres não numéricos
+        $telefone = preg_replace('/[^0-9]/', '', $telefone);
+        
+        // Se tem 11 dígitos (celular), formata como (XX) XXXXX-XXXX
+        if (strlen($telefone) === 11) {
+            return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 5) . '-' . substr($telefone, 7);
+        }
+        
+        // Se tem 10 dígitos (fixo), formata como (XX) XXXX-XXXX
+        if (strlen($telefone) === 10) {
+            return '(' . substr($telefone, 0, 2) . ') ' . substr($telefone, 2, 4) . '-' . substr($telefone, 6);
+        }
+        
+        // Se não tem o tamanho esperado, retorna como está
+        return $telefone;
+    }
+
+    /**
      * Criar cliente no Asaas
      */
     public function createCustomer(User $user): array
@@ -84,8 +110,8 @@ class AsaasService
                 'name' => $user->name,
                 'email' => $user->email,
                 'cpfCnpj' => $cpfValidado,
-                'phone' => $user->telefone ?: '',
-                'mobilePhone' => $user->telefone ?: '',
+                'phone' => $this->formatarTelefone($user->telefone),
+                'mobilePhone' => $this->formatarTelefone($user->telefone),
                 'postalCode' => preg_replace('/[^0-9]/', '', $user->cep ?: ''),
                 'address' => $user->logradouro ?: '',
                 'addressNumber' => $user->numero ?: '',
@@ -166,13 +192,16 @@ class AsaasService
         try {
             $client = new Client();
             $monthlyValue = $user->getMonthlyValue();
+            // A primeira cobrança será hoje e a próxima será 1 mês depois
+            // Para garantir que o ciclo funcione corretamente, vamos usar hoje como primeira data
+            $firstDueDate = now()->format('Y-m-d');
             $nextDueDate = now()->addMonth()->format('Y-m-d');
 
             $subscriptionData = [
                 'customer' => $asaasCustomerId,
                 'billingType' => 'PIX',
                 'value' => $monthlyValue,
-                'nextDueDate' => $nextDueDate,
+                'nextDueDate' => $firstDueDate, // Primeira cobrança para hoje
                 'cycle' => 'MONTHLY',
                 'description' => 'Mensalidade AMCIG - ' . ucfirst($user->tipo_associado),
                 'externalReference' => 'AMCIG_' . $user->id,
@@ -208,18 +237,27 @@ class AsaasService
                 'response_data' => $data
             ]);
 
-            // Gerar primeira cobrança imediatamente
+            // A primeira cobrança será criada automaticamente pela assinatura
+            // com vencimento para hoje, e as próximas serão mensais
+            Log::info('Assinatura criada - primeira cobrança será gerada automaticamente pelo Asaas', [
+                'user_id' => $user->id,
+                'first_due_date' => $firstDueDate,
+                'next_due_date_would_be' => $nextDueDate
+            ]);
+
+            // Criar primeira cobrança manualmente para garantir que seja gerada imediatamente
             try {
                 $firstPaymentData = $this->createFirstPayment($user, $asaasCustomerId, $monthlyValue);
                 $data['first_payment'] = $firstPaymentData;
                 
-                Log::info('Primeira cobrança criada', [
+                Log::info('Primeira cobrança criada manualmente', [
                     'user_id' => $user->id,
                     'payment_id' => $firstPaymentData['id'],
-                    'value' => $monthlyValue
+                    'value' => $monthlyValue,
+                    'due_date' => $firstDueDate
                 ]);
             } catch (\Exception $e) {
-                Log::warning('Erro ao criar primeira cobrança', [
+                Log::warning('Erro ao criar primeira cobrança manualmente', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage()
                 ]);
@@ -341,6 +379,63 @@ class AsaasService
                 'url' => $this->baseUrl . '/payments'
             ]);
             throw new \Exception('Exceção ao criar primeira cobrança no Asaas: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Atualizar próxima data de vencimento de uma assinatura
+     */
+    public function updateSubscriptionNextDueDate(string $asaasSubscriptionId, string $nextDueDate): array
+    {
+        try {
+            $client = new Client();
+            
+            $updateData = [
+                'nextDueDate' => $nextDueDate
+            ];
+
+            Log::info('Atualizando próxima data de vencimento da assinatura', [
+                'asaas_subscription_id' => $asaasSubscriptionId,
+                'next_due_date' => $nextDueDate
+            ]);
+
+            $response = $client->post($this->baseUrl . '/subscriptions/' . $asaasSubscriptionId, [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => $updateData,
+                'timeout' => 30,
+                'verify' => false
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            
+            Log::info('Próxima data de vencimento atualizada no Asaas', [
+                'asaas_subscription_id' => $asaasSubscriptionId,
+                'response_data' => $data
+            ]);
+
+            return $data;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao atualizar próxima data de vencimento no Asaas', [
+                'asaas_subscription_id' => $asaasSubscriptionId,
+                'status' => $statusCode,
+                'response' => $body,
+                'message' => $e->getMessage()
+            ]);
+            throw new \Exception('Erro ao atualizar próxima data de vencimento no Asaas (Status: ' . $statusCode . '): ' . $body);
+        } catch (\Exception $e) {
+            Log::error('Exceção ao atualizar próxima data de vencimento no Asaas', [
+                'asaas_subscription_id' => $asaasSubscriptionId,
+                'error' => $e->getMessage()
+            ]);
+            throw new \Exception('Exceção ao atualizar próxima data de vencimento no Asaas: ' . $e->getMessage());
         }
     }
 
@@ -602,10 +697,53 @@ class AsaasService
             $invoice = Invoice::where('asaas_payment_id', $payment['id'])->first();
 
             if (!$invoice) {
-                Log::warning('Fatura não encontrada para o pagamento', [
-                    'asaas_payment_id' => $payment['id']
+                // Se a fatura não existe, criar automaticamente
+                // Isso acontece quando o Asaas gera pagamentos mensais automaticamente
+                Log::info('Fatura não encontrada - criando automaticamente', [
+                    'asaas_payment_id' => $payment['id'],
+                    'external_reference' => $payment['externalReference'] ?? null
                 ]);
-                return;
+
+                // Buscar assinatura pelo externalReference
+                $subscription = null;
+                if (isset($payment['externalReference']) && strpos($payment['externalReference'], 'AMCIG_') === 0) {
+                    $userId = str_replace('AMCIG_', '', $payment['externalReference']);
+                    $subscription = Subscription::where('user_id', $userId)
+                        ->where('status', 'ACTIVE')
+                        ->first();
+                }
+
+                if (!$subscription) {
+                    Log::warning('Assinatura não encontrada para criar fatura', [
+                        'asaas_payment_id' => $payment['id'],
+                        'external_reference' => $payment['externalReference'] ?? null
+                    ]);
+                    return;
+                }
+
+                // Criar fatura automaticamente
+                $invoice = Invoice::create([
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $subscription->user_id,
+                    'asaas_payment_id' => $payment['id'],
+                    'value' => $payment['value'],
+                    'due_date' => \Carbon\Carbon::parse($payment['dueDate']),
+                    'status' => $payment['status'],
+                    'billing_type' => $payment['billingType'] ?? 'PIX',
+                    'description' => $payment['description'] ?? null,
+                    'invoice_url' => $payment['invoiceUrl'] ?? null,
+                    'pix_qr_code' => $payment['pixTransaction']['qrCode'] ?? null,
+                    'pix_copy_paste' => $payment['pixTransaction']['payload'] ?? null,
+                    'asaas_data' => $payment
+                ]);
+
+                Log::info('Fatura criada automaticamente via webhook', [
+                    'invoice_id' => $invoice->id,
+                    'user_id' => $subscription->user_id,
+                    'asaas_payment_id' => $payment['id'],
+                    'value' => $payment['value'],
+                    'due_date' => $payment['dueDate']
+                ]);
             }
 
             // Atualizar status da fatura

@@ -266,7 +266,14 @@ class AssociadoController extends Controller
             ]);
 
             // As faturas serão criadas automaticamente via webhook quando o Asaas gerar os pagamentos
-            // Mas vamos criar a primeira fatura se ela foi gerada imediatamente
+            // A primeira cobrança será criada automaticamente pela assinatura
+            Log::info('Assinatura criada com sucesso', [
+                'user_id' => $associado->id,
+                'subscription_id' => $subscription->id,
+                'next_due_date' => $subscription->next_due_date->format('Y-m-d')
+            ]);
+
+            // Criar primeira fatura se ela foi gerada manualmente
             if (isset($subscriptionData['first_payment'])) {
                 $firstPayment = $subscriptionData['first_payment'];
                 
@@ -285,42 +292,12 @@ class AssociadoController extends Controller
                     'asaas_data' => $firstPayment
                 ]);
 
-                // Se não temos dados do PIX, tentar buscar novamente
-                if (empty($firstPayment['pixTransaction']['qrCode'])) {
-                    try {
-                        Log::info('Tentando buscar dados do PIX para fatura recém-criada', [
-                            'invoice_id' => $invoice->id,
-                            'asaas_payment_id' => $firstPayment['id']
-                        ]);
-                        
-                        $completePaymentData = $asaasService->getPayment($firstPayment['id']);
-                        
-                        if (isset($completePaymentData['pixTransaction'])) {
-                            $invoice->update([
-                                'pix_qr_code' => $completePaymentData['pixTransaction']['qrCode'] ?? null,
-                                'pix_copy_paste' => $completePaymentData['pixTransaction']['payload'] ?? null,
-                                'invoice_url' => $completePaymentData['invoiceUrl'] ?? null,
-                                'asaas_data' => $completePaymentData
-                            ]);
-                            
-                            Log::info('Dados do PIX atualizados para fatura', [
-                                'invoice_id' => $invoice->id,
-                                'has_qr_code' => !empty($completePaymentData['pixTransaction']['qrCode']),
-                                'has_pix_copy' => !empty($completePaymentData['pixTransaction']['payload'])
-                            ]);
-                        }
-                    } catch (\Exception $e) {
-                        Log::warning('Erro ao buscar dados do PIX para fatura recém-criada', [
-                            'invoice_id' => $invoice->id,
-                            'error' => $e->getMessage()
-                        ]);
-                    }
-                }
-
                 Log::info('Primeira fatura criada localmente', [
                     'user_id' => $associado->id,
-                    'invoice_id' => $firstPayment['id'],
-                    'subscription_id' => $subscription->id
+                    'invoice_id' => $invoice->id,
+                    'asaas_payment_id' => $firstPayment['id'],
+                    'value' => $firstPayment['value'],
+                    'due_date' => $firstPayment['dueDate']
                 ]);
             }
 
