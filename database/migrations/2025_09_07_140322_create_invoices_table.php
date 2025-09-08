@@ -21,7 +21,7 @@ class CreateInvoicesTable extends Migration
             $table->decimal('value', 10, 2); // Valor da fatura
             $table->date('due_date'); // Data de vencimento
             $table->date('payment_date')->nullable(); // Data do pagamento
-            $table->enum('status', ['PENDING', 'CONFIRMED', 'RECEIVED_IN_CASH', 'OVERDUE', 'REFUNDED', 'RECEIVED_WITH_OVERDUE', 'CHARGEBACK_REQUESTED', 'CHARGEBACK_DISPUTE', 'AWAITING_CHARGEBACK_REVERSAL', 'DUNNING_REQUESTED', 'DUNNING_RECEIVED', 'AWAITING_RISK_ANALYSIS'])->default('PENDING');
+            $table->enum('status', ['PENDING', 'CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'OVERDUE', 'REFUNDED', 'RECEIVED_WITH_OVERDUE', 'CHARGEBACK_REQUESTED', 'CHARGEBACK_DISPUTE', 'AWAITING_CHARGEBACK_REVERSAL', 'DUNNING_REQUESTED', 'DUNNING_RECEIVED', 'AWAITING_RISK_ANALYSIS'])->default('PENDING');
             $table->string('billing_type')->default('PIX'); // Tipo de cobrança
             $table->text('description')->nullable(); // Descrição da fatura
             $table->string('invoice_url')->nullable(); // URL do boleto/fatura

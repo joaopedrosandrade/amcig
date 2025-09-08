@@ -271,6 +271,292 @@ Route::get('/test-pagamento/{invoice_id}', function($invoice_id) {
     }
 })->name('test.pagamento');
 
+// Rota para testar faturas (apenas para desenvolvimento)
+Route::get('/test-faturas', function() {
+    $faturas = \App\Invoice::all();
+    echo '<h2>Faturas no Banco de Dados</h2>';
+    echo '<p>Total: ' . $faturas->count() . '</p>';
+    
+    foreach($faturas as $fatura) {
+        echo '<div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">';
+        echo '<strong>ID:</strong> ' . $fatura->id . '<br>';
+        echo '<strong>Asaas Payment ID:</strong> ' . $fatura->asaas_payment_id . '<br>';
+        echo '<strong>Status:</strong> ' . $fatura->status . '<br>';
+        echo '<strong>Valor:</strong> ' . $fatura->formatted_value . '<br>';
+        echo '<strong>QR Code:</strong> ' . ($fatura->pix_qr_code ? 'SIM' : 'NÃO') . '<br>';
+        echo '<strong>PIX Copy:</strong> ' . ($fatura->pix_copy_paste ? 'SIM' : 'NÃO') . '<br>';
+        echo '</div>';
+    }
+    
+    return response('Verifique o código fonte da página');
+})->name('test.faturas');
+
+// Rota para testar busca de pagamento no Asaas (apenas para desenvolvimento)
+Route::get('/test-asaas-payment/{payment_id}', function($payment_id) {
+    try {
+        $asaasService = new \App\Services\AsaasService();
+        $paymentData = $asaasService->getPayment($payment_id);
+        
+        return response()->json([
+            'success' => true,
+            'payment_id' => $payment_id,
+            'data' => $paymentData,
+            'has_pix' => isset($paymentData['pixTransaction']),
+            'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
+            'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'payment_id' => $payment_id,
+            'error' => $e->getMessage()
+        ]);
+    }
+})->name('test.asaas.payment');
+
+// Rota para atualizar fatura existente com dados do PIX (apenas para desenvolvimento)
+Route::get('/fix-invoice-pix/{invoice_id}', function($invoice_id) {
+    try {
+        $invoice = \App\Invoice::findOrFail($invoice_id);
+        $asaasService = new \App\Services\AsaasService();
+        
+        Log::info('Tentando atualizar fatura com dados do PIX', [
+            'invoice_id' => $invoice->id,
+            'asaas_payment_id' => $invoice->asaas_payment_id
+        ]);
+        
+        $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
+        
+        if (isset($paymentData['pixTransaction'])) {
+            $invoice->update([
+                'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
+                'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+                'invoice_url' => $paymentData['invoiceUrl'] ?? null,
+                'asaas_data' => $paymentData
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Fatura atualizada com dados do PIX',
+                'invoice_id' => $invoice->id,
+                'has_qr_code' => !empty($paymentData['pixTransaction']['qrCode']),
+                'has_pix_copy' => !empty($paymentData['pixTransaction']['payload'])
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dados do PIX não disponíveis no Asaas',
+                'payment_data' => $paymentData
+            ]);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('fix.invoice.pix');
+
+// Rota para testar configuração da API do Asaas (apenas para desenvolvimento)
+Route::get('/test-asaas-config', function() {
+    try {
+        $asaasService = new \App\Services\AsaasService();
+        
+        // Testar conexão básica
+        $testResult = $asaasService->testConnection();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Conexão com Asaas funcionando',
+            'test_result' => $testResult,
+            'base_url' => config('app.asaas_base_url', 'https://sandbox.asaas.com/api/v3'),
+            'api_key_preview' => substr(config('app.asaas_api_key', ''), 0, 20) . '...'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'base_url' => config('app.asaas_base_url', 'https://sandbox.asaas.com/api/v3'),
+            'api_key_preview' => substr(config('app.asaas_api_key', ''), 0, 20) . '...'
+        ]);
+    }
+})->name('test.asaas.config');
+
+// Rota para tentar novamente buscar dados do PIX (apenas para desenvolvimento)
+Route::get('/retry-pix/{invoice_id}', function($invoice_id) {
+    try {
+        $invoice = \App\Invoice::findOrFail($invoice_id);
+        $asaasService = new \App\Services\AsaasService();
+        
+        Log::info('Tentando novamente buscar dados do PIX', [
+            'invoice_id' => $invoice->id,
+            'asaas_payment_id' => $invoice->asaas_payment_id
+        ]);
+        
+        // Aguardar um pouco mais
+        sleep(3);
+        
+        $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
+        
+        if (isset($paymentData['pixTransaction']) && $paymentData['pixTransaction'] !== null) {
+            $invoice->update([
+                'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
+                'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+                'invoice_url' => $paymentData['invoiceUrl'] ?? null,
+                'asaas_data' => $paymentData
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Dados do PIX encontrados e atualizados!',
+                'invoice_id' => $invoice->id,
+                'has_qr_code' => !empty($paymentData['pixTransaction']['qrCode']),
+                'has_pix_copy' => !empty($paymentData['pixTransaction']['payload']),
+                'pix_data' => $paymentData['pixTransaction']
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dados do PIX ainda não disponíveis no Asaas. Tente novamente em alguns minutos.',
+                'payment_status' => $paymentData['status'] ?? 'unknown',
+                'pix_transaction' => $paymentData['pixTransaction']
+            ]);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('retry.pix');
+
+// Rota para verificar status de pagamento manualmente (apenas para desenvolvimento)
+Route::get('/check-payment-status/{invoice_id}', function($invoice_id) {
+    try {
+        $invoice = \App\Invoice::findOrFail($invoice_id);
+        $asaasService = new \App\Services\AsaasService();
+        
+        Log::info('Verificando status do pagamento manualmente', [
+            'invoice_id' => $invoice->id,
+            'asaas_payment_id' => $invoice->asaas_payment_id
+        ]);
+        
+        $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
+        
+        // Verificar se o pagamento foi confirmado
+        $pago = in_array($paymentData['status'], ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
+        
+        if ($pago) {
+            // Atualizar fatura local
+            $invoice->update([
+                'status' => $paymentData['status'],
+                'payment_date' => $paymentData['paymentDate'] ? \Carbon\Carbon::parse($paymentData['paymentDate']) : null,
+                'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
+                'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+                'asaas_data' => $paymentData
+            ]);
+            
+            // Criar registro de pagamento se necessário
+            if (!\App\Payment::where('asaas_payment_id', $paymentData['id'])->exists()) {
+                \App\Payment::create([
+                    'invoice_id' => $invoice->id,
+                    'user_id' => $invoice->user_id,
+                    'asaas_payment_id' => $paymentData['id'],
+                    'value' => $paymentData['value'],
+                    'payment_date' => \Carbon\Carbon::parse($paymentData['paymentDate']),
+                    'status' => $paymentData['status'],
+                    'payment_method' => $paymentData['billingType'] ?? 'PIX',
+                    'description' => $paymentData['description'] ?? null,
+                    'asaas_data' => $paymentData
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Pagamento confirmado e atualizado!',
+                'invoice_id' => $invoice->id,
+                'status' => $paymentData['status'],
+                'payment_date' => $paymentData['paymentDate']
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pagamento ainda não foi confirmado',
+                'status' => $paymentData['status'],
+                'payment_data' => $paymentData
+            ]);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('check.payment.status');
+
+// Rota para forçar atualização do pagamento (apenas para desenvolvimento)
+Route::get('/force-update-payment/{invoice_id}', function($invoice_id) {
+    try {
+        $invoice = \App\Invoice::findOrFail($invoice_id);
+        $asaasService = new \App\Services\AsaasService();
+        
+        Log::info('Forçando atualização do pagamento', [
+            'invoice_id' => $invoice->id,
+            'asaas_payment_id' => $invoice->asaas_payment_id
+        ]);
+        
+        $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
+        
+        // Forçar atualização independente do status
+        $invoice->update([
+            'status' => $paymentData['status'],
+            'payment_date' => $paymentData['paymentDate'] ? \Carbon\Carbon::parse($paymentData['paymentDate']) : null,
+            'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
+            'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+            'asaas_data' => $paymentData
+        ]);
+        
+        // Criar registro de pagamento se necessário
+        if (!\App\Payment::where('asaas_payment_id', $paymentData['id'])->exists()) {
+            \App\Payment::create([
+                'invoice_id' => $invoice->id,
+                'user_id' => $invoice->user_id,
+                'asaas_payment_id' => $paymentData['id'],
+                'value' => $paymentData['value'],
+                'payment_date' => \Carbon\Carbon::parse($paymentData['paymentDate']),
+                'status' => $paymentData['status'],
+                'payment_method' => $paymentData['billingType'] ?? 'PIX',
+                'description' => $paymentData['description'] ?? null,
+                'asaas_data' => $paymentData
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pagamento atualizado com sucesso!',
+            'invoice_id' => $invoice->id,
+            'status' => $paymentData['status'],
+            'payment_date' => $paymentData['paymentDate'],
+            'updated_fields' => [
+                'status' => $paymentData['status'],
+                'payment_date' => $paymentData['paymentDate'],
+                'has_pix_data' => !empty($paymentData['pixTransaction'])
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('force.update.payment');
+
 
 
 

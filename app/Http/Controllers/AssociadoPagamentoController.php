@@ -209,7 +209,7 @@ class AssociadoPagamentoController extends Controller
             $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
 
             // Verificar se o pagamento foi confirmado
-            $pago = in_array($paymentData['status'], ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
+            $pago = in_array($paymentData['status'], ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
 
             if ($pago) {
                 // Atualizar fatura local

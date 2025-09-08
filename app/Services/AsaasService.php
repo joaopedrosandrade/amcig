@@ -298,7 +298,27 @@ class AsaasService
                 'response_data' => $data
             ]);
 
-            return $data;
+            // Aguardar um pouco e buscar os dados completos do pagamento (incluindo PIX)
+            sleep(2); // Aguardar 2 segundos para o Asaas processar
+            
+            try {
+                $completePaymentData = $this->getPayment($data['id']);
+                Log::info('Dados completos do pagamento obtidos', [
+                    'payment_id' => $data['id'],
+                    'has_pix' => isset($completePaymentData['pixTransaction']),
+                    'status' => $completePaymentData['status'] ?? 'unknown'
+                ]);
+                
+                // Retornar os dados completos
+                return $completePaymentData;
+            } catch (\Exception $e) {
+                Log::warning('Erro ao buscar dados completos do pagamento', [
+                    'payment_id' => $data['id'],
+                    'error' => $e->getMessage()
+                ]);
+                // Retornar os dados básicos mesmo se falhar
+                return $data;
+            }
 
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -406,14 +426,30 @@ class AsaasService
         try {
             $client = new Client();
             
+            Log::info('Buscando pagamento no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'url' => $this->baseUrl . '/payments/' . $asaasPaymentId
+            ]);
+            
             $response = $client->get($this->baseUrl . '/payments/' . $asaasPaymentId, [
                 'headers' => [
                     'access_token' => $this->apiKey,
                     'Content-Type' => 'application/json'
-                ]
+                ],
+                'timeout' => 30,
+                'verify' => false // Para desenvolvimento
             ]);
 
-            return json_decode($response->getBody()->getContents(), true);
+            $data = json_decode($response->getBody()->getContents(), true);
+            
+            Log::info('Pagamento encontrado no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'status' => $data['status'] ?? 'unknown',
+                'has_pix' => isset($data['pixTransaction']),
+                'response_keys' => array_keys($data)
+            ]);
+
+            return $data;
 
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -423,9 +459,10 @@ class AsaasService
             Log::error('Erro ao obter pagamento no Asaas', [
                 'payment_id' => $asaasPaymentId,
                 'status' => $statusCode,
-                'response' => $body
+                'response' => $body,
+                'url' => $this->baseUrl . '/payments/' . $asaasPaymentId
             ]);
-            throw new \Exception('Erro ao obter pagamento no Asaas: ' . $body);
+            throw new \Exception('Erro ao obter pagamento no Asaas (Status: ' . $statusCode . '): ' . $body);
         } catch (\Exception $e) {
             Log::error('Exceção ao obter pagamento no Asaas', [
                 'payment_id' => $asaasPaymentId,

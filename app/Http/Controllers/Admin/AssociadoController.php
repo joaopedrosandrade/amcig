@@ -270,7 +270,7 @@ class AssociadoController extends Controller
             if (isset($subscriptionData['first_payment'])) {
                 $firstPayment = $subscriptionData['first_payment'];
                 
-                Invoice::create([
+                $invoice = Invoice::create([
                     'subscription_id' => $subscription->id,
                     'user_id' => $associado->id,
                     'asaas_payment_id' => $firstPayment['id'],
@@ -284,6 +284,38 @@ class AssociadoController extends Controller
                     'pix_copy_paste' => $firstPayment['pixTransaction']['payload'] ?? null,
                     'asaas_data' => $firstPayment
                 ]);
+
+                // Se não temos dados do PIX, tentar buscar novamente
+                if (empty($firstPayment['pixTransaction']['qrCode'])) {
+                    try {
+                        Log::info('Tentando buscar dados do PIX para fatura recém-criada', [
+                            'invoice_id' => $invoice->id,
+                            'asaas_payment_id' => $firstPayment['id']
+                        ]);
+                        
+                        $completePaymentData = $asaasService->getPayment($firstPayment['id']);
+                        
+                        if (isset($completePaymentData['pixTransaction'])) {
+                            $invoice->update([
+                                'pix_qr_code' => $completePaymentData['pixTransaction']['qrCode'] ?? null,
+                                'pix_copy_paste' => $completePaymentData['pixTransaction']['payload'] ?? null,
+                                'invoice_url' => $completePaymentData['invoiceUrl'] ?? null,
+                                'asaas_data' => $completePaymentData
+                            ]);
+                            
+                            Log::info('Dados do PIX atualizados para fatura', [
+                                'invoice_id' => $invoice->id,
+                                'has_qr_code' => !empty($completePaymentData['pixTransaction']['qrCode']),
+                                'has_pix_copy' => !empty($completePaymentData['pixTransaction']['payload'])
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Erro ao buscar dados do PIX para fatura recém-criada', [
+                            'invoice_id' => $invoice->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
 
                 Log::info('Primeira fatura criada localmente', [
                     'user_id' => $associado->id,

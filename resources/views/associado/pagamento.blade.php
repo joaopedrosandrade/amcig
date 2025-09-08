@@ -149,19 +149,41 @@
                                 <div class="text-center py-5">
                                     <div class="avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-3">
                                         <span class="avatar-title">
-                                            <i class="ri-error-warning-line font-size-24"></i>
+                                            <i class="ri-time-line font-size-24"></i>
                                         </span>
                                     </div>
-                                    <h6 class="text-muted mb-3">QR Code PIX não disponível</h6>
-                                    <p class="text-muted mb-4">Os dados de pagamento ainda não foram gerados. Clique em "Atualizar Status" para buscar as informações atualizadas.</p>
+                                    <h6 class="text-muted mb-3">QR Code PIX sendo gerado</h6>
+                                    <p class="text-muted mb-4">O Asaas está processando os dados do PIX. Isso pode levar alguns minutos. Tente novamente em breve.</p>
                                     
-                                    <div class="d-flex justify-content-center gap-2">
+                                    <div class="alert alert-info mb-4">
+                                        <i class="ri-information-line me-2"></i>
+                                        <strong>Dica:</strong> Você pode pagar diretamente no Asaas enquanto aguardamos o QR Code ser gerado.
+                                    </div>
+                                    
+                                    @if($invoice->invoice_url)
+                                        <div class="card mb-4">
+                                            <div class="card-body text-center">
+                                                <h6 class="mb-3">Pagamento Direto no Asaas</h6>
+                                                <p class="text-muted mb-3">Clique no botão abaixo para abrir a página de pagamento do Asaas:</p>
+                                                <a href="{{ $invoice->invoice_url }}" target="_blank" class="btn btn-success btn-lg">
+                                                    <i class="ri-external-link-line me-2"></i>Pagar no Asaas
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
                                         <a href="{{ route('associado.pagamentos') }}" class="btn btn-secondary">
                                             <i class="ri-arrow-left-line me-1"></i>Voltar
                                         </a>
                                         <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-primary">
-                                            <i class="ri-refresh-line me-1"></i>Atualizar Status
+                                            <i class="ri-refresh-line me-1"></i>Tentar Novamente
                                         </a>
+                                        @if($invoice->invoice_url)
+                                            <a href="{{ $invoice->invoice_url }}" target="_blank" class="btn btn-outline-primary">
+                                                <i class="ri-external-link-line me-1"></i>Abrir no Asaas
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             @endif
@@ -248,5 +270,47 @@ function verificarPagamento() {
         alert('Verificando pagamento...');
     }
 }
+
+// Auto-refresh para buscar QR Code se não estiver disponível
+$(document).ready(function() {
+    @if(!$invoice->pix_qr_code)
+        let refreshCount = 0;
+        const maxRefreshAttempts = 10; // Máximo 10 tentativas (5 minutos)
+        
+        const autoRefresh = setInterval(function() {
+            refreshCount++;
+            
+            if (refreshCount > maxRefreshAttempts) {
+                clearInterval(autoRefresh);
+                console.log('Parou de tentar buscar QR Code após ' + maxRefreshAttempts + ' tentativas');
+                return;
+            }
+            
+            console.log('Tentativa ' + refreshCount + ' de buscar QR Code...');
+            
+            // Fazer requisição para atualizar a fatura
+            fetch('{{ route("associado.atualizar-fatura", $invoice->id) }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Fatura atualizada com sucesso');
+                    // Recarregar a página para mostrar o QR Code
+                    location.reload();
+                } else {
+                    console.log('QR Code ainda não disponível');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar fatura:', error);
+            });
+        }, 30000); // Tentar a cada 30 segundos
+    @endif
+});
 </script>
 @endsection
