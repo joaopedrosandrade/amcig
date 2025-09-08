@@ -15,6 +15,11 @@ Route::get('/', 'FrontController@associadoCreate')->name('associado.index');;
 Route::post('/associado/store', 'FrontController@associadoStore')->name('associado.store');
 Route::get('/associado/success', 'FrontController@associadoSuccess')->name('associado.success');
 
+// Rota home para redirecionamento após login
+Route::get('/home', function() {
+    return redirect()->route('associado.dashboard');
+})->name('home');
+
 // Rota pública para carteirinha virtual
 Route::get('/carteirinha/{matricula}', 'CarteirinhaController@show')->name('carteirinha.show');
 Route::get('/carteirinha/{matricula}/print', 'CarteirinhaController@print')->name('carteirinha.print');
