@@ -10,6 +10,7 @@ use App\Services\AsaasService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AssociadoPagamentoController extends Controller
 {
@@ -84,13 +85,37 @@ class AssociadoPagamentoController extends Controller
             $asaasService = new AsaasService();
             $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
 
+            // Tentar buscar QR Code PIX se não estiver disponível
+            $pixQrCode = $paymentData['pixTransaction']['qrCode'] ?? null;
+            $pixCopyPaste = $paymentData['pixTransaction']['payload'] ?? null;
+
+            // Se não tem QR Code, tentar buscar especificamente
+            if (!$pixQrCode && $paymentData['billingType'] === 'PIX') {
+                try {
+                    $qrCodeData = $asaasService->getPixQrCode($invoice->asaas_payment_id);
+                    $pixQrCode = $qrCodeData['qrCode'] ?? null;
+                    $pixCopyPaste = $qrCodeData['payload'] ?? $pixCopyPaste;
+                    
+                    Log::info('QR Code PIX obtido via método específico', [
+                        'invoice_id' => $invoice->id,
+                        'has_qr_code' => !empty($pixQrCode),
+                        'has_payload' => !empty($pixCopyPaste)
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Erro ao buscar QR Code PIX específico', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             // Atualizar fatura com dados do Asaas
             $invoice->update([
                 'status' => $paymentData['status'],
                 'payment_date' => $paymentData['paymentDate'] ? \Carbon\Carbon::parse($paymentData['paymentDate']) : null,
                 'invoice_url' => $paymentData['invoiceUrl'] ?? null,
-                'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
-                'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+                'pix_qr_code' => $pixQrCode,
+                'pix_copy_paste' => $pixCopyPaste,
                 'asaas_data' => $paymentData
             ]);
 
@@ -326,8 +351,119 @@ class AssociadoPagamentoController extends Controller
         Log::info('Fatura encontrada para pagamento via rota direta', [
             'invoice_id' => $invoice->id,
             'status' => $invoice->status,
-            'value' => $invoice->value
+            'value' => $invoice->value,
+            'has_pix_qr_code' => !empty($invoice->pix_qr_code),
+            'asaas_payment_id' => $invoice->asaas_payment_id,
+            'pix_qr_code_length' => $invoice->pix_qr_code ? strlen($invoice->pix_qr_code) : 0,
+            'pix_copy_paste_length' => $invoice->pix_copy_paste ? strlen($invoice->pix_copy_paste) : 0
         ]);
+
+        // Se não tem QR Code PIX, tentar buscar automaticamente
+        if (empty($invoice->pix_qr_code) && $invoice->asaas_payment_id) {
+            try {
+                $asaasService = new AsaasService();
+                $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
+                
+                // Tentar buscar QR Code PIX se não estiver disponível
+                $pixQrCode = $paymentData['pixTransaction']['encodedImage'] ?? 
+                           $paymentData['pixTransaction']['qrCode'] ?? 
+                           $paymentData['pixTransaction']['qrCodeImage'] ?? 
+                           $paymentData['pixTransaction']['qrCodeBase64'] ?? 
+                           $paymentData['encodedImage'] ?? 
+                           $paymentData['qrCode'] ?? 
+                           $paymentData['qrCodeImage'] ?? 
+                           $paymentData['qrCodeBase64'] ?? 
+                           null;
+                           
+                $pixCopyPaste = $paymentData['pixTransaction']['payload'] ?? 
+                               $paymentData['pixTransaction']['copyPaste'] ?? 
+                               $paymentData['payload'] ?? 
+                               $paymentData['copyPaste'] ?? 
+                               null;
+                
+                Log::info('Dados PIX obtidos do getPayment', [
+                    'invoice_id' => $invoice->id,
+                    'has_pix_transaction' => isset($paymentData['pixTransaction']),
+                    'pix_transaction_keys' => isset($paymentData['pixTransaction']) ? array_keys($paymentData['pixTransaction']) : [],
+                    'has_qr_code' => !empty($pixQrCode),
+                    'has_payload' => !empty($pixCopyPaste),
+                    'billing_type' => $paymentData['billingType'] ?? 'unknown'
+                ]);
+
+                // Se não tem QR Code, tentar buscar especificamente
+                if (!$pixQrCode && $paymentData['billingType'] === 'PIX') {
+                    try {
+                        $qrCodeData = $asaasService->getPixQrCode($invoice->asaas_payment_id);
+                        $pixQrCode = $qrCodeData['encodedImage'] ?? $qrCodeData['qrCode'] ?? null;
+                        $pixCopyPaste = $qrCodeData['payload'] ?? $pixCopyPaste;
+                        
+                        Log::info('QR Code PIX obtido via método específico (pagarFatura)', [
+                            'invoice_id' => $invoice->id,
+                            'has_qr_code' => !empty($pixQrCode),
+                            'has_payload' => !empty($pixCopyPaste)
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::warning('Erro ao buscar QR Code PIX específico (pagarFatura)', [
+                            'invoice_id' => $invoice->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+                
+                // Se ainda não tem QR Code mas tem payload, gerar QR Code a partir do payload
+                if (!$pixQrCode && $pixCopyPaste) {
+                    try {
+                        Log::info('Gerando QR Code a partir do payload PIX', [
+                            'invoice_id' => $invoice->id,
+                            'payload_length' => strlen($pixCopyPaste)
+                        ]);
+                        
+                        // Gerar QR Code em base64 a partir do payload
+                        $pixQrCode = base64_encode(QrCode::format('png')
+                            ->size(300)
+                            ->margin(1)
+                            ->generate($pixCopyPaste));
+                            
+                        Log::info('QR Code gerado com sucesso a partir do payload', [
+                            'invoice_id' => $invoice->id,
+                            'qr_code_length' => strlen($pixQrCode)
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Erro ao gerar QR Code a partir do payload', [
+                            'invoice_id' => $invoice->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                // Atualizar fatura com dados do Asaas
+                $invoice->update([
+                    'status' => $paymentData['status'],
+                    'payment_date' => $paymentData['paymentDate'] ? \Carbon\Carbon::parse($paymentData['paymentDate']) : null,
+                    'invoice_url' => $paymentData['invoiceUrl'] ?? null,
+                    'pix_qr_code' => $pixQrCode,
+                    'pix_copy_paste' => $pixCopyPaste,
+                    'asaas_data' => $paymentData
+                ]);
+
+                // Recarregar a fatura com os dados atualizados
+                $invoice = $invoice->fresh();
+
+                Log::info('Fatura atualizada com QR Code PIX (pagarFatura)', [
+                    'invoice_id' => $invoice->id,
+                    'has_pix_qr_code' => !empty($invoice->pix_qr_code),
+                    'pix_qr_code_length' => $invoice->pix_qr_code ? strlen($invoice->pix_qr_code) : 0,
+                    'pix_copy_paste_length' => $invoice->pix_copy_paste ? strlen($invoice->pix_copy_paste) : 0
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('Erro ao buscar QR Code PIX automaticamente (pagarFatura)', [
+                    'invoice_id' => $invoice->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         return view('associado.pagamento', compact('invoice'));
     }
@@ -349,13 +485,76 @@ class AssociadoPagamentoController extends Controller
             $asaasService = new AsaasService();
             $paymentData = $asaasService->getPayment($invoice->asaas_payment_id);
 
+            // Tentar buscar QR Code PIX se não estiver disponível
+            $pixQrCode = $paymentData['pixTransaction']['encodedImage'] ?? 
+                       $paymentData['pixTransaction']['qrCode'] ?? 
+                       $paymentData['pixTransaction']['qrCodeImage'] ?? 
+                       $paymentData['pixTransaction']['qrCodeBase64'] ?? 
+                       $paymentData['encodedImage'] ?? 
+                       $paymentData['qrCode'] ?? 
+                       $paymentData['qrCodeImage'] ?? 
+                       $paymentData['qrCodeBase64'] ?? 
+                       null;
+                       
+            $pixCopyPaste = $paymentData['pixTransaction']['payload'] ?? 
+                           $paymentData['pixTransaction']['copyPaste'] ?? 
+                           $paymentData['payload'] ?? 
+                           $paymentData['copyPaste'] ?? 
+                           null;
+
+            // Se não tem QR Code, tentar buscar especificamente
+            if (!$pixQrCode && $paymentData['billingType'] === 'PIX') {
+                try {
+                    $qrCodeData = $asaasService->getPixQrCode($invoice->asaas_payment_id);
+                    $pixQrCode = $qrCodeData['encodedImage'] ?? $qrCodeData['qrCode'] ?? null;
+                    $pixCopyPaste = $qrCodeData['payload'] ?? $pixCopyPaste;
+                    
+                    Log::info('QR Code PIX obtido via método específico (rota direta)', [
+                        'invoice_id' => $invoice->id,
+                        'has_qr_code' => !empty($pixQrCode),
+                        'has_payload' => !empty($pixCopyPaste)
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Erro ao buscar QR Code PIX específico (rota direta)', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            // Se ainda não tem QR Code mas tem payload, gerar QR Code a partir do payload
+            if (!$pixQrCode && $pixCopyPaste) {
+                try {
+                    Log::info('Gerando QR Code a partir do payload PIX (atualizarFatura)', [
+                        'invoice_id' => $invoice->id,
+                        'payload_length' => strlen($pixCopyPaste)
+                    ]);
+                    
+                    // Gerar QR Code em base64 a partir do payload
+                    $pixQrCode = base64_encode(QrCode::format('png')
+                        ->size(300)
+                        ->margin(1)
+                        ->generate($pixCopyPaste));
+                        
+                    Log::info('QR Code gerado com sucesso a partir do payload (atualizarFatura)', [
+                        'invoice_id' => $invoice->id,
+                        'qr_code_length' => strlen($pixQrCode)
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Erro ao gerar QR Code a partir do payload (atualizarFatura)', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             // Atualizar fatura com dados do Asaas
             $invoice->update([
                 'status' => $paymentData['status'],
                 'payment_date' => $paymentData['paymentDate'] ? \Carbon\Carbon::parse($paymentData['paymentDate']) : null,
                 'invoice_url' => $paymentData['invoiceUrl'] ?? null,
-                'pix_qr_code' => $paymentData['pixTransaction']['qrCode'] ?? null,
-                'pix_copy_paste' => $paymentData['pixTransaction']['payload'] ?? null,
+                'pix_qr_code' => $pixQrCode,
+                'pix_copy_paste' => $pixCopyPaste,
                 'asaas_data' => $paymentData
             ]);
 
@@ -369,6 +568,82 @@ class AssociadoPagamentoController extends Controller
             ]);
 
             return redirect()->route('associado.pagamentos')->with('error', 'Erro ao atualizar fatura: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Busca especificamente o QR Code PIX de uma fatura
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function buscarQrCodePix(Request $request)
+    {
+        $user = Auth::user();
+        $invoice = Invoice::where('id', $request->id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        try {
+            $asaasService = new AsaasService();
+            
+            // Buscar QR Code PIX especificamente
+            $qrCodeData = $asaasService->getPixQrCode($invoice->asaas_payment_id);
+            
+            $pixQrCode = $qrCodeData['encodedImage'] ?? $qrCodeData['qrCode'] ?? null;
+            $pixCopyPaste = $qrCodeData['payload'] ?? null;
+            
+            // Se não tem QR Code mas tem payload, gerar QR Code a partir do payload
+            if (!$pixQrCode && $pixCopyPaste) {
+                try {
+                    Log::info('Gerando QR Code a partir do payload PIX (buscarQrCodePix)', [
+                        'invoice_id' => $invoice->id,
+                        'payload_length' => strlen($pixCopyPaste)
+                    ]);
+                    
+                    // Gerar QR Code em base64 a partir do payload
+                    $pixQrCode = base64_encode(QrCode::format('png')
+                        ->size(300)
+                        ->margin(1)
+                        ->generate($pixCopyPaste));
+                        
+                    Log::info('QR Code gerado com sucesso a partir do payload (buscarQrCodePix)', [
+                        'invoice_id' => $invoice->id,
+                        'qr_code_length' => strlen($pixQrCode)
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Erro ao gerar QR Code a partir do payload (buscarQrCodePix)', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            // Atualizar fatura com os dados do QR Code
+            $invoice->update([
+                'pix_qr_code' => $pixQrCode,
+                'pix_copy_paste' => $pixCopyPaste,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'QR Code PIX obtido com sucesso!',
+                'qr_code' => $pixQrCode,
+                'payload' => $pixCopyPaste,
+                'invoice' => $invoice
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao buscar QR Code PIX', [
+                'invoice_id' => $invoice->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar QR Code PIX: ' . $e->getMessage()
+            ], 500);
         }
     }
 

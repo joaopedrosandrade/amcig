@@ -167,7 +167,7 @@ class User extends Authenticatable
     /**
      * Obter faturas em atraso
      */
-    public function getFaturasEmAtraso()
+    public function getFaturasEmAtraso(): \Illuminate\Database\Eloquent\Collection
     {
         return $this->invoices()
             ->where('due_date', '<', now())

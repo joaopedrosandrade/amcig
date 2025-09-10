@@ -568,6 +568,69 @@ class AsaasService
     }
 
     /**
+     * Obter QR Code do PIX para um pagamento específico
+     */
+    public function getPixQrCode(string $asaasPaymentId): array
+    {
+        try {
+            $client = new Client([
+                'verify' => false, // Desabilita a verificação HTTPS
+            ]);
+
+            Log::info('Buscando QR Code PIX no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'url' => $this->baseUrl . '/payments/' . $asaasPaymentId . '/pixQrCode'
+            ]);
+
+            // Obter o QR Code
+            $qrResponse = $client->get($this->baseUrl . '/payments/' . $asaasPaymentId . '/pixQrCode', [
+                'headers' => [
+                    'access_token' => $this->apiKey,
+                    'accept' => 'application/json',
+                    'User-Agent' => '1',
+                ],
+                'timeout' => 30,
+                'verify' => false
+            ]);
+
+            $qrCodeData = json_decode($qrResponse->getBody()->getContents(), true);
+            
+            Log::info('QR Code PIX obtido com sucesso', [
+                'payment_id' => $asaasPaymentId,
+                'has_encoded_image' => isset($qrCodeData['encodedImage']),
+                'has_qr_code' => isset($qrCodeData['qrCode']),
+                'has_payload' => isset($qrCodeData['payload']),
+                'response_keys' => array_keys($qrCodeData),
+                'encoded_image_length' => isset($qrCodeData['encodedImage']) ? strlen($qrCodeData['encodedImage']) : 0,
+                'qr_code_length' => isset($qrCodeData['qrCode']) ? strlen($qrCodeData['qrCode']) : 0,
+                'payload_length' => isset($qrCodeData['payload']) ? strlen($qrCodeData['payload']) : 0,
+                'full_response' => $qrCodeData
+            ]);
+
+            return $qrCodeData;
+
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? $response->getBody()->getContents() : 'unknown';
+            
+            Log::error('Erro ao obter QR Code PIX no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'status' => $statusCode,
+                'response' => $body,
+                'url' => $this->baseUrl . '/payments/' . $asaasPaymentId . '/pixQrCode'
+            ]);
+            throw new \Exception('Erro ao obter QR Code PIX no Asaas (Status: ' . $statusCode . '): ' . $body);
+        } catch (\Exception $e) {
+            Log::error('Exceção ao obter QR Code PIX no Asaas', [
+                'payment_id' => $asaasPaymentId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Cancelar assinatura
      */
     public function cancelSubscription(string $asaasSubscriptionId): array

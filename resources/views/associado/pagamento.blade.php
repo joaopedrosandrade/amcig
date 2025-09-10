@@ -135,9 +135,12 @@
                                             </a>
                                             
                                             <div>
-                                                <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-outline-info me-2">
+                                                <a href="{{ route('associado.atualizar-fatura-direta', $invoice->id) }}" class="btn btn-outline-info me-2">
                                                     <i class="ri-refresh-line me-1"></i>Atualizar Status
                                                 </a>
+                                                <button type="button" class="btn btn-warning me-2" onclick="buscarQrCodePix()">
+                                                    <i class="ri-qr-code-line me-1"></i>Buscar QR Code PIX
+                                                </button>
                                                 <button type="button" class="btn btn-success" onclick="verificarPagamento()">
                                                     <i class="ri-check-line me-1"></i>Verificar Pagamento
                                                 </button>
@@ -158,6 +161,15 @@
                                     <div class="alert alert-info mb-4">
                                         <i class="ri-information-line me-2"></i>
                                         <strong>Dica:</strong> Você pode pagar diretamente no Asaas enquanto aguardamos o QR Code ser gerado.
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <button type="button" class="btn btn-warning me-2" onclick="buscarQrCodePix()">
+                                            <i class="ri-qr-code-line me-1"></i>Buscar QR Code PIX
+                                        </button>
+                                        <a href="{{ route('associado.atualizar-fatura-direta', $invoice->id) }}" class="btn btn-outline-info">
+                                            <i class="ri-refresh-line me-1"></i>Atualizar Status
+                                        </a>
                                     </div>
                                     
                                     @if($invoice->invoice_url)
@@ -271,6 +283,75 @@ function verificarPagamento() {
     }
 }
 
+// Função para buscar QR Code PIX especificamente
+function buscarQrCodePix() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    // Mostrar loading
+    button.innerHTML = '<i class="ri-loader-4-line me-1"></i>Buscando...';
+    button.disabled = true;
+    
+    fetch('{{ route("associado.buscar-qr-code-pix") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            id: {{ $invoice->id }}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensagem de sucesso
+            showAlert('success', data.message);
+            
+            // Recarregar a página para mostrar o QR Code
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar QR Code PIX:', error);
+        showAlert('error', 'Erro ao buscar QR Code PIX. Tente novamente.');
+    })
+    .finally(() => {
+        // Restaurar botão
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Função para mostrar alertas
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            <i class="ri-${type === 'success' ? 'check' : 'error-warning'}-line me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Inserir alerta no topo da página
+    const container = document.querySelector('.container-fluid');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+    
+    // Remover alerta após 5 segundos
+    setTimeout(() => {
+        const alert = container.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
 // Auto-refresh para buscar QR Code se não estiver disponível
 $(document).ready(function() {
     @if(!$invoice->pix_qr_code)
@@ -289,7 +370,7 @@ $(document).ready(function() {
             console.log('Tentativa ' + refreshCount + ' de buscar QR Code...');
             
             // Fazer requisição para atualizar a fatura
-            fetch('{{ route("associado.atualizar-fatura", $invoice->id) }}', {
+            fetch('{{ route("associado.atualizar-fatura-direta", $invoice->id) }}', {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

@@ -86,15 +86,24 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/minhas-mensalidades', 'AssociadoPagamentoController@index')->name('associado.pagamentos');
     Route::get('/fatura', 'AssociadoPagamentoController@show')->name('associado.fatura');
     Route::get('/pagamento', 'AssociadoPagamentoController@pagamento')->name('associado.pagamento');
-    Route::post('/atualizar-fatura', 'AssociadoPagamentoController@atualizar')->name('associado.atualizar');
+    
+    // Rotas para faturas
+    Route::get('/pagar-fatura/{id}', 'AssociadoPagamentoController@pagarFatura')->name('associado.pagar-fatura');
+    Route::get('/ver-fatura/{id}', 'AssociadoPagamentoController@verFatura')->name('associado.ver-fatura');
+    
+    // Rotas para atualização de faturas
+    Route::post('/atualizar-fatura', 'AssociadoPagamentoController@atualizar')->name('associado.atualizar-fatura');
+    Route::get('/atualizar-fatura/{id}', 'AssociadoPagamentoController@atualizarFatura')->name('associado.atualizar-fatura-direta');
+    
+    // Rotas para QR Code PIX
+    Route::post('/buscar-qr-code-pix', 'AssociadoPagamentoController@buscarQrCodePix')->name('associado.buscar-qr-code-pix');
+    
+    // Rotas para pagamentos
     Route::post('/verificar-pagamento', 'AssociadoPagamentoController@verificarPagamento')->name('associado.verificar-pagamento');
     Route::get('/primeira-fatura-atraso', 'AssociadoPagamentoController@primeiraFaturaAtraso')->name('associado.primeira-fatura-atraso');
-    Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
     
-    // Novas rotas para ações diretas
-    Route::get('/ver-fatura/{id}', 'AssociadoPagamentoController@verFatura')->name('associado.ver-fatura');
-    Route::get('/pagar-fatura/{id}', 'AssociadoPagamentoController@pagarFatura')->name('associado.pagar-fatura');
-    Route::get('/atualizar-fatura/{id}', 'AssociadoPagamentoController@atualizarFatura')->name('associado.atualizar-fatura');
+    // Rotas para cancelamento
+    Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
     Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
 });
 
