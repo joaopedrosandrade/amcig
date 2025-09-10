@@ -199,9 +199,19 @@
                                         <strong>Dica:</strong> Você pode pagar diretamente no Asaas enquanto aguardamos o QR Code ser gerado.
                                     </div>
                                     
-                                    <div class="alert alert-warning mb-4">
-                                        <i class="ri-time-line me-2"></i>
-                                        <strong>Verificação Automática:</strong> A página está verificando automaticamente se o pagamento foi confirmado. Você também pode clicar em "Verificar Pagamento" a qualquer momento.
+                                    <div class="alert alert-info mb-4" id="auto-check-alert">
+                                        <div class="d-flex align-items-center">
+                                            <div class="spinner-border spinner-border-sm me-3" role="status" id="check-spinner">
+                                                <span class="visually-hidden">Verificando...</span>
+                                            </div>
+                                            <div>
+                                                <strong>Verificação Automática Ativa:</strong>
+                                                <div class="small text-muted">
+                                                    Verificando pagamento a cada 15 segundos...
+                                                    <span id="check-counter">Tentativa 1</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div class="mb-4">
@@ -407,7 +417,7 @@ function buscarQrCodePix() {
             setTimeout(() => {
                 location.reload();
             }, 1500);
-        } else {
+    } else {
             showAlert('error', data.message);
         }
     })
@@ -455,9 +465,32 @@ $(document).ready(function() {
         const autoRefresh = setInterval(function() {
             refreshCount++;
             
+            // Atualizar contador visual
+            const counterElement = document.getElementById('check-counter');
+            if (counterElement) {
+                counterElement.textContent = `Tentativa ${refreshCount} de ${maxRefreshAttempts}`;
+            }
+            
             if (refreshCount > maxRefreshAttempts) {
                 clearInterval(autoRefresh);
                 console.log('Parou de verificar pagamento após ' + maxRefreshAttempts + ' tentativas');
+                
+                // Atualizar alerta para mostrar que parou
+                const alertElement = document.getElementById('auto-check-alert');
+                if (alertElement) {
+                    alertElement.className = 'alert alert-warning mb-4';
+                    alertElement.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="ri-time-line me-3"></i>
+                            <div>
+                                <strong>Verificação Automática Pausada:</strong>
+                                <div class="small text-muted">
+                                    Máximo de tentativas atingido. Você pode clicar em "Verificar Pagamento" manualmente.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
                 return;
             }
             
@@ -481,6 +514,23 @@ $(document).ready(function() {
                     console.log('Pagamento confirmado! Recarregando página...');
                     clearInterval(autoRefresh);
                     
+                    // Atualizar alerta para mostrar sucesso
+                    const alertElement = document.getElementById('auto-check-alert');
+                    if (alertElement) {
+                        alertElement.className = 'alert alert-success mb-4';
+                        alertElement.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <i class="ri-check-line me-3"></i>
+                                <div>
+                                    <strong>Pagamento Confirmado!</strong>
+                                    <div class="small text-muted">
+                                        Seu pagamento foi processado com sucesso. Recarregando página...
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
                     // Mostrar notificação de sucesso
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
@@ -492,7 +542,9 @@ $(document).ready(function() {
                             location.reload();
                         });
                     } else {
-                        location.reload();
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
                     }
                 } else if (data.success && !data.pago) {
                     console.log('Pagamento ainda pendente');
@@ -500,17 +552,17 @@ $(document).ready(function() {
                     // Se não tem QR Code, tentar buscar
                     @if(!$invoice->pix_qr_code)
                         fetch('{{ route("associado.atualizar-fatura-direta", $invoice->id) }}', {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                                 console.log('QR Code obtido! Recarregando página...');
-                                location.reload();
+                    location.reload();
                             }
                         })
                         .catch(error => {
@@ -522,7 +574,7 @@ $(document).ready(function() {
             .catch(error => {
                 console.error('Erro ao verificar pagamento:', error);
             });
-        }, 30000); // Verificar a cada 30 segundos
+        }, 15000); // Verificar a cada 15 segundos
     @endif
 });
 </script>
