@@ -63,4 +63,55 @@ class WebhookController extends Controller
         Log::info('Teste de webhook', $request->all());
         return response('Teste OK', 200);
     }
+
+    /**
+     * Simula um webhook de pagamento PIX para teste
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function simulatePixPayment(Request $request)
+    {
+        try {
+            $paymentId = $request->input('payment_id');
+            
+            if (!$paymentId) {
+                return response()->json(['error' => 'payment_id é obrigatório'], 400);
+            }
+
+            // Simular dados de webhook do Asaas para PIX pago
+            $webhookData = [
+                'event' => 'PAYMENT_CONFIRMED',
+                'payment' => [
+                    'id' => $paymentId,
+                    'status' => 'CONFIRMED',
+                    'billingType' => 'PIX',
+                    'value' => 50.00,
+                    'paymentDate' => now()->format('Y-m-d H:i:s'),
+                    'description' => 'Mensalidade AMCIG - Teste PIX',
+                    'externalReference' => 'AMCIG_1' // Substitua pelo ID do usuário de teste
+                ]
+            ];
+
+            // Processar webhook
+            $asaasService = new AsaasService();
+            $asaasService->processWebhook($webhookData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Webhook de PIX simulado com sucesso',
+                'webhook_data' => $webhookData
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao simular webhook de PIX', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

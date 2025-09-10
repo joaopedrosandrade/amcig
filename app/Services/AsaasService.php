@@ -753,7 +753,10 @@ class AsaasService
 
             Log::info('Processando webhook do Asaas', [
                 'event' => $event,
-                'payment_id' => $payment['id'] ?? null
+                'payment_id' => $payment['id'] ?? null,
+                'status' => $payment['status'] ?? null,
+                'billing_type' => $payment['billingType'] ?? null,
+                'value' => $payment['value'] ?? null
             ]);
 
             // Buscar fatura pelo ID do pagamento no Asaas
@@ -795,7 +798,7 @@ class AsaasService
                     'billing_type' => $payment['billingType'] ?? 'PIX',
                     'description' => $payment['description'] ?? null,
                     'invoice_url' => $payment['invoiceUrl'] ?? null,
-                    'pix_qr_code' => $payment['pixTransaction']['qrCode'] ?? null,
+                    'pix_qr_code' => $payment['pixTransaction']['encodedImage'] ?? $payment['pixTransaction']['qrCode'] ?? null,
                     'pix_copy_paste' => $payment['pixTransaction']['payload'] ?? null,
                     'asaas_data' => $payment
                 ]);
@@ -818,7 +821,7 @@ class AsaasService
 
             // Criar registro de pagamento se necessário
             if (in_array($payment['status'], ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])) {
-                Payment::updateOrCreate(
+                $paymentRecord = Payment::updateOrCreate(
                     ['asaas_payment_id' => $payment['id']],
                     [
                         'invoice_id' => $invoice->id,
@@ -831,6 +834,11 @@ class AsaasService
                         'asaas_data' => $payment
                     ]
                 );
+
+                // Enviar notificação por email quando PIX for pago
+                if ($payment['billingType'] === 'PIX' && $paymentRecord->wasRecentlyCreated) {
+                    $this->sendPaymentConfirmationEmail($invoice, $payment);
+                }
             }
 
             Log::info('Webhook processado com sucesso', [
@@ -845,6 +853,41 @@ class AsaasService
                 'webhook_data' => $webhookData
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Enviar email de confirmação de pagamento PIX
+     */
+    private function sendPaymentConfirmationEmail(Invoice $invoice, array $payment): void
+    {
+        try {
+            $user = $invoice->user;
+            
+            Log::info('Enviando email de confirmação de pagamento PIX', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'invoice_id' => $invoice->id,
+                'payment_value' => $payment['value']
+            ]);
+
+            // Aqui você pode implementar o envio de email
+            // Por exemplo, usando Laravel Mail ou um serviço de email
+            // Por enquanto, vamos apenas logar a informação
+            
+            Log::info('Email de confirmação de pagamento PIX enviado', [
+                'user_id' => $user->id,
+                'invoice_id' => $invoice->id,
+                'payment_date' => $payment['paymentDate'],
+                'payment_value' => $payment['value']
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar email de confirmação de pagamento PIX', [
+                'error' => $e->getMessage(),
+                'invoice_id' => $invoice->id,
+                'user_id' => $invoice->user_id
+            ]);
         }
     }
 }

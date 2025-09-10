@@ -77,7 +77,43 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            @if($invoice->pix_qr_code)
+                            @if(in_array($invoice->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
+                                <!-- Pagamento Confirmado -->
+                                <div class="text-center py-5">
+                                    <div class="avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center mx-auto mb-3">
+                                        <span class="avatar-title">
+                                            <i class="ri-check-line font-size-24"></i>
+                                        </span>
+                                    </div>
+                                    <h5 class="text-success mb-3">Pagamento Confirmado!</h5>
+                                    <p class="text-muted mb-4">Seu pagamento foi processado com sucesso.</p>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h6 class="mb-2">Valor Pago</h6>
+                                                    <h4 class="text-success mb-0">R$ {{ number_format($invoice->value, 2, ',', '.') }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h6 class="mb-2">Data do Pagamento</h6>
+                                                    <h6 class="text-muted mb-0">{{ $invoice->payment_date ? $invoice->payment_date->format('d/m/Y H:i') : 'N/A' }}</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <a href="{{ route('associado.pagamentos') }}" class="btn btn-primary">
+                                            <i class="ri-arrow-left-line me-2"></i>Voltar para Mensalidades
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($invoice->pix_qr_code)
                                 <div class="row">
                                     <!-- QR Code -->
                                     <div class="col-md-6 text-center">
@@ -161,6 +197,11 @@
                                     <div class="alert alert-info mb-4">
                                         <i class="ri-information-line me-2"></i>
                                         <strong>Dica:</strong> Você pode pagar diretamente no Asaas enquanto aguardamos o QR Code ser gerado.
+                                    </div>
+                                    
+                                    <div class="alert alert-warning mb-4">
+                                        <i class="ri-time-line me-2"></i>
+                                        <strong>Verificação Automática:</strong> A página está verificando automaticamente se o pagamento foi confirmado. Você também pode clicar em "Verificar Pagamento" a qualquer momento.
                                     </div>
                                     
                                     <div class="mb-4">
@@ -257,10 +298,17 @@ function copiarPixKey() {
 }
 
 function verificarPagamento() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    // Mostrar loading
+    button.innerHTML = '<i class="ri-loader-4-line me-1"></i>Verificando...';
+    button.disabled = true;
+    
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'Verificando pagamento...',
-            text: 'Aguarde enquanto verificamos o status do pagamento',
+            text: 'Aguarde enquanto verificamos o status do pagamento.',
             icon: 'info',
             allowOutsideClick: false,
             showConfirmButton: false,
@@ -268,19 +316,65 @@ function verificarPagamento() {
                 Swal.showLoading();
             }
         });
-        
-        // Simular verificação (você pode implementar AJAX aqui)
-        setTimeout(() => {
+    }
+    
+    fetch('{{ route("associado.verificar-pagamento") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            id: {{ $invoice->id }}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.pago) {
+                // Pagamento confirmado
+                Swal.fire({
+                    title: 'Pagamento Confirmado!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Recarregar a página para mostrar o status atualizado
+                    location.reload();
+                });
+            } else {
+                // Pagamento ainda não confirmado
+                Swal.fire({
+                    title: 'Pagamento Pendente',
+                    text: data.message,
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                });
+            }
+        } else {
             Swal.fire({
-                title: 'Pagamento não confirmado',
-                text: 'O pagamento ainda não foi confirmado. Tente novamente em alguns minutos.',
-                icon: 'info',
+                title: 'Erro',
+                text: data.message,
+                icon: 'error',
                 confirmButtonText: 'OK'
             });
-        }, 2000);
-    } else {
-        alert('Verificando pagamento...');
-    }
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao verificar pagamento:', error);
+        Swal.fire({
+            title: 'Erro',
+            text: 'Erro ao verificar pagamento. Tente novamente.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    })
+    .finally(() => {
+        // Restaurar botão
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
 }
 
 // Função para buscar QR Code PIX especificamente
@@ -352,45 +446,83 @@ function showAlert(type, message) {
     }, 5000);
 }
 
-// Auto-refresh para buscar QR Code se não estiver disponível
+// Auto-refresh para buscar QR Code e verificar pagamento
 $(document).ready(function() {
-    @if(!$invoice->pix_qr_code)
+    @if(!in_array($invoice->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
         let refreshCount = 0;
-        const maxRefreshAttempts = 10; // Máximo 10 tentativas (5 minutos)
+        const maxRefreshAttempts = 20; // Máximo 20 tentativas (10 minutos)
         
         const autoRefresh = setInterval(function() {
             refreshCount++;
             
             if (refreshCount > maxRefreshAttempts) {
                 clearInterval(autoRefresh);
-                console.log('Parou de tentar buscar QR Code após ' + maxRefreshAttempts + ' tentativas');
+                console.log('Parou de verificar pagamento após ' + maxRefreshAttempts + ' tentativas');
                 return;
             }
             
-            console.log('Tentativa ' + refreshCount + ' de buscar QR Code...');
+            console.log('Tentativa ' + refreshCount + ' de verificar pagamento...');
             
-            // Fazer requisição para atualizar a fatura
-            fetch('{{ route("associado.atualizar-fatura-direta", $invoice->id) }}', {
-                method: 'GET',
+            // Verificar se o pagamento foi confirmado
+            fetch('{{ route("associado.verificar-pagamento") }}', {
+                method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    id: {{ $invoice->id }}
+                })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    console.log('Fatura atualizada com sucesso');
-                    // Recarregar a página para mostrar o QR Code
-                    location.reload();
-                } else {
-                    console.log('QR Code ainda não disponível');
+                if (data.success && data.pago) {
+                    console.log('Pagamento confirmado! Recarregando página...');
+                    clearInterval(autoRefresh);
+                    
+                    // Mostrar notificação de sucesso
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Pagamento Confirmado!',
+                            text: 'Seu pagamento foi processado com sucesso.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        location.reload();
+                    }
+                } else if (data.success && !data.pago) {
+                    console.log('Pagamento ainda pendente');
+                    
+                    // Se não tem QR Code, tentar buscar
+                    @if(!$invoice->pix_qr_code)
+                        fetch('{{ route("associado.atualizar-fatura-direta", $invoice->id) }}', {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('QR Code obtido! Recarregando página...');
+                                location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao buscar QR Code:', error);
+                        });
+                    @endif
                 }
             })
             .catch(error => {
-                console.error('Erro ao atualizar fatura:', error);
+                console.error('Erro ao verificar pagamento:', error);
             });
-        }, 30000); // Tentar a cada 30 segundos
+        }, 30000); // Verificar a cada 30 segundos
     @endif
 });
 </script>

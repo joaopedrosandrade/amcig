@@ -110,6 +110,7 @@ Route::middleware(['auth'])->group(function() {
 // Rotas para webhooks (sem middleware de autenticação)
 Route::post('/webhook/asaas', 'WebhookController@asaas')->name('webhook.asaas');
 Route::get('/webhook/test', 'WebhookController@test')->name('webhook.test');
+Route::post('/webhook/simulate-pix', 'WebhookController@simulatePixPayment')->name('webhook.simulate-pix');
 
 // Rota para testar conexão com Asaas (apenas para desenvolvimento)
 Route::get('/test-asaas', function() {
