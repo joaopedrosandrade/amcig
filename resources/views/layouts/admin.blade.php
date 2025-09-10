@@ -188,11 +188,10 @@
                 <ul class="pe-main-menu list-unstyled">
                     <!-- Main Menu -->
                    
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#!" class="pe-nav-link">
-                            <i class="ri-settings-3-line pe-nav-icon"></i>
+                    <li class="pe-slide">
+                        <a href="{{ route('admin.dashboard') }}" class="pe-nav-link">
+                            <i class="ri-dashboard-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Dashboard</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow d-none"></i>
                         </a>
                     </li>
                     <li class="pe-slide pe-has-sub">
@@ -210,13 +209,15 @@
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
                             <i class="ri-bank-card-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Financeiro</span>
-                                    <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                                </a>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                        </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Mensalidades</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Relatorios</a></li>
-                                        </ul>
-                                    </li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.index') }}" class="pe-nav-link">Dashboard Financeiro</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.pagamentos') }}" class="pe-nav-link">Pagamentos</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Faturas</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
+                        </ul>
+                    </li>
                     <li class="pe-slide pe-has-sub">
                         <a href="#!" class="pe-nav-link">
                             <i class="ri-settings-3-line pe-nav-icon"></i>

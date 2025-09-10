@@ -69,6 +69,15 @@ Route::prefix('/admin')->group(function() {
             Route::post('/aprovar', 'Admin\AssociadoController@aprovar')->name('admin.associados.aprovar');
             Route::post('/rejeitar', 'Admin\AssociadoController@rejeitar')->name('admin.associados.rejeitar');
         });
+
+        // Rotas do Sistema Financeiro
+        Route::prefix('financeiro')->group(function() {
+            Route::get('/', 'Admin\FinanceiroController@index')->name('admin.financeiro.index');
+            Route::get('/pagamentos', 'Admin\FinanceiroController@pagamentos')->name('admin.financeiro.pagamentos');
+            Route::get('/faturas', 'Admin\FinanceiroController@faturas')->name('admin.financeiro.faturas');
+            Route::get('/relatorio', 'Admin\FinanceiroController@relatorio')->name('admin.financeiro.relatorio');
+            Route::get('/dados-graficos', 'Admin\FinanceiroController@dadosGraficos')->name('admin.financeiro.dados-graficos');
+        });
     });
 });
 
