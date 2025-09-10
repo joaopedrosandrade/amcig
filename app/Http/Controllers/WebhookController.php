@@ -19,7 +19,8 @@ class WebhookController extends Controller
         try {
             Log::info('Webhook recebido do Asaas', [
                 'headers' => $request->headers->all(),
-                'body' => $request->all()
+                'body' => $request->all(),
+                'raw_body' => $request->getContent()
             ]);
 
             // Verificar se é um webhook válido do Asaas
@@ -27,9 +28,20 @@ class WebhookController extends Controller
             $payment = $request->input('payment');
 
             if (!$event || !$payment) {
-                Log::warning('Webhook do Asaas com dados incompletos', $request->all());
+                Log::warning('Webhook do Asaas com dados incompletos', [
+                    'event' => $event,
+                    'has_payment' => !empty($payment),
+                    'full_request' => $request->all()
+                ]);
                 return response('Dados incompletos', 400);
             }
+
+            Log::info('Dados do webhook validados', [
+                'event' => $event,
+                'payment_id' => $payment['id'] ?? null,
+                'payment_status' => $payment['status'] ?? null,
+                'external_reference' => $payment['externalReference'] ?? null
+            ]);
 
             // Processar webhook usando o AsaasService
             $asaasService = new AsaasService();
@@ -37,7 +49,8 @@ class WebhookController extends Controller
 
             Log::info('Webhook processado com sucesso', [
                 'event' => $event,
-                'payment_id' => $payment['id'] ?? null
+                'payment_id' => $payment['id'] ?? null,
+                'status' => $payment['status'] ?? null
             ]);
 
             return response('OK', 200);
@@ -45,10 +58,12 @@ class WebhookController extends Controller
         } catch (\Exception $e) {
             Log::error('Erro ao processar webhook do Asaas', [
                 'error' => $e->getMessage(),
-                'request_data' => $request->all()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+                'raw_body' => $request->getContent()
             ]);
 
-            return response('Erro interno', 500);
+            return response('Erro interno: ' . $e->getMessage(), 500);
         }
     }
 

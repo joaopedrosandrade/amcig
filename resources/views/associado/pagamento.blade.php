@@ -77,7 +77,7 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            @if(in_array($invoice->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
+                            @if(in_array($invoice->status, ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
                                 <!-- Pagamento Confirmado -->
                                 <div class="text-center py-5">
                                     <div class="avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center mx-auto mb-3">
@@ -448,7 +448,7 @@ function showAlert(type, message) {
 
 // Auto-refresh para buscar QR Code e verificar pagamento
 $(document).ready(function() {
-    @if(!in_array($invoice->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
+    @if(!in_array($invoice->status, ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']))
         let refreshCount = 0;
         const maxRefreshAttempts = 20; // Máximo 20 tentativas (10 minutos)
         

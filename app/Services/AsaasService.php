@@ -772,11 +772,27 @@ class AsaasService
 
                 // Buscar assinatura pelo externalReference
                 $subscription = null;
-                if (isset($payment['externalReference']) && strpos($payment['externalReference'], 'AMCIG_') === 0) {
-                    $userId = str_replace('AMCIG_', '', $payment['externalReference']);
+                if (isset($payment['externalReference'])) {
+                    // Suporte para diferentes formatos de externalReference
+                    $externalRef = $payment['externalReference'];
+                    
+                    if (strpos($externalRef, 'AMCIG_') === 0) {
+                        $userId = str_replace('AMCIG_', '', $externalRef);
+                    } elseif (strpos($externalRef, 'AMCIG_FIRST_') === 0) {
+                        $userId = str_replace('AMCIG_FIRST_', '', $externalRef);
+                    } else {
+                        $userId = $externalRef;
+                    }
+                    
                     $subscription = Subscription::where('user_id', $userId)
                         ->where('status', 'ACTIVE')
                         ->first();
+                        
+                    Log::info('Buscando assinatura por externalReference', [
+                        'external_reference' => $externalRef,
+                        'user_id_extracted' => $userId,
+                        'subscription_found' => !is_null($subscription)
+                    ]);
                 }
 
                 if (!$subscription) {
@@ -798,8 +814,9 @@ class AsaasService
                     'billing_type' => $payment['billingType'] ?? 'PIX',
                     'description' => $payment['description'] ?? null,
                     'invoice_url' => $payment['invoiceUrl'] ?? null,
-                    'pix_qr_code' => $payment['pixTransaction']['encodedImage'] ?? $payment['pixTransaction']['qrCode'] ?? null,
-                    'pix_copy_paste' => $payment['pixTransaction']['payload'] ?? null,
+                    'payment_date' => isset($payment['paymentDate']) ? \Carbon\Carbon::parse($payment['paymentDate']) : null,
+                    'pix_qr_code' => null, // QR Code será buscado separadamente se necessário
+                    'pix_copy_paste' => null, // Payload será buscado separadamente se necessário
                     'asaas_data' => $payment
                 ]);
 
@@ -813,14 +830,27 @@ class AsaasService
             }
 
             // Atualizar status da fatura
-            $invoice->update([
+            $updateData = [
                 'status' => $payment['status'],
-                'payment_date' => $payment['paymentDate'] ? \Carbon\Carbon::parse($payment['paymentDate']) : null,
                 'asaas_data' => $payment
+            ];
+            
+            // Adicionar data de pagamento se disponível
+            if (isset($payment['paymentDate']) && $payment['paymentDate']) {
+                $updateData['payment_date'] = \Carbon\Carbon::parse($payment['paymentDate']);
+            }
+            
+            $invoice->update($updateData);
+            
+            Log::info('Fatura atualizada via webhook', [
+                'invoice_id' => $invoice->id,
+                'old_status' => $invoice->getOriginal('status'),
+                'new_status' => $payment['status'],
+                'payment_date' => $updateData['payment_date'] ?? null
             ]);
 
             // Criar registro de pagamento se necessário
-            if (in_array($payment['status'], ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])) {
+            if (in_array($payment['status'], ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])) {
                 $paymentRecord = Payment::updateOrCreate(
                     ['asaas_payment_id' => $payment['id']],
                     [
