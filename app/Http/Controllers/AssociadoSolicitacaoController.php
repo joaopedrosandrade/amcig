@@ -201,7 +201,7 @@ class AssociadoSolicitacaoController extends Controller
             'descricao' => $request->descricao,
             'endereco' => $request->endereco,
             'bairro' => $request->bairro,
-            'cidade' => 'Guarulhos',
+            'cidade' => 'São Mateus',
             'cep' => $request->cep,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,

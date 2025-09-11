@@ -208,8 +208,8 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-medium">{{ Str::limit($solicitacao->titulo, 50) }}</div>
-                                                    <small class="text-muted">{{ Str::limit($solicitacao->descricao, 80) }}</small>
+                                                    <div class="fw-medium">{{ str_limit($solicitacao->titulo, 50) }}</div>
+                                                    <small class="text-muted">{{ str_limit($solicitacao->descricao, 80) }}</small>
                                                 </td>
                                                 <td>
                                                     <span class="badge bg-{{ $solicitacao->status_cor }}">

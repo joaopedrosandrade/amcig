@@ -33,7 +33,7 @@ class CreateSolicitacoesTable extends Migration
             $table->text('descricao');
             $table->string('endereco');
             $table->string('bairro')->nullable();
-            $table->string('cidade')->default('Guarulhos');
+            $table->string('cidade')->default('São Mateus');
             $table->string('cep')->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();

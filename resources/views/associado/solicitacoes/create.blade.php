@@ -238,7 +238,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar mapa
-    const map = L.map('map').setView([-23.4538, -46.5331], 13); // Coordenadas de Guarulhos
+    const map = L.map('map').setView([-18.7167, -39.8667], 13); // Coordenadas de Guriri, São Mateus - ES
     
     // Adicionar camada de tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
