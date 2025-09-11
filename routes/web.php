@@ -85,6 +85,7 @@ Route::prefix('associado')->middleware(['auth'])->group(function() {
     
     // Mensalidades e pagamentos
     Route::get('/minhas-mensalidades', 'AssociadoPagamentoController@index')->name('associado.pagamentos');
+    Route::get('/historico-pagamentos', 'AssociadoPagamentoController@historico')->name('associado.historico-pagamentos');
     Route::get('/fatura', 'AssociadoPagamentoController@show')->name('associado.fatura');
     Route::get('/pagamento', 'AssociadoPagamentoController@pagamento')->name('associado.pagamento');
     

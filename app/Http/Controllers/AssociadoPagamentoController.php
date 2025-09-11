@@ -53,6 +53,115 @@ class AssociadoPagamentoController extends Controller
     }
 
     /**
+     * Exibe o histórico completo de pagamentos do associado
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function historico(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Query base para pagamentos
+        $query = $user->payments()
+            ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->with('invoice');
+        
+        // Filtros
+        $filtros = [];
+        
+        // Filtro por período
+        if ($request->filled('data_inicio')) {
+            $query->where('payment_date', '>=', $request->data_inicio);
+            $filtros['data_inicio'] = $request->data_inicio;
+        }
+        
+        if ($request->filled('data_fim')) {
+            $query->where('payment_date', '<=', $request->data_fim);
+            $filtros['data_fim'] = $request->data_fim;
+        }
+        
+        // Filtro por status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+            $filtros['status'] = $request->status;
+        }
+        
+        // Filtro por método de pagamento
+        if ($request->filled('metodo_pagamento')) {
+            $query->where('payment_method', $request->metodo_pagamento);
+            $filtros['metodo_pagamento'] = $request->metodo_pagamento;
+        }
+        
+        // Filtro por valor mínimo
+        if ($request->filled('valor_minimo')) {
+            $query->where('value', '>=', $request->valor_minimo);
+            $filtros['valor_minimo'] = $request->valor_minimo;
+        }
+        
+        // Filtro por valor máximo
+        if ($request->filled('valor_maximo')) {
+            $query->where('value', '<=', $request->valor_maximo);
+            $filtros['valor_maximo'] = $request->valor_maximo;
+        }
+        
+        // Busca por descrição
+        if ($request->filled('busca')) {
+            $query->where('description', 'like', '%' . $request->busca . '%');
+            $filtros['busca'] = $request->busca;
+        }
+        
+        // Ordenação
+        $ordenacao = $request->get('ordenacao', 'payment_date');
+        $direcao = $request->get('direcao', 'desc');
+        
+        if (in_array($ordenacao, ['payment_date', 'value', 'status', 'payment_method'])) {
+            $query->orderBy($ordenacao, $direcao);
+        } else {
+            $query->orderBy('payment_date', 'desc');
+        }
+        
+        // Paginação
+        $pagamentos = $query->paginate(15)->appends($request->all());
+        
+        // Estatísticas
+        $totalPagamentos = $user->payments()
+            ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->count();
+            
+        $valorTotal = $user->payments()
+            ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->sum('value');
+        
+        // Opções para filtros
+        $statusOptions = [
+            'CONFIRMED' => 'Confirmado',
+            'RECEIVED' => 'Recebido',
+            'RECEIVED_IN_CASH' => 'Recebido em Dinheiro',
+            'RECEIVED_WITH_OVERDUE' => 'Recebido com Atraso'
+        ];
+        
+        $metodoOptions = [
+            'PIX' => 'PIX',
+            'BOLETO' => 'Boleto',
+            'CREDIT_CARD' => 'Cartão de Crédito',
+            'DEBIT_CARD' => 'Cartão de Débito'
+        ];
+        
+        return view('associado.historico-pagamentos', compact(
+            'user', 
+            'pagamentos', 
+            'filtros', 
+            'totalPagamentos', 
+            'valorTotal',
+            'statusOptions',
+            'metodoOptions',
+            'ordenacao',
+            'direcao'
+        ));
+    }
+
+    /**
      * Exibe detalhes de uma fatura específica
      *
      * @param Request $request

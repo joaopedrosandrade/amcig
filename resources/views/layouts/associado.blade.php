@@ -251,8 +251,7 @@
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
                             <li class="pe-slide-item"><a href="{{ route('associado.pagamentos') }}" class="pe-nav-link {{ request()->routeIs('associado.pagamentos') ? 'active' : '' }}">Minhas Mensalidades</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Histórico de Pagamentos</a></li>
-                           
+                            <li class="pe-slide-item"><a href="{{ route('associado.historico-pagamentos') }}" class="pe-nav-link {{ request()->routeIs('associado.historico-pagamentos') ? 'active' : '' }}">Histórico de Pagamentos</a></li>
                         </ul>
                     </li>
                     
