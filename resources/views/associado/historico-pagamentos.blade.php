@@ -146,20 +146,20 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">
-                                <i class="ri-history-line me-2"></i>Pagamentos Realizados
+                                <i class="ri-history-line me-2"></i>Faturas Pagas
                             </h5>
-                            <span class="text-muted">Total: {{ $pagamentos->total() }} pagamentos</span>
+                            <span class="text-muted">Total: {{ $invoices->total() }} faturas</span>
                         </div>
-                    @if($pagamentos->count() > 0)
+                    @if($invoices->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>
-                                            <a href="{{ request()->fullUrlWithQuery(['ordenacao' => 'payment_date', 'direcao' => $ordenacao == 'payment_date' && $direcao == 'asc' ? 'desc' : 'asc']) }}" 
+                                            <a href="{{ request()->fullUrlWithQuery(['ordenacao' => 'due_date', 'direcao' => $ordenacao == 'due_date' && $direcao == 'asc' ? 'desc' : 'asc']) }}" 
                                                class="text-decoration-none">
-                                                Data do Pagamento
-                                                @if($ordenacao == 'payment_date')
+                                                Data de Vencimento
+                                                @if($ordenacao == 'due_date')
                                                     <i class="ri-arrow-{{ $direcao == 'asc' ? 'up' : 'down' }}-line"></i>
                                                 @endif
                                             </a>
@@ -183,21 +183,13 @@
                                                 @endif
                                             </a>
                                         </th>
-                                        <th>
-                                            <a href="{{ request()->fullUrlWithQuery(['ordenacao' => 'payment_method', 'direcao' => $ordenacao == 'payment_method' && $direcao == 'asc' ? 'desc' : 'asc']) }}" 
-                                               class="text-decoration-none">
-                                                Método
-                                                @if($ordenacao == 'payment_method')
-                                                    <i class="ri-arrow-{{ $direcao == 'asc' ? 'up' : 'down' }}-line"></i>
-                                                @endif
-                                            </a>
-                                        </th>
-                                        <th>Fatura</th>
+                                        <th>Método de Pagamento</th>
+                                        <th>ID da Fatura</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($pagamentos as $pagamento)
+                                    @foreach($invoices as $invoice)
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -207,24 +199,24 @@
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <div class="fw-medium">{{ $pagamento->payment_date->format('d/m/Y') }}</div>
-                                                        <small class="text-muted">{{ $pagamento->payment_date->format('H:i') }}</small>
+                                                        <div class="fw-medium">{{ $invoice->due_date->format('d/m/Y') }}</div>
+                                                        <small class="text-muted">Vencimento</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="fw-medium">{{ $pagamento->description }}</div>
-                                                @if($pagamento->asaas_payment_id)
-                                                    <small class="text-muted">ID: {{ $pagamento->asaas_payment_id }}</small>
+                                                <div class="fw-medium">{{ $invoice->description }}</div>
+                                                @if($invoice->asaas_invoice_id)
+                                                    <small class="text-muted">ID: {{ $invoice->asaas_invoice_id }}</small>
                                                 @endif
                                             </td>
                                             <td>
                                                 <span class="fw-bold text-success">
-                                                    R$ {{ number_format($pagamento->value, 2, ',', '.') }}
+                                                    R$ {{ number_format($invoice->value, 2, ',', '.') }}
                                                 </span>
                                             </td>
                                             <td>
-                                                @switch($pagamento->status)
+                                                @switch($invoice->status)
                                                     @case('CONFIRMED')
                                                         <span class="badge bg-success">Confirmado</span>
                                                         @break
@@ -238,55 +230,53 @@
                                                         <span class="badge bg-warning">Recebido com Atraso</span>
                                                         @break
                                                     @default
-                                                        <span class="badge bg-secondary">{{ $pagamento->status }}</span>
+                                                        <span class="badge bg-secondary">{{ $invoice->status }}</span>
                                                 @endswitch
                                             </td>
                                             <td>
-                                                @switch($pagamento->payment_method)
-                                                    @case('PIX')
-                                                        <span class="badge bg-primary">PIX</span>
-                                                        @break
-                                                    @case('BOLETO')
-                                                        <span class="badge bg-info">Boleto</span>
-                                                        @break
-                                                    @case('CREDIT_CARD')
-                                                        <span class="badge bg-success">Cartão de Crédito</span>
-                                                        @break
-                                                    @case('DEBIT_CARD')
-                                                        <span class="badge bg-warning">Cartão de Débito</span>
-                                                        @break
-                                                    @default
-                                                        <span class="badge bg-secondary">{{ $pagamento->payment_method }}</span>
-                                                @endswitch
-                                            </td>
-                                            <td>
-                                                @if($pagamento->invoice)
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-shrink-0 me-2">
-                                                            <div class="avatar-xs rounded-circle bg-light d-flex align-items-center justify-content-center">
-                                                                <i class="ri-file-text-line text-muted" style="font-size: 0.8rem;"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <div class="fw-medium">#{{ $pagamento->invoice->id }}</div>
-                                                            <small class="text-muted">{{ $pagamento->invoice->due_date->format('d/m/Y') }}</small>
-                                                        </div>
-                                                    </div>
+                                                @if($invoice->payments->count() > 0)
+                                                    @switch($invoice->payments->first()->payment_method)
+                                                        @case('PIX')
+                                                            <span class="badge bg-primary">PIX</span>
+                                                            @break
+                                                        @case('BOLETO')
+                                                            <span class="badge bg-info">Boleto</span>
+                                                            @break
+                                                        @case('CREDIT_CARD')
+                                                            <span class="badge bg-success">Cartão de Crédito</span>
+                                                            @break
+                                                        @case('DEBIT_CARD')
+                                                            <span class="badge bg-warning">Cartão de Débito</span>
+                                                            @break
+                                                        @default
+                                                            <span class="badge bg-secondary">{{ $invoice->payments->first()->payment_method }}</span>
+                                                    @endswitch
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 me-2">
+                                                        <div class="avatar-xs rounded-circle bg-light d-flex align-items-center justify-content-center">
+                                                            <i class="ri-file-text-line text-muted" style="font-size: 0.8rem;"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-medium">#{{ $invoice->id }}</div>
+                                                        <small class="text-muted">Fatura</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <div class="d-flex gap-1">
-                                                    @if($pagamento->invoice)
-                                                        <a href="{{ route('associado.ver-fatura', $pagamento->invoice->id) }}" 
-                                                           class="btn btn-sm btn-outline-primary" title="Ver Fatura">
-                                                            <i class="ri-eye-line"></i>
-                                                        </a>
-                                                    @endif
-                                                    @if($pagamento->asaas_payment_id)
+                                                    <a href="{{ route('associado.ver-fatura', $invoice->id) }}" 
+                                                       class="btn btn-sm btn-outline-primary" title="Ver Fatura">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    @if($invoice->asaas_invoice_id)
                                                         <button type="button" class="btn btn-sm btn-outline-info" 
-                                                                onclick="copiarId('{{ $pagamento->asaas_payment_id }}')" title="Copiar ID">
+                                                                onclick="copiarId('{{ $invoice->asaas_invoice_id }}')" title="Copiar ID">
                                                             <i class="ri-file-copy-line"></i>
                                                         </button>
                                                     @endif
@@ -301,11 +291,11 @@
                         <!-- Paginação -->
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div class="text-muted">
-                                Mostrando {{ $pagamentos->firstItem() }} a {{ $pagamentos->lastItem() }} 
-                                de {{ $pagamentos->total() }} resultados
+                                Mostrando {{ $invoices->firstItem() }} a {{ $invoices->lastItem() }} 
+                                de {{ $invoices->total() }} resultados
                             </div>
                             <div>
-                                {{ $pagamentos->links() }}
+                                {{ $invoices->links() }}
                             </div>
                         </div>
                     @else
@@ -315,12 +305,12 @@
                                     <i class="ri-search-line" style="font-size: 2rem;"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-2">Nenhum pagamento encontrado</h5>
+                            <h5 class="mb-2">Nenhuma fatura paga encontrada</h5>
                             <p class="text-muted mb-4">
                                 @if(count($filtros) > 0)
-                                    Não foram encontrados pagamentos com os filtros aplicados.
+                                    Não foram encontradas faturas pagas com os filtros aplicados.
                                 @else
-                                    Você ainda não possui pagamentos registrados.
+                                    Você ainda não possui faturas pagas registradas.
                                 @endif
                             </p>
                             @if(count($filtros) > 0)

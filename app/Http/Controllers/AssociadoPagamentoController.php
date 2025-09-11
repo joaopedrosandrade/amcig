@@ -62,22 +62,35 @@ class AssociadoPagamentoController extends Controller
     {
         $user = Auth::user();
         
-        // Query base para pagamentos
-        $query = $user->payments()
+        // Debug: verificar dados do usuário
+        \Log::info('Histórico de pagamentos - Usuário ID: ' . $user->id);
+        
+        // Debug: verificar total de invoices do usuário
+        $totalInvoices = $user->invoices()->count();
+        \Log::info('Total de invoices do usuário: ' . $totalInvoices);
+        
+        // Debug: verificar invoices pagos
+        $paidInvoices = $user->invoices()
             ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
-            ->with('invoice');
+            ->count();
+        \Log::info('Invoices pagos: ' . $paidInvoices);
+        
+        // Query base para invoices pagos
+        $query = $user->invoices()
+            ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->with('payments');
         
         // Filtros
         $filtros = [];
         
         // Filtro por período
         if ($request->filled('data_inicio')) {
-            $query->where('payment_date', '>=', $request->data_inicio);
+            $query->where('due_date', '>=', $request->data_inicio);
             $filtros['data_inicio'] = $request->data_inicio;
         }
         
         if ($request->filled('data_fim')) {
-            $query->where('payment_date', '<=', $request->data_fim);
+            $query->where('due_date', '<=', $request->data_fim);
             $filtros['data_fim'] = $request->data_fim;
         }
         
@@ -87,9 +100,11 @@ class AssociadoPagamentoController extends Controller
             $filtros['status'] = $request->status;
         }
         
-        // Filtro por método de pagamento
+        // Filtro por método de pagamento (buscar nos payments relacionados)
         if ($request->filled('metodo_pagamento')) {
-            $query->where('payment_method', $request->metodo_pagamento);
+            $query->whereHas('payments', function($q) use ($request) {
+                $q->where('payment_method', $request->metodo_pagamento);
+            });
             $filtros['metodo_pagamento'] = $request->metodo_pagamento;
         }
         
@@ -112,26 +127,51 @@ class AssociadoPagamentoController extends Controller
         }
         
         // Ordenação
-        $ordenacao = $request->get('ordenacao', 'payment_date');
+        $ordenacao = $request->get('ordenacao', 'due_date');
         $direcao = $request->get('direcao', 'desc');
         
-        if (in_array($ordenacao, ['payment_date', 'value', 'status', 'payment_method'])) {
+        if (in_array($ordenacao, ['due_date', 'value', 'status'])) {
             $query->orderBy($ordenacao, $direcao);
         } else {
-            $query->orderBy('payment_date', 'desc');
+            $query->orderBy('due_date', 'desc');
         }
         
+        // Debug: verificar query final
+        \Log::info('Query SQL: ' . $query->toSql());
+        \Log::info('Query bindings: ' . json_encode($query->getBindings()));
+        
         // Paginação
-        $pagamentos = $query->paginate(15)->appends($request->all());
+        $invoices = $query->paginate(15)->appends($request->all());
+        
+        // Debug: verificar resultado da paginação
+        \Log::info('Invoices encontrados: ' . $invoices->count());
+        \Log::info('Total de páginas: ' . $invoices->lastPage());
         
         // Estatísticas
-        $totalPagamentos = $user->payments()
+        $totalPagamentos = $user->invoices()
             ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->count();
             
-        $valorTotal = $user->payments()
+        $valorTotal = $user->invoices()
             ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->sum('value');
+            
+        // Debug: verificar estatísticas
+        \Log::info('Total de invoices pagos (estatística): ' . $totalPagamentos);
+        \Log::info('Valor total: ' . $valorTotal);
+        
+        // Debug: verificar se há dados para exibir
+        if ($invoices->count() == 0) {
+            \Log::warning('Nenhum invoice pago encontrado para o usuário ID: ' . $user->id);
+            \Log::info('Verificando se há invoices com outros status...');
+            
+            $allInvoices = $user->invoices()->get();
+            \Log::info('Todos os invoices do usuário: ' . $allInvoices->count());
+            
+            foreach ($allInvoices as $invoice) {
+                \Log::info('Invoice ID: ' . $invoice->id . ', Status: ' . $invoice->status . ', Data: ' . $invoice->due_date);
+            }
+        }
         
         // Opções para filtros
         $statusOptions = [
@@ -150,7 +190,7 @@ class AssociadoPagamentoController extends Controller
         
         return view('associado.historico-pagamentos', compact(
             'user', 
-            'pagamentos', 
+            'invoices', 
             'filtros', 
             'totalPagamentos', 
             'valorTotal',
