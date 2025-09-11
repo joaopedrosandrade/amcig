@@ -158,7 +158,7 @@ class User extends Authenticatable
         // Buscar faturas em atraso (vencidas e não pagas)
         $invoicesOverdue = $this->invoices()
             ->where('due_date', '<', now())
-            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->count();
 
         return $invoicesOverdue > 0;
@@ -171,7 +171,7 @@ class User extends Authenticatable
     {
         return $this->invoices()
             ->where('due_date', '<', now())
-            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->orderBy('due_date', 'asc')
             ->get();
     }
@@ -199,7 +199,7 @@ class User extends Authenticatable
     {
         $primeiraFaturaAtraso = $this->invoices()
             ->where('due_date', '<', now())
-            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereNotIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->orderBy('due_date', 'asc')
             ->first();
 

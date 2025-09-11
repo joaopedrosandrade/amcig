@@ -44,7 +44,7 @@ class AssociadoPagamentoController extends Controller
 
         // Buscar histórico de pagamentos
         $payments = $user->payments()
-            ->whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->orderBy('payment_date', 'desc')
             ->limit(10)
             ->get();

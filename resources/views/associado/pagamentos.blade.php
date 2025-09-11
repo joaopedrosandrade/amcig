@@ -165,16 +165,13 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group" role="group">
-                                                        <a href="{{ route('associado.ver-fatura', $invoice->id) }}" class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
-                                                            <i class="ri-eye-line"></i>
-                                                        </a>
                                                         @if($invoice->status === 'PENDING' || $invoice->status === 'OVERDUE')
-                                                            <a href="{{ route('associado.pagar-fatura', $invoice->id) }}" class="btn btn-sm btn-success" title="Pagar Fatura">
-                                                                <i class="ri-money-dollar-circle-line"></i>
+                                                            <a href="{{ route('associado.pagar-fatura', $invoice->id) }}" class="btn btn-sm btn-success" title="Pagar">
+                                                                <i class="ri-money-dollar-circle-line me-1"></i>Pagar
                                                             </a>
                                                         @endif
-                                                        <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-sm btn-outline-info" title="Atualizar Status">
-                                                            <i class="ri-refresh-line"></i>
+                                                        <a href="{{ route('associado.atualizar-fatura', $invoice->id) }}" class="btn btn-sm btn-outline-primary" title="Atualizar Status">
+                                                            <i class="ri-refresh-line me-1"></i>Atualizar Status
                                                         </a>
                                                     </div>
                                                 </td>
