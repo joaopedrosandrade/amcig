@@ -25,6 +25,12 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\AssociadoRejeitado::class => [
             \App\Listeners\EnviarEmailAssociadoRejeitado::class,
         ],
+        \App\Events\SolicitacaoCriada::class => [
+            \App\Listeners\EnviarEmailSolicitacaoCriada::class,
+        ],
+        \App\Events\SolicitacaoAtualizada::class => [
+            \App\Listeners\EnviarEmailSolicitacaoAtualizada::class,
+        ],
     ];
 
     /**

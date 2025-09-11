@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Solicitacao;
 use App\User;
 use App\Admin;
+use App\Events\SolicitacaoAtualizada;
 
 class AdminSolicitacaoController extends Controller
 {
@@ -177,6 +178,7 @@ class AdminSolicitacaoController extends Controller
         }
 
         $solicitacao = Solicitacao::findOrFail($id);
+        $statusAnterior = $solicitacao->status;
         
         $updateData = [
             'status' => $request->status,
@@ -195,6 +197,9 @@ class AdminSolicitacaoController extends Controller
         }
         
         $solicitacao->update($updateData);
+
+        // Disparar evento de solicitação atualizada
+        event(new SolicitacaoAtualizada($solicitacao, $statusAnterior));
 
         return redirect()->route('admin.solicitacoes.show', $id)
             ->with('success', 'Status da solicitação atualizado com sucesso!');
@@ -223,10 +228,15 @@ class AdminSolicitacaoController extends Controller
         }
 
         $solicitacao = Solicitacao::findOrFail($id);
+        $statusAnterior = $solicitacao->status;
+        
         $solicitacao->update([
             'admin_responsavel' => $request->admin_responsavel,
             'status' => 'EM_ANALISE'
         ]);
+
+        // Disparar evento de solicitação atualizada
+        event(new SolicitacaoAtualizada($solicitacao, $statusAnterior));
 
         return redirect()->route('admin.solicitacoes.show', $id)
             ->with('success', 'Admin responsável atribuído com sucesso!');

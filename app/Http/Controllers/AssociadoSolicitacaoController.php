@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Solicitacao;
+use App\Events\SolicitacaoCriada;
 
 class AssociadoSolicitacaoController extends Controller
 {
@@ -208,6 +209,9 @@ class AssociadoSolicitacaoController extends Controller
             'prioridade' => $request->prioridade,
             'status' => 'ABERTA'
         ]);
+
+        // Disparar evento de solicitação criada
+        event(new SolicitacaoCriada($solicitacao));
 
         return redirect()->route('associado.solicitacoes.index')
             ->with('success', 'Solicitação criada com sucesso! Número: #' . $solicitacao->id);
