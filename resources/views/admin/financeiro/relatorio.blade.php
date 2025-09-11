@@ -59,10 +59,10 @@
                             <i class="ri-money-dollar-circle-line"></i>
                         </div>
                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                            <span class="counter-value" data-target="{{ number_format($recebimentos->sum('value'), 2, ',', '.') }}">R$ {{ number_format($recebimentos->sum('value'), 2, ',', '.') }}</span>
+                            <span class="counter-value" data-target="{{ number_format($totalRecebido, 2, ',', '.') }}">R$ {{ number_format($totalRecebido, 2, ',', '.') }}</span>
                         </h2>
                         <p class="mb-0 text-truncate fs-16 mb-1">Total Recebido</p>
-                        <small class="text-muted">{{ $recebimentos->count() }} pagamentos</small>
+                        <small class="text-muted">{{ $faturasPagas }} faturas pagas</small>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
                             <span class="counter-value" data-target="{{ $recebimentosPorDia->count() }}">{{ $recebimentosPorDia->count() }}</span>
                         </h2>
- <p class="mb-0 text-truncate fs-16 mb-1">Dias com Recebimento</p>
+                        <p class="mb-0 text-truncate fs-16 mb-1">Dias com Recebimento</p>
                         <small class="text-muted">Período selecionado</small>
                     </div>
                 </div>
@@ -89,10 +89,10 @@
                             <i class="ri-bar-chart-line"></i>
                         </div>
                         <h2 class="mt-8 mb-2 fs-24 fw-semibold">
-                            <span class="counter-value" data-target="{{ number_format($recebimentos->avg('value'), 2, ',', '.') }}">R$ {{ number_format($recebimentos->avg('value'), 2, ',', '.') }}</span>
+                            <span class="counter-value" data-target="{{ $faturasPagas > 0 ? number_format($totalRecebido / $faturasPagas, 2, ',', '.') : '0,00' }}">R$ {{ $faturasPagas > 0 ? number_format($totalRecebido / $faturasPagas, 2, ',', '.') : '0,00' }}</span>
                         </h2>
                         <p class="mb-0 text-truncate fs-16 mb-1">Ticket Médio</p>
-                        <small class="text-muted">Por pagamento</small>
+                        <small class="text-muted">Por fatura</small>
                     </div>
                 </div>
             </div>
@@ -107,7 +107,7 @@
                             <span class="counter-value" data-target="{{ $recebimentos->unique('user_id')->count() }}">{{ $recebimentos->unique('user_id')->count() }}</span>
                         </h2>
                         <p class="mb-0 text-truncate fs-16 mb-1">Associados Únicos</p>
-                        <small class="text-muted">Com pagamentos</small>
+                        <small class="text-muted">Com faturas pagas</small>
                     </div>
                 </div>
             </div>
@@ -139,25 +139,26 @@
                                     @endphp
                                     <tr>
                                         <td>
-                                            @php
-                                                $statusClass = 'info';
-                                                switch($item->status) {
-                                                    case 'CONFIRMED':
-                                                    case 'RECEIVED_IN_CASH':
-                                                    case 'RECEIVED_WITH_OVERDUE':
-                                                        $statusClass = 'success';
-                                                        break;
-                                                    case 'PENDING':
-                                                        $statusClass = 'warning';
-                                                        break;
-                                                    case 'OVERDUE':
-                                                        $statusClass = 'danger';
-                                                        break;
-                                                    case 'REFUNDED':
-                                                        $statusClass = 'secondary';
-                                                        break;
-                                                }
-                                            @endphp
+                                        @php
+                                            $statusClass = 'info';
+                                            switch($item->status) {
+                                                case 'CONFIRMED':
+                                                case 'RECEIVED':
+                                                case 'RECEIVED_IN_CASH':
+                                                case 'RECEIVED_WITH_OVERDUE':
+                                                    $statusClass = 'success';
+                                                    break;
+                                                case 'PENDING':
+                                                    $statusClass = 'warning';
+                                                    break;
+                                                case 'OVERDUE':
+                                                    $statusClass = 'danger';
+                                                    break;
+                                                case 'REFUNDED':
+                                                    $statusClass = 'secondary';
+                                                    break;
+                                            }
+                                        @endphp
                                             <span class="badge bg-{{ $statusClass }}">{{ $item->status }}</span>
                                         </td>
                                         <td>{{ $item->quantidade }}</td>
@@ -195,7 +196,7 @@
                                         $percentualMetodo = $totalMetodos > 0 ? ($item->total / $totalMetodos) * 100 : 0;
                                     @endphp
                                     <tr>
-                                        <td>{{ $item->payment_method ?? 'Não informado' }}</td>
+                                        <td>{{ $item->billing_type ?? 'Não informado' }}</td>
                                         <td>{{ $item->quantidade }}</td>
                                         <td>R$ {{ number_format($item->total, 2, ',', '.') }}</td>
                                         <td>{{ number_format($percentualMetodo, 1) }}%</td>
@@ -261,6 +262,7 @@
                                         $statusClass = 'info';
                                         switch($recebimento->status) {
                                             case 'CONFIRMED':
+                                            case 'RECEIVED':
                                             case 'RECEIVED_IN_CASH':
                                             case 'RECEIVED_WITH_OVERDUE':
                                                 $statusClass = 'success';
@@ -278,7 +280,7 @@
                                     @endphp
                                     <span class="badge bg-{{ $statusClass }}">{{ $recebimento->formatted_status }}</span>
                                 </td>
-                                <td>{{ $recebimento->payment_method ?? 'N/A' }}</td>
+                                <td>{{ $recebimento->billing_type ?? 'N/A' }}</td>
                                 <td>{{ $recebimento->description ?? 'N/A' }}</td>
                             </tr>
                             @empty

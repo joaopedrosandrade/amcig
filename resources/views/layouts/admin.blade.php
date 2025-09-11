@@ -213,7 +213,7 @@
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
                   
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Dashboard</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Mensalidades</a></li>
                             <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
                         </ul>
                     </li>

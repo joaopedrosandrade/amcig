@@ -230,39 +230,64 @@ class FinanceiroController extends Controller
         $dataInicio = $request->filled('data_inicio') ? $request->data_inicio : Carbon::now()->startOfMonth();
         $dataFim = $request->filled('data_fim') ? $request->data_fim : Carbon::now()->endOfMonth();
 
-        // Recebimentos por período
-        $recebimentos = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        // Recebimentos por período (faturas pagas)
+        $recebimentos = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
-            ->with(['user', 'invoice'])
+            ->with(['user', 'subscription'])
             ->orderBy('payment_date', 'desc')
             ->get();
 
-        // Resumo por status
-        $resumoStatus = Payment::whereBetween('payment_date', [$dataInicio, $dataFim])
+        // Resumo por status (faturas)
+        $resumoStatus = Invoice::whereBetween('payment_date', [$dataInicio, $dataFim])
             ->selectRaw('status, COUNT(*) as quantidade, SUM(value) as total')
             ->groupBy('status')
             ->get();
 
-        // Resumo por método de pagamento
-        $resumoMetodo = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        // Resumo por método de pagamento (baseado no billing_type das faturas)
+        $resumoMetodo = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
-            ->selectRaw('payment_method, COUNT(*) as quantidade, SUM(value) as total')
-            ->groupBy('payment_method')
+            ->selectRaw('billing_type, COUNT(*) as quantidade, SUM(value) as total')
+            ->groupBy('billing_type')
             ->get();
 
-        // Recebimentos por dia
-        $recebimentosPorDia = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        // Recebimentos por dia (faturas)
+        $recebimentosPorDia = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
             ->selectRaw('DATE(payment_date) as data, COUNT(*) as quantidade, SUM(value) as total')
             ->groupBy('data')
             ->orderBy('data', 'desc')
             ->get();
 
+        // Estatísticas gerais do período
+        $totalRecebido = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereBetween('payment_date', [$dataInicio, $dataFim])
+            ->sum('value');
+
+        $totalFaturas = Invoice::whereBetween('payment_date', [$dataInicio, $dataFim])
+            ->count();
+
+        $faturasPagas = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            ->whereBetween('payment_date', [$dataInicio, $dataFim])
+            ->count();
+
+        $faturasPendentes = Invoice::where('status', 'PENDING')
+            ->whereBetween('due_date', [$dataInicio, $dataFim])
+            ->count();
+
+        $faturasVencidas = Invoice::where('status', 'OVERDUE')
+            ->whereBetween('due_date', [$dataInicio, $dataFim])
+            ->count();
+
         return view('admin.financeiro.relatorio', compact(
             'recebimentos',
             'resumoStatus',
             'resumoMetodo',
             'recebimentosPorDia',
+            'totalRecebido',
+            'totalFaturas',
+            'faturasPagas',
+            'faturasPendentes',
+            'faturasVencidas',
             'dataInicio',
             'dataFim'
         ));
