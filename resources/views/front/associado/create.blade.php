@@ -457,9 +457,25 @@
                                 <div class="error-message" id="dataNascimento-error"></div>
                             </div>
                             <div class="col-md-6 mb-4">
+                                <label for="sexo" class="form-label">Sexo <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sexo" name="sexo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                                <div class="error-message" id="sexo-error"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
                                 <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
                                 <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" inputmode="numeric" required>
                                 <div class="error-message" id="telefone-error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <!-- Espaço vazio para manter o layout -->
                             </div>
                         </div>
                         

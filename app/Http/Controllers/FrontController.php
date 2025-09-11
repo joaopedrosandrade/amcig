@@ -45,6 +45,7 @@ class FrontController extends Controller
                 'nome' => 'required|string',
                 'cpf' => 'required|string|unique:users,cpf',
                 'data_nascimento' => 'required|date|before:today',
+                'sexo' => 'required|in:masculino,feminino,outro',
                 'telefone' => 'required|string',
                 'email' => 'required|email|unique:users,email',
                 'cep' => 'required|string',
@@ -68,6 +69,9 @@ class FrontController extends Controller
 
                 'data_nascimento.required' => 'A data de nascimento é obrigatória.',
                 'data_nascimento.before' => 'A data de nascimento deve ser anterior a hoje.',
+
+                'sexo.required' => 'O sexo é obrigatório.',
+                'sexo.in' => 'Selecione uma opção válida para o sexo.',
 
                 'telefone.required' => 'O telefone é obrigatório.',
 
@@ -154,6 +158,7 @@ class FrontController extends Controller
                 'name' => $request->nome,
                 'cpf' => $request->cpf,
                 'data_nascimento' => $request->data_nascimento,
+                'sexo' => $request->sexo,
                 'telefone' => $request->telefone,
                 'email' => $request->email,
                 'password' => Hash::make($request->senha),
