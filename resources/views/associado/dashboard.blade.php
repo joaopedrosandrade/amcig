@@ -66,14 +66,18 @@
                                     <div class="text-center">
                                         <h6 class="text-primary mb-2">Carteirinha de Associado</h6>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('carteirinha.show', $user->matricula) }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Visualizar Carteirinha">
-                                                <i class="ri-eye-line me-1"></i>
-                                                Visualizar
-                                            </a>
-                                            <a href="{{ route('carteirinha.print', $user->matricula) }}" target="_blank" class="btn btn-outline-success btn-sm" title="Imprimir Carteirinha">
-                                                <i class="ri-printer-line me-1"></i>
-                                                Imprimir
-                                            </a>
+                                            @if(isset($user->matricula) && !empty($user->matricula))
+                                                <a href="{{ route('associado.carteirinha', $user->matricula) }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Visualizar Carteirinha">
+                                                    <i class="ri-eye-line me-1"></i>
+                                                    Visualizar
+                                                </a>
+                                                <a href="{{ route('associado.carteirinha.print', $user->matricula) }}" target="_blank" class="btn btn-outline-success btn-sm" title="Imprimir Carteirinha">
+                                                    <i class="ri-printer-line me-1"></i>
+                                                    Imprimir
+                                                </a>
+                                            @else
+                                                <span class="text-muted">Matrícula não disponível</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -169,58 +173,7 @@
               
             </div>
 
-            <!-- Atividades Recentes -->
-            <div class="row">
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Próximas Assembleias</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6 class="mb-1">Assembleia Geral Ordinária</h6>
-                                <p class="text-muted mb-0">28 de Agosto, 2024 - 19:00</p>
-                                <small class="text-muted">Local: Sede da AMCIG</small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <h6 class="mb-1">Reunião do Comitê</h6>
-                                <p class="text-muted mb-0">30 de Agosto, 2024 - 15:00</p>
-                                <small class="text-muted">Local: Online</small>
-                            </div>
-                            
-                            <div class="text-center">
-                                <a href="#" class="btn btn-outline-primary btn-sm">Ver Todas as Reuniões</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Documentos Recentes</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6 class="mb-1">Estatuto Atualizado</h6>
-                                <p class="text-muted mb-0">Atualizado em 26/08/2024</p>
-                                <small class="text-muted">Versão 2.1</small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <h6 class="mb-1">Regimento Interno</h6>
-                                <p class="text-muted mb-0">Atualizado em 25/08/2024</p>
-                                <small class="text-muted">Versão 1.5</small>
-                            </div>
-                            
-                            <div class="text-center">
-                                <a href="#" class="btn btn-outline-info btn-sm">Ver Todos os Documentos</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+     
         @endif
     </div><!--End container-fluid-->
 </main><!--End app-wrapper-->

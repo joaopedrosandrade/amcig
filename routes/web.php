@@ -20,18 +20,13 @@ Route::get('/home', function() {
     return redirect()->route('associado.dashboard');
 })->name('home');
 
-// Rota pública para carteirinha virtual
-Route::get('/carteirinha/{matricula}', 'CarteirinhaController@show')->name('carteirinha.show');
-Route::get('/carteirinha/{matricula}/print', 'CarteirinhaController@print')->name('carteirinha.print');
+// Rotas públicas para carteirinha virtual
+Route::get('/carteirinha/{matricula}', 'CarteirinhaController@showByMatricula')->name('carteirinha.show');
+Route::get('/carteirinha/{matricula}/print', 'CarteirinhaController@printByMatricula')->name('carteirinha.print');
 
 Auth::routes();
 
-// Rotas para associados logados
-Route::middleware(['auth'])->group(function () {
-    Route::get('/associado/dashboard', 'AssociadoController@dashboard')->name('associado.dashboard');
-    Route::get('/associado/profile', 'AssociadoController@profile')->name('associado.profile');
-    Route::put('/associado/profile', 'AssociadoController@updateProfile')->name('associado.profile.update');
-});
+// Rotas para associados logados (movidas para o grupo principal)
 
 Route::get('/home', 'HomeController@index')->name('home');
 
@@ -82,7 +77,13 @@ Route::prefix('/admin')->group(function() {
 });
 
 // Rotas para associados autenticados
-Route::middleware(['auth'])->group(function() {
+Route::prefix('associado')->middleware(['auth'])->group(function() {
+    // Dashboard e perfil
+    Route::get('/dashboard', 'AssociadoController@dashboard')->name('associado.dashboard');
+    Route::get('/profile', 'AssociadoController@profile')->name('associado.profile');
+    Route::put('/profile', 'AssociadoController@updateProfile')->name('associado.profile.update');
+    
+    // Mensalidades e pagamentos
     Route::get('/minhas-mensalidades', 'AssociadoPagamentoController@index')->name('associado.pagamentos');
     Route::get('/fatura', 'AssociadoPagamentoController@show')->name('associado.fatura');
     Route::get('/pagamento', 'AssociadoPagamentoController@pagamento')->name('associado.pagamento');
@@ -102,15 +103,19 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/verificar-pagamento', 'AssociadoPagamentoController@verificarPagamento')->name('associado.verificar-pagamento');
     Route::get('/primeira-fatura-atraso', 'AssociadoPagamentoController@primeiraFaturaAtraso')->name('associado.primeira-fatura-atraso');
     
-            // Rotas para cancelamento
-            Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
-            Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
-            
-            // Rotas para perfil
-            Route::get('/perfil', 'AssociadoProfileController@index')->name('associado.perfil');
-            Route::post('/perfil/foto', 'AssociadoProfileController@updatePhoto')->name('associado.perfil.foto');
-            Route::delete('/perfil/foto', 'AssociadoProfileController@removePhoto')->name('associado.perfil.foto.remove');
+    // Rotas para cancelamento
+    Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
+    Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
+    
+    // Rotas para perfil
+    Route::get('/perfil', 'AssociadoProfileController@index')->name('associado.perfil');
+    Route::post('/perfil/foto', 'AssociadoProfileController@updatePhoto')->name('associado.perfil.foto');
+    Route::delete('/perfil/foto', 'AssociadoProfileController@removePhoto')->name('associado.perfil.foto.remove');
 });
+
+// Rotas públicas para carteirinha (acesso sem autenticação)
+Route::get('/associado/carteirinha/{matricula}', 'CarteirinhaController@showByMatricula')->name('associado.carteirinha');
+Route::get('/associado/carteirinha/{matricula}/print', 'CarteirinhaController@printByMatricula')->name('associado.carteirinha.print');
 
 // Rotas para webhooks (sem middleware de autenticação)
 Route::post('/webhook/asaas', 'WebhookController@asaas')->name('webhook.asaas');

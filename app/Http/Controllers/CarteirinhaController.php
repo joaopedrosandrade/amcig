@@ -11,12 +11,17 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class CarteirinhaController extends Controller
 {
     /**
-     * Exibe a carteirinha virtual do associado
+     * Exibe a carteirinha virtual do associado (método removido - usando showByMatricula)
+     * Este método foi removido pois a carteirinha é de acesso público
+     */
+    
+    /**
+     * Exibe a carteirinha virtual do associado por matrícula (pública)
      *
      * @param string $matricula
      * @return \Illuminate\View\View
      */
-    public function show($matricula)
+    public function showByMatricula($matricula)
     {
         // Busca o usuário pela matrícula
         $user = User::where('matricula', $matricula)->first();
@@ -44,12 +49,17 @@ class CarteirinhaController extends Controller
     }
     
     /**
-     * Exibe a carteirinha para impressão
+     * Exibe a carteirinha para impressão do associado (método removido - usando printByMatricula)
+     * Este método foi removido pois a carteirinha é de acesso público
+     */
+    
+    /**
+     * Exibe a carteirinha para impressão por matrícula (pública)
      *
      * @param string $matricula
      * @return \Illuminate\View\View
      */
-    public function print($matricula)
+    public function printByMatricula($matricula)
     {
         // Busca o usuário pela matrícula
         $user = User::where('matricula', $matricula)->first();

@@ -210,7 +210,23 @@
                             <span class="pe-nav-content">Dashboard</span>
                         </a>
                     </li>
-                    
+                    <li class="pe-slide pe-has-sub">
+                        <a href="#collapseInformacoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseInformacoes">
+                            <i class="ri-information-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Informações</span>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                        </a>
+                        <ul class="pe-slide-menu collapse" id="collapseInformacoes">
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Assembleias</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Atas</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Sobre a AMCIG</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Diretoria</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Comitês</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Notícias</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Estatuto</a></li>
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Regimento Interno</a></li>
+                        </ul>
+                    </li>
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapsePerfil" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapsePerfil">
                             <i class="ri-user-line pe-nav-icon"></i>
@@ -218,36 +234,14 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapsePerfil">
-                            <li class="pe-slide-item"><a href="{{ route('associado.perfil') }}" class="pe-nav-link {{ request()->routeIs('associado.perfil') ? 'active' : '' }}">Meu Perfil</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Alterar Senha</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('associado.perfil') }}" class="pe-nav-link {{ request()->routeIs('associado.perfil') ? 'active' : '' }}">Dados</a></li>
+                           
                         </ul>
                     </li>
                     
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#collapseAssembleias" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseAssembleias">
-                            <i class="ri-calendar-event-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Assembleias</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                        </a>
-                        <ul class="pe-slide-menu collapse" id="collapseAssembleias">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Próximas Reuniões</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Histórico</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Atas</a></li>
-                        </ul>
-                    </li>
+                  
                     
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#collapseDocumentos" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseDocumentos">
-                            <i class="ri-file-text-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Documentos</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                        </a>
-                        <ul class="pe-slide-menu collapse" id="collapseDocumentos">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Estatuto</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Regimento Interno</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Documentos Importantes</a></li>
-                        </ul>
-                    </li>
+                   
                     
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
@@ -258,36 +252,13 @@
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
                             <li class="pe-slide-item"><a href="{{ route('associado.pagamentos') }}" class="pe-nav-link {{ request()->routeIs('associado.pagamentos') ? 'active' : '' }}">Minhas Mensalidades</a></li>
                             <li class="pe-slide-item"><a href="#" class="pe-nav-link">Histórico de Pagamentos</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Segunda Via</a></li>
+                           
                         </ul>
                     </li>
                     
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#collapseComunicacao" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseComunicacao">
-                            <i class="ri-message-2-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Comunicação</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                        </a>
-                        <ul class="pe-slide-menu collapse" id="collapseComunicacao">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Notificações</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Contato Diretoria</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Sugestões</a></li>
-                        </ul>
-                    </li>
+                   
                     
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#collapseInformacoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseInformacoes">
-                            <i class="ri-information-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Informações</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                        </a>
-                        <ul class="pe-slide-menu collapse" id="collapseInformacoes">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Sobre a AMCIG</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Diretoria</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Comitês</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Notícias</a></li>
-                        </ul>
-                    </li>
+                  
                 </ul>
                 
                 <!-- Widgets -->
