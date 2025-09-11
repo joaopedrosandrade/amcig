@@ -103,9 +103,9 @@
 
                                 <!-- Bairro -->
                                 <div class="col-md-4">
-                                    <label for="bairro" class="form-label">Bairro</label>
+                                    <label for="bairro" class="form-label">Bairro/Região</label>
                                     <input type="text" class="form-control {{ $errors->has('bairro') ? 'is-invalid' : '' }}" 
-                                           id="bairro" name="bairro" placeholder="Ex: Centro" 
+                                           id="bairro" name="bairro" placeholder="Ex: Guriri Norte" 
                                            value="{{ old('bairro') }}" maxlength="100">
                                     @if($errors->has('bairro'))
                                         <div class="invalid-feedback">{{ $errors->first('bairro') }}</div>
@@ -164,7 +164,7 @@
                         <div class="mt-3">
                             <small class="text-muted">
                                 <i class="ri-information-line me-1"></i>
-                                Clique no mapa para marcar a localização exata da solicitação.
+                                Clique no mapa para marcar a localização exata da solicitação. (Arraste para a direita para encontrar a regoão de Guriri)
                             </small>
                         </div>
                     </div>

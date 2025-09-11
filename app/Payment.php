@@ -46,7 +46,7 @@ class Payment extends Model
      */
     public function isConfirmed(): bool
     {
-        return in_array($this->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
+        return in_array($this->status, ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
     }
 
     /**
@@ -89,6 +89,7 @@ class Payment extends Model
         $statusMap = [
             'PENDING' => 'Pendente',
             'CONFIRMED' => 'Confirmado',
+            'RECEIVED' => 'Recebido',
             'RECEIVED_IN_CASH' => 'Recebido em Dinheiro',
             'OVERDUE' => 'Vencido',
             'REFUNDED' => 'Estornado',

@@ -23,7 +23,7 @@ class FinanceiroController extends Controller
     public function index()
     {
         // Dados gerais de recebimentos
-        $totalRecebido = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $totalRecebido = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->sum('value');
 
         $totalPendente = Payment::where('status', 'PENDING')
@@ -36,13 +36,13 @@ class FinanceiroController extends Controller
             ->sum('value');
 
         // Recebimentos do mês atual
-        $recebimentosMesAtual = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $recebimentosMesAtual = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereMonth('payment_date', Carbon::now()->month)
             ->whereYear('payment_date', Carbon::now()->year)
             ->sum('value');
 
         // Recebimentos do mês anterior
-        $recebimentosMesAnterior = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $recebimentosMesAnterior = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
             ->whereYear('payment_date', Carbon::now()->subMonth()->year)
             ->sum('value');
@@ -55,7 +55,7 @@ class FinanceiroController extends Controller
 
         // Contadores de faturas
         $faturasPendentes = Invoice::where('status', 'PENDING')->count();
-        $faturasPagas = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])->count();
+        $faturasPagas = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])->count();
         $faturasVencidas = Invoice::where('status', 'OVERDUE')->count();
 
         // Assinaturas ativas
@@ -63,7 +63,7 @@ class FinanceiroController extends Controller
         $assinaturasSuspensas = Subscription::where('status', 'SUSPENDED')->count();
 
         // Recebimentos por método de pagamento (últimos 30 dias)
-        $recebimentosPorMetodo = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $recebimentosPorMetodo = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->where('payment_date', '>=', Carbon::now()->subDays(30))
             ->selectRaw('payment_method, SUM(value) as total')
             ->groupBy('payment_method')
@@ -73,7 +73,7 @@ class FinanceiroController extends Controller
         $recebimentosUltimos12Meses = [];
         for ($i = 11; $i >= 0; $i--) {
             $mes = Carbon::now()->subMonths($i);
-            $total = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            $total = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
                 ->whereMonth('payment_date', $mes->month)
                 ->whereYear('payment_date', $mes->year)
                 ->sum('value');
@@ -131,6 +131,7 @@ class FinanceiroController extends Controller
         $statusOptions = [
             'PENDING' => 'Pendente',
             'CONFIRMED' => 'Confirmado',
+            'RECEIVED' => 'Recebido',
             'RECEIVED_IN_CASH' => 'Recebido em Dinheiro',
             'OVERDUE' => 'Vencido',
             'REFUNDED' => 'Estornado',
@@ -164,16 +165,61 @@ class FinanceiroController extends Controller
 
         $faturas = $query->orderBy('due_date', 'desc')->paginate(20);
 
+        // Estatísticas para o dashboard
+        $totalFaturas = Invoice::count();
+        $faturasPendentes = Invoice::where('status', 'PENDING')->count();
+        $faturasPagas = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])->count();
+        $faturasVencidas = Invoice::where('status', 'OVERDUE')->count();
+        $faturasEstornadas = Invoice::where('status', 'REFUNDED')->count();
+
+        // Faturas por status
+        $faturasPorStatus = Invoice::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        // Faturas recentes
+        $faturasRecentes = Invoice::with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Faturas vencidas
+        $faturasVencidasList = Invoice::with(['user'])
+            ->where('status', 'OVERDUE')
+            ->orderBy('due_date', 'desc')
+            ->get();
+
+        // Faturas por valor
+        $valorTotalPendente = Invoice::where('status', 'PENDING')->sum('value');
+        $valorTotalPago = Invoice::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])->sum('value');
+        $valorTotalVencido = Invoice::where('status', 'OVERDUE')->sum('value');
+
         $statusOptions = [
             'PENDING' => 'Pendente',
             'CONFIRMED' => 'Confirmado',
+            'RECEIVED' => 'Recebido',
             'RECEIVED_IN_CASH' => 'Recebido em Dinheiro',
             'OVERDUE' => 'Vencido',
             'REFUNDED' => 'Estornado',
             'RECEIVED_WITH_OVERDUE' => 'Recebido com Atraso'
         ];
 
-        return view('admin.financeiro.faturas', compact('faturas', 'statusOptions'));
+        return view('admin.financeiro.faturas', compact(
+            'faturas', 
+            'statusOptions',
+            'totalFaturas',
+            'faturasPendentes',
+            'faturasPagas',
+            'faturasVencidas',
+            'faturasEstornadas',
+            'faturasPorStatus',
+            'faturasRecentes',
+            'faturasVencidasList',
+            'valorTotalPendente',
+            'valorTotalPago',
+            'valorTotalVencido'
+        ));
     }
 
     /**
@@ -185,7 +231,7 @@ class FinanceiroController extends Controller
         $dataFim = $request->filled('data_fim') ? $request->data_fim : Carbon::now()->endOfMonth();
 
         // Recebimentos por período
-        $recebimentos = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $recebimentos = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
             ->with(['user', 'invoice'])
             ->orderBy('payment_date', 'desc')
@@ -198,14 +244,14 @@ class FinanceiroController extends Controller
             ->get();
 
         // Resumo por método de pagamento
-        $resumoMetodo = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $resumoMetodo = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
             ->selectRaw('payment_method, COUNT(*) as quantidade, SUM(value) as total')
             ->groupBy('payment_method')
             ->get();
 
         // Recebimentos por dia
-        $recebimentosPorDia = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+        $recebimentosPorDia = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
             ->whereBetween('payment_date', [$dataInicio, $dataFim])
             ->selectRaw('DATE(payment_date) as data, COUNT(*) as quantidade, SUM(value) as total')
             ->groupBy('data')
@@ -232,7 +278,7 @@ class FinanceiroController extends Controller
         $dados = [];
         for ($i = $periodo - 1; $i >= 0; $i--) {
             $mes = Carbon::now()->subMonths($i);
-            $total = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
+            $total = Payment::whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE'])
                 ->whereMonth('payment_date', $mes->month)
                 ->whereYear('payment_date', $mes->year)
                 ->sum('value');

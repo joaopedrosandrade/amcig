@@ -212,9 +212,8 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.index') }}" class="pe-nav-link">Dashboard Financeiro</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.pagamentos') }}" class="pe-nav-link">Pagamentos</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Faturas</a></li>
+                  
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Dashboard</a></li>
                             <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
                         </ul>
                     </li>

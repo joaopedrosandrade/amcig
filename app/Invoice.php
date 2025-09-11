@@ -68,7 +68,7 @@ class Invoice extends Model
      */
     public function isPaid(): bool
     {
-        return in_array($this->status, ['CONFIRMED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
+        return in_array($this->status, ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH', 'RECEIVED_WITH_OVERDUE']);
     }
 
     /**
