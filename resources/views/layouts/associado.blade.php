@@ -239,9 +239,18 @@
                         </ul>
                     </li>
                     
-                  
-                    
-                   
+                    <!-- Solicitações -->
+                    <li class="pe-slide pe-has-sub">
+                        <a href="#collapseSolicitacoes" class="pe-nav-link {{ request()->routeIs('associado.solicitacoes.*') ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseSolicitacoes">
+                            <i class="ri-file-list-3-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Solicitações</span>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                        </a>
+                        <ul class="pe-slide-menu collapse {{ request()->routeIs('associado.solicitacoes.*') ? 'show' : '' }}" id="collapseSolicitacoes">
+                            <li class="pe-slide-item"><a href="{{ route('associado.solicitacoes.index') }}" class="pe-nav-link {{ request()->routeIs('associado.solicitacoes.index') ? 'active' : '' }}">Minhas Solicitações</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('associado.solicitacoes.create') }}" class="pe-nav-link {{ request()->routeIs('associado.solicitacoes.create') ? 'active' : '' }}">Nova Solicitação</a></li>
+                        </ul>
+                    </li>
                     
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">

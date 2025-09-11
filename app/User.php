@@ -123,6 +123,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relacionamento com Solicitações
+     */
+    public function solicitacoes(): HasMany
+    {
+        return $this->hasMany(Solicitacao::class);
+    }
+
+    /**
      * Obtém a assinatura ativa do usuário
      */
     public function activeSubscription(): ?Subscription

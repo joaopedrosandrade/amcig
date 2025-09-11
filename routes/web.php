@@ -108,6 +108,13 @@ Route::prefix('associado')->middleware(['auth'])->group(function() {
     Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
     Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
     
+    // Rotas para solicitações
+    Route::get('/solicitacoes', 'AssociadoSolicitacaoController@index')->name('associado.solicitacoes.index');
+    Route::get('/solicitacoes/nova', 'AssociadoSolicitacaoController@create')->name('associado.solicitacoes.create');
+    Route::post('/solicitacoes', 'AssociadoSolicitacaoController@store')->name('associado.solicitacoes.store');
+    Route::get('/solicitacoes/{id}', 'AssociadoSolicitacaoController@show')->name('associado.solicitacoes.show');
+    Route::post('/solicitacoes/{id}/cancelar', 'AssociadoSolicitacaoController@cancel')->name('associado.solicitacoes.cancel');
+    
     // Rotas para perfil
     Route::get('/perfil', 'AssociadoProfileController@index')->name('associado.perfil');
     Route::post('/perfil/foto', 'AssociadoProfileController@updatePhoto')->name('associado.perfil.foto');
