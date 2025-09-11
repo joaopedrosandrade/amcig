@@ -132,8 +132,14 @@
                             <div class="row mt-4">
                                 <div class="col-12">
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="ri-save-line me-1"></i>Enviar Solicitação
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                                            <span class="btn-text">
+                                                <i class="ri-save-line me-1"></i>Enviar Solicitação
+                                            </span>
+                                            <span class="btn-loading d-none">
+                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                Enviando...
+                                            </span>
                                         </button>
                                         <a href="{{ route('associado.solicitacoes.index') }}" class="btn btn-outline-secondary">
                                             <i class="ri-arrow-left-line me-1"></i>Voltar
@@ -226,7 +232,46 @@
         </div>
     </div>
 </main>
+
+<!-- Modal de carregamento -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <h5 class="mb-2">Enviando solicitação...</h5>
+                <p class="text-muted mb-0">Por favor, aguarde enquanto processamos sua solicitação e enviamos o email de confirmação.</p>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('styles')
+<style>
+    .btn-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    #loadingModal .modal-content {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    #loadingModal .spinner-border {
+        border-width: 0.3em;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <!-- Leaflet CSS -->
@@ -297,7 +342,44 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Por favor, clique no mapa para marcar a localização da solicitação.');
             return false;
         }
+        
+        // Mostrar carregamento
+        mostrarCarregamento();
     });
+    
+    // Função para mostrar carregamento
+    function mostrarCarregamento() {
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+        
+        // Desabilitar botão e mostrar spinner
+        submitBtn.disabled = true;
+        btnText.classList.add('d-none');
+        btnLoading.classList.remove('d-none');
+        
+        // Mostrar modal de carregamento
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+    }
+    
+    // Função para esconder carregamento (caso necessário)
+    function esconderCarregamento() {
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+        
+        // Reabilitar botão e esconder spinner
+        submitBtn.disabled = false;
+        btnText.classList.remove('d-none');
+        btnLoading.classList.add('d-none');
+        
+        // Esconder modal de carregamento
+        const loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        if (loadingModal) {
+            loadingModal.hide();
+        }
+    }
 });
 </script>
 @endpush
