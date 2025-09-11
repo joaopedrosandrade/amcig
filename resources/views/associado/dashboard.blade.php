@@ -30,7 +30,13 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="flex-shrink-0 me-3">
-                                <img src="{{asset('assets/images/avatar/avatar-1.jpg')}}" alt="Avatar" class="avatar-lg rounded-circle">
+                                @if($user->photo)
+                                    <img src="{{ $user->photo_url }}" alt="Avatar" class="avatar-lg rounded-circle">
+                                @else
+                                    <div class="avatar-lg rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="font-size: 24px; font-weight: bold;">
+                                        {{ $user->getInitials() }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="flex-grow-1">
                                 <h5 class="mb-1">{{ $user->name }}</h5>

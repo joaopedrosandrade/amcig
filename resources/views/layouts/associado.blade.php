@@ -121,12 +121,24 @@
                                 <span class="d-block mb-0 fs-10 text-muted">{{ Auth::user()->email }}</span>
                             </div>
                             <span class="header-btn btn position-relative">
-                                <img src="{{asset('assets/images/avatar/avatar-1.jpg')}}" alt="Avatar Image" class="img-fluid rounded-circle">
+                                @if(Auth::user()->photo)
+                                    <img src="{{ Auth::user()->photo_url }}" alt="Avatar Image" class="img-fluid rounded-circle">
+                                @else
+                                    <div class="img-fluid rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="width: 40px; height: 40px; font-size: 14px; font-weight: bold;">
+                                        {{ Auth::user()->getInitials() }}
+                                    </div>
+                                @endif
                             </span>
                         </button>
                         <div class="dropdown-menu dropdown-mega-sm header-dropdown-menu p-3">
                             <div class="border-bottom pb-2 mb-2 d-flex align-items-center gap-2">
-                                <img src="{{asset('assets/images/avatar/avatar-1.jpg')}}" alt="Avatar Image" class="avatar-md">
+                                @if(Auth::user()->photo)
+                                    <img src="{{ Auth::user()->photo_url }}" alt="Avatar Image" class="avatar-md rounded-circle">
+                                @else
+                                    <div class="avatar-md rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="font-size: 16px; font-weight: bold;">
+                                        {{ Auth::user()->getInitials() }}
+                                    </div>
+                                @endif
                                 <div>
                                     <a href="{{ route('associado.profile') }}">
                                         <h6 class="mb-0 lh-base">{{ Auth::user()->name }}</h6>
@@ -206,7 +218,7 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapsePerfil">
-                            <li class="pe-slide-item"><a href="{{ route('associado.profile') }}" class="pe-nav-link">Dados Pessoais</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('associado.perfil') }}" class="pe-nav-link {{ request()->routeIs('associado.perfil') ? 'active' : '' }}">Meu Perfil</a></li>
                             <li class="pe-slide-item"><a href="#" class="pe-nav-link">Alterar Senha</a></li>
                         </ul>
                     </li>

@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'matricula', 'cpf', 'data_nascimento', 'telefone', 'email', 'password',
+        'name', 'matricula', 'cpf', 'data_nascimento', 'telefone', 'email', 'password', 'photo',
         'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf',
         'tipo_associado', 'nome_comercio', 'endereco_comercio', 'ramo_atividade',
         'status', 'data_aprovacao', 'motivo_rejeicao'
@@ -208,6 +208,60 @@ class User extends Authenticatable
         }
 
         return now()->diffInDays($primeiraFaturaAtraso->due_date);
+    }
+
+    /**
+     * Obter URL da foto do usuário ou avatar padrão
+     */
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->photo && file_exists(public_path('storage/' . $this->photo))) {
+            return asset('storage/' . $this->photo);
+        }
+        
+        // Avatar padrão baseado nas iniciais do nome
+        return $this->getDefaultAvatarUrl();
+    }
+    
+    /**
+     * Obter avatar padrão baseado nas iniciais
+     */
+    public function getDefaultAvatarUrl(): string
+    {
+        $initials = $this->getInitials();
+        $color = $this->getAvatarColor();
+        
+        return "https://ui-avatars.com/api/?name={$initials}&background={$color}&color=ffffff&size=200&bold=true";
+    }
+    
+    /**
+     * Obter iniciais do nome
+     */
+    public function getInitials(): string
+    {
+        $names = explode(' ', $this->name);
+        $initials = '';
+        
+        foreach ($names as $name) {
+            if (!empty($name)) {
+                $initials .= strtoupper(substr($name, 0, 1));
+            }
+        }
+        
+        return substr($initials, 0, 2);
+    }
+    
+    /**
+     * Obter cor do avatar baseada no ID
+     */
+    public function getAvatarColor(): string
+    {
+        $colors = [
+            '6366f1', '8b5cf6', 'ec4899', 'ef4444', 'f97316',
+            'eab308', '22c55e', '10b981', '06b6d4', '3b82f6'
+        ];
+        
+        return $colors[$this->id % count($colors)];
     }
 
     /**

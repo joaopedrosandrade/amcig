@@ -363,7 +363,13 @@
             
             <div class="content">
                 <div class="foto-area">
-                    <i class="fas fa-user"></i>
+                    @if($user->photo)
+                        <img src="{{ $user->photo_url }}" alt="Foto do Associado" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                    @else
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #007bff; color: white; font-weight: bold; font-size: 24px; border-radius: 6px;">
+                            {{ $user->getInitials() }}
+                        </div>
+                    @endif
                 </div>
                 
                 <div class="info-area">

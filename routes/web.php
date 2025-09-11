@@ -102,9 +102,14 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/verificar-pagamento', 'AssociadoPagamentoController@verificarPagamento')->name('associado.verificar-pagamento');
     Route::get('/primeira-fatura-atraso', 'AssociadoPagamentoController@primeiraFaturaAtraso')->name('associado.primeira-fatura-atraso');
     
-    // Rotas para cancelamento
-    Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
-    Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
+            // Rotas para cancelamento
+            Route::post('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinatura')->name('associado.cancelar');
+            Route::get('/cancelar-assinatura', 'AssociadoPagamentoController@cancelarAssinaturaView')->name('associado.cancelar-view');
+            
+            // Rotas para perfil
+            Route::get('/perfil', 'AssociadoProfileController@index')->name('associado.perfil');
+            Route::post('/perfil/foto', 'AssociadoProfileController@updatePhoto')->name('associado.perfil.foto');
+            Route::delete('/perfil/foto', 'AssociadoProfileController@removePhoto')->name('associado.perfil.foto.remove');
 });
 
 // Rotas para webhooks (sem middleware de autenticação)
