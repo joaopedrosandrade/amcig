@@ -219,6 +219,19 @@
                         </ul>
                     </li>
                     <li class="pe-slide pe-has-sub">
+                        <a href="#collapseSolicitacoes" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.*') ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseSolicitacoes">
+                            <i class="ri-file-list-3-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Solicitações</span>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                        </a>
+                        <ul class="pe-slide-menu collapse {{ request()->routeIs('admin.solicitacoes.*') ? 'show' : '' }}" id="collapseSolicitacoes">
+                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.dashboard') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.index') ? 'active' : '' }}">Todas as Solicitações</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['status' => 'ABERTA']) }}" class="pe-nav-link">Abertas</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['prioridade' => 'URGENTE']) }}" class="pe-nav-link">Urgentes</a></li>
+                        </ul>
+                    </li>
+                    <li class="pe-slide pe-has-sub">
                         <a href="#!" class="pe-nav-link">
                             <i class="ri-settings-3-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Configurações</span>

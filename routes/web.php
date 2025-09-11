@@ -73,6 +73,15 @@ Route::prefix('/admin')->group(function() {
             Route::get('/relatorio', 'Admin\FinanceiroController@relatorio')->name('admin.financeiro.relatorio');
             Route::get('/dados-graficos', 'Admin\FinanceiroController@dadosGraficos')->name('admin.financeiro.dados-graficos');
         });
+        
+        // Rotas para gerenciamento de solicitações
+        Route::prefix('solicitacoes')->group(function() {
+            Route::get('/', 'AdminSolicitacaoController@index')->name('admin.solicitacoes.index');
+            Route::get('/dashboard', 'AdminSolicitacaoController@dashboard')->name('admin.solicitacoes.dashboard');
+            Route::get('/{id}', 'AdminSolicitacaoController@show')->name('admin.solicitacoes.show');
+            Route::post('/{id}/update-status', 'AdminSolicitacaoController@updateStatus')->name('admin.solicitacoes.update-status');
+            Route::post('/{id}/assign-admin', 'AdminSolicitacaoController@assignAdmin')->name('admin.solicitacoes.assign-admin');
+        });
     });
 });
 
