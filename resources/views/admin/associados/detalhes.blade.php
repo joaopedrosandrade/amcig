@@ -62,7 +62,7 @@
                                     <i class="ri-arrow-left-line me-1"></i>Voltar
                                 </a>
                                 @if($associado->status !== 'desativado' && $associado->status !== 'pendente')
-                                    <button type="button" class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#desativarModal">
+                                    <button type="button" class="btn btn-secondary ms-2" data-bs-toggle="modal" data-bs-target="#desativarModal">
                                         <i class="ri-user-forbid-line me-1"></i>Desativar
                                     </button>
                                 @endif
