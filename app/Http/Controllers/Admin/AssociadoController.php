@@ -222,6 +222,57 @@ class AssociadoController extends Controller
     }
 
     /**
+     * Desativar associado
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function desativar(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id'
+        ], [
+            'id.required' => 'ID do associado é obrigatório.',
+            'id.exists' => 'Associado não encontrado.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro de validação.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $associado = User::findOrFail($request->id);
+            
+            // Verificar se o associado pode ser desativado
+            if ($associado->status === 'desativado') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este associado já está desativado.'
+                ], 400);
+            }
+            
+            $associado->update([
+                'status' => 'desativado'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Associado desativado com sucesso!'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno do servidor. Tente novamente.'
+            ], 500);
+        }
+    }
+
+    /**
      * Exibe a listagem de associados pendentes
      *
      * @return \Illuminate\View\View

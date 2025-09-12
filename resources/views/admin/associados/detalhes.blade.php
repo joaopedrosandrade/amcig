@@ -46,9 +46,12 @@
                                                 @case('pendente')
                                                     <span class="badge bg-warning ms-2">Pendente</span>
                                                     @break
-                                                @case('rejeitado')
-                                                    <span class="badge bg-danger ms-2">Rejeitado</span>
-                                                    @break
+                                            @case('rejeitado')
+                                                <span class="badge bg-danger ms-2">Rejeitado</span>
+                                                @break
+                                            @case('desativado')
+                                                <span class="badge bg-warning ms-2">Desativado</span>
+                                                @break
                                             @endswitch
                                         </p>
                                     </div>
@@ -58,6 +61,11 @@
                                 <a href="{{ route('admin.associados.index') }}" class="btn btn-outline-secondary">
                                     <i class="ri-arrow-left-line me-1"></i>Voltar
                                 </a>
+                                @if($associado->status !== 'desativado' && $associado->status !== 'pendente')
+                                    <button type="button" class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#desativarModal">
+                                        <i class="ri-user-forbid-line me-1"></i>Desativar
+                                    </button>
+                                @endif
                                 @if($associado->status == 'pendente')
                                     <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#aprovarModal">
                                         <i class="ri-check-line me-1"></i>Aprovar
@@ -574,6 +582,32 @@
     </div>
 </div>
 
+<!-- Modal para confirmar desativação -->
+<div class="modal fade" id="desativarModal" tabindex="-1" aria-labelledby="desativarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="desativarModalLabel">Confirmar Desativação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja desativar este associado?</p>
+                <p class="text-muted">O associado não poderá mais acessar o sistema até que seja reativado.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelarDesativacao">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="confirmarDesativacao">
+                    <span class="btn-text">Confirmar Desativação</span>
+                    <span class="btn-loading d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Processando...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal de carregamento -->
 <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
@@ -873,6 +907,49 @@ $(document).ready(function() {
         });
     });
 
+    // Confirmar desativação
+    $('#confirmarDesativacao').click(function() {
+        // Mostrar estado de carregamento no botão
+        mostrarCarregamento('confirmarDesativacao', true);
+        
+        // Mostrar modal de carregamento
+        const loadingModal = mostrarModalCarregamento();
+        
+        // Fechar modal de confirmação
+        $('#desativarModal').modal('hide');
+        
+        $.ajax({
+            url: '{{ route("admin.associados.desativar") }}',
+            type: 'POST',
+            data: {
+                id: {{ $associado->id }},
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Mostrar mensagem de sucesso
+                    setTimeout(function() {
+                        esconderModalCarregamento(loadingModal);
+                        mostrarNotificacao('Associado desativado com sucesso!', 'success');
+                        // Recarrega a página para atualizar os dados
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }, 1000);
+                } else {
+                    esconderModalCarregamento(loadingModal);
+                    mostrarCarregamento('confirmarDesativacao', false);
+                    mostrarNotificacao('Erro: ' + response.message, 'error');
+                }
+            },
+            error: function() {
+                esconderModalCarregamento(loadingModal);
+                mostrarCarregamento('confirmarDesativacao', false);
+                mostrarNotificacao('Erro ao desativar associado.', 'error');
+            }
+        });
+    });
+
     // Resetar botões quando modais são fechados
     $('#aprovarModal').on('hidden.bs.modal', function () {
         mostrarCarregamento('confirmarAprovacao', false);
@@ -881,6 +958,10 @@ $(document).ready(function() {
     $('#rejeitarModal').on('hidden.bs.modal', function () {
         mostrarCarregamento('confirmarRejeicao', false);
         $('#motivoRejeicao').val('');
+    });
+
+    $('#desativarModal').on('hidden.bs.modal', function () {
+        mostrarCarregamento('confirmarDesativacao', false);
     });
 
     // Reset de senha

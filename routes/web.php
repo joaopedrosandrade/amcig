@@ -59,6 +59,7 @@ Route::prefix('/admin')->group(function() {
             Route::get('/detalhes/{id}', 'Admin\AssociadoController@detalhes')->name('admin.associados.detalhes');
             Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
             Route::post('/reset-password', 'Admin\AssociadoController@resetPassword')->name('admin.associados.reset-password');
+            Route::post('/desativar', 'Admin\AssociadoController@desativar')->name('admin.associados.desativar');
             
             // Rotas para associados pendentes
             Route::get('/pendentes', 'Admin\AssociadoController@pendentes')->name('admin.associados.pendentes');
