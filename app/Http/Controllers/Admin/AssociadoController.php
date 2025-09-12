@@ -515,4 +515,127 @@ class AssociadoController extends Controller
             'message' => 'Associado rejeitado com sucesso!'
         ]);
     }
+
+    /**
+     * Exibe a página de relatórios de associados
+     *
+     * @return \Illuminate\View\View
+     */
+    public function relatorios()
+    {
+        // Buscar dados únicos para os filtros
+        $bairros = User::whereNotNull('bairro')
+            ->where('bairro', '!=', '')
+            ->distinct()
+            ->pluck('bairro')
+            ->sort()
+            ->values();
+
+        $logradouros = User::whereNotNull('logradouro')
+            ->where('logradouro', '!=', '')
+            ->distinct()
+            ->pluck('logradouro')
+            ->sort()
+            ->values();
+
+        $sexos = User::whereNotNull('sexo')
+            ->where('sexo', '!=', '')
+            ->distinct()
+            ->pluck('sexo')
+            ->sort()
+            ->values();
+
+        return view('admin.associados.relatorios', compact('bairros', 'logradouros', 'sexos'));
+    }
+
+    /**
+     * Busca associados com base nos filtros aplicados
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function buscarRelatorios(Request $request)
+    {
+        $query = User::query();
+
+        // Filtro por sexo
+        if ($request->filled('sexo')) {
+            $query->where('sexo', $request->sexo);
+        }
+
+        // Filtro por bairro
+        if ($request->filled('bairro')) {
+            $query->where('bairro', 'like', '%' . $request->bairro . '%');
+        }
+
+        // Filtro por logradouro (rua)
+        if ($request->filled('logradouro')) {
+            $query->where('logradouro', 'like', '%' . $request->logradouro . '%');
+        }
+
+        // Filtro por idade
+        if ($request->filled('idade_min')) {
+            $idadeMin = $request->idade_min;
+            $dataMax = now()->subYears($idadeMin)->format('Y-m-d');
+            $query->where('data_nascimento', '<=', $dataMax);
+        }
+
+        if ($request->filled('idade_max')) {
+            $idadeMax = $request->idade_max;
+            $dataMin = now()->subYears($idadeMax + 1)->addDay()->format('Y-m-d');
+            $query->where('data_nascimento', '>=', $dataMin);
+        }
+
+        // Filtro por tipo de associado
+        if ($request->filled('tipo_associado')) {
+            $query->where('tipo_associado', $request->tipo_associado);
+        }
+
+        // Filtro por status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filtro por data de cadastro
+        if ($request->filled('data_cadastro_inicio')) {
+            $query->where('created_at', '>=', $request->data_cadastro_inicio);
+        }
+
+        if ($request->filled('data_cadastro_fim')) {
+            $query->where('created_at', '<=', $request->data_cadastro_fim . ' 23:59:59');
+        }
+
+        // Buscar associados
+        $associados = $query->select([
+            'id', 'name', 'email', 'cpf', 'matricula', 'sexo', 'data_nascimento',
+            'telefone', 'bairro', 'logradouro', 'numero', 'complemento',
+            'cidade', 'uf', 'tipo_associado', 'status', 'created_at'
+        ])->get();
+
+        // Calcular idade para cada associado
+        $associados->each(function ($associado) {
+            if ($associado->data_nascimento) {
+                $associado->idade = $associado->data_nascimento->diffInYears(now());
+            }
+        });
+
+        // Estatísticas gerais
+        $totalAssociados = $associados->count();
+        $porSexo = $associados->groupBy('sexo')->map->count();
+        $porTipo = $associados->groupBy('tipo_associado')->map->count();
+        $porStatus = $associados->groupBy('status')->map->count();
+        $porBairro = $associados->groupBy('bairro')->map->count();
+
+        return response()->json([
+            'success' => true,
+            'associados' => $associados,
+            'estatisticas' => [
+                'total' => $totalAssociados,
+                'por_sexo' => $porSexo,
+                'por_tipo' => $porTipo,
+                'por_status' => $porStatus,
+                'por_bairro' => $porBairro
+            ]
+        ]);
+    }
 }

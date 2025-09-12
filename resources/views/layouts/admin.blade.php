@@ -203,6 +203,7 @@
                         <ul class="pe-slide-menu collapse" id="collapseAssociados">
                             <li class="pe-slide-item"><a href="{{ route('admin.associados.index') }}" class="pe-nav-link">Cadastrados</a></li>
                             <li class="pe-slide-item"><a href="{{ route('admin.associados.pendentes') }}" class="pe-nav-link">Aprovação</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.associados.relatorios') }}" class="pe-nav-link">Relatórios</a></li>
                                 </ul>
                             </li>
                     <li class="pe-slide pe-has-sub">

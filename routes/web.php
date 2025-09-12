@@ -66,6 +66,10 @@ Route::prefix('/admin')->group(function() {
             Route::get('/pendentes/data', 'Admin\AssociadoController@pendentesData')->name('admin.associados.pendentes.data');
             Route::post('/aprovar', 'Admin\AssociadoController@aprovar')->name('admin.associados.aprovar');
             Route::post('/rejeitar', 'Admin\AssociadoController@rejeitar')->name('admin.associados.rejeitar');
+            
+            // Rotas para relatórios
+            Route::get('/relatorios', 'Admin\AssociadoController@relatorios')->name('admin.associados.relatorios');
+            Route::post('/relatorios/buscar', 'Admin\AssociadoController@buscarRelatorios')->name('admin.associados.relatorios.buscar');
         });
 
         // Rotas do Sistema Financeiro
