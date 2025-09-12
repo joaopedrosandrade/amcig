@@ -143,6 +143,87 @@
             text-align: right;
         }
         
+        /* Estilos específicos para impressão */
+        @media print {
+            body {
+                margin: 0;
+                padding: 15px;
+                font-size: 11px;
+                line-height: 1.3;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .info-section {
+                margin-bottom: 20px;
+            }
+            
+            .info-section h3 {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-item {
+                padding: 8px;
+            }
+            
+            .stat-number {
+                font-size: 16px;
+            }
+            
+            .stat-label {
+                font-size: 10px;
+            }
+            
+            table {
+                font-size: 9px;
+                margin-top: 15px;
+            }
+            
+            th, td {
+                padding: 4px 3px;
+            }
+            
+            .filters-list li {
+                padding: 2px 0;
+                font-size: 10px;
+            }
+            
+            .footer {
+                margin-top: 20px;
+                padding-top: 10px;
+                font-size: 9px;
+            }
+            
+            /* Evitar quebras de página em elementos importantes */
+            .header, .info-section h3 {
+                page-break-after: avoid;
+            }
+            
+            /* Quebrar página se necessário */
+            table {
+                page-break-inside: auto;
+            }
+            
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+        }
+        
         .badge {
             padding: 2px 6px;
             border-radius: 3px;
