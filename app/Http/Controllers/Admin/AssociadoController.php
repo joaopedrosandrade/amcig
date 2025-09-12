@@ -113,7 +113,7 @@ class AssociadoController extends Controller
     }
 
     /**
-     * Exibe os detalhes de um associado
+     * Exibe os detalhes de um associado (modal)
      *
      * @param Request $request
      * @return \Illuminate\View\View
@@ -123,6 +123,53 @@ class AssociadoController extends Controller
         $associado = User::findOrFail($request->id);
         
         return view('admin.associados.show', compact('associado'));
+    }
+
+    /**
+     * Exibe a página de detalhes de um associado
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function detalhes($id)
+    {
+        $associado = User::with(['subscriptions.invoices'])->findOrFail($id);
+        
+        // Buscar mensalidades (invoices) do associado
+        $mensalidades = $associado->subscriptions()
+            ->with(['invoices' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            }])
+            ->get()
+            ->pluck('invoices')
+            ->flatten();
+        
+        // Estatísticas das mensalidades
+        $totalMensalidades = $mensalidades->count();
+        $mensalidadesPagas = $mensalidades->where('status', 'CONFIRMED')->count() + 
+                           $mensalidades->where('status', 'RECEIVED')->count() +
+                           $mensalidades->where('status', 'RECEIVED_IN_CASH')->count();
+        $mensalidadesPendentes = $mensalidades->where('status', 'PENDING')->count();
+        $mensalidadesVencidas = $mensalidades->where('status', 'OVERDUE')->count();
+        
+        // Valor total pago
+        $valorTotalPago = $mensalidades->whereIn('status', ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'])
+            ->sum('value');
+        
+        // Valor pendente
+        $valorPendente = $mensalidades->whereIn('status', ['PENDING', 'OVERDUE'])
+            ->sum('value');
+        
+        return view('admin.associados.detalhes', compact(
+            'associado', 
+            'mensalidades', 
+            'totalMensalidades',
+            'mensalidadesPagas',
+            'mensalidadesPendentes', 
+            'mensalidadesVencidas',
+            'valorTotalPago',
+            'valorPendente'
+        ));
     }
 
     /**

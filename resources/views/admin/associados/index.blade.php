@@ -53,9 +53,9 @@
                                             <td>{{ $associado->created_at_formatted }}</td>
                                             
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-info view-associado" data-id="{{ $associado->id }}" title="Visualizar">
+                                                <a href="{{ route('admin.associados.detalhes', $associado->id) }}" class="btn btn-sm btn-info" title="Visualizar">
                                                     <i class="ri-eye-line"></i>
-                                                </button>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -69,23 +69,6 @@
     </div>
 </main>
 
-<!-- Modal para visualizar detalhes do associado -->
-<div class="modal fade" id="associadoModal" tabindex="-1" aria-labelledby="associadoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="associadoModalLabel">Detalhes do Associado</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="associadoModalBody">
-                <!-- Conteúdo será carregado via AJAX -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 @endsection
 
@@ -148,23 +131,6 @@ $(document).ready(function() {
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
     });
 
-    // Evento para visualizar detalhes do associado
-    $(document).on('click', '.view-associado', function() {
-        var associadoId = $(this).data('id');
-        
-        $.ajax({
-            url: '{{ route("admin.associados.show") }}',
-            type: 'GET',
-            data: { id: associadoId },
-            success: function(response) {
-                $('#associadoModalBody').html(response);
-                $('#associadoModal').modal('show');
-            },
-            error: function() {
-                alert('Erro ao carregar detalhes do associado.');
-            }
-        });
-    });
 });
 </script>
 @endpush

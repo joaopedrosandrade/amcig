@@ -56,6 +56,7 @@ Route::prefix('/admin')->group(function() {
             Route::get('/', 'Admin\AssociadoController@index')->name('admin.associados.index');
             Route::get('/data', 'Admin\AssociadoController@data')->name('admin.associados.data');
             Route::get('/show', 'Admin\AssociadoController@show')->name('admin.associados.show');
+            Route::get('/detalhes/{id}', 'Admin\AssociadoController@detalhes')->name('admin.associados.detalhes');
             Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
             
             // Rotas para associados pendentes
