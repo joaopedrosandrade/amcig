@@ -119,7 +119,13 @@
                                         <i class="ri-refresh-line me-1"></i>Limpar
                                     </button>
                                     <button type="button" class="btn btn-success ms-2" id="exportarExcel">
-                                        <i class="ri-file-excel-line me-1"></i>Exportar Excel
+                                        <i class="ri-file-excel-line me-1"></i>CSV
+                                    </button>
+                                    <button type="button" class="btn btn-danger ms-2" id="exportarPdf">
+                                        <i class="ri-file-text-line me-1"></i>HTML
+                                    </button>
+                                    <button type="button" class="btn btn-info ms-2" id="imprimir">
+                                        <i class="ri-printer-line me-1"></i>Imprimir
                                     </button>
                                 </div>
                             </div>
@@ -223,8 +229,89 @@ $(document).ready(function() {
             return;
         }
         
-        // Implementar exportação Excel aqui
-        alert('Funcionalidade de exportação será implementada em breve.');
+        const formData = $('#formFiltros').serialize();
+        
+        // Criar um formulário temporário para enviar os dados
+        const form = $('<form>', {
+            'method': 'POST',
+            'action': '{{ route("admin.associados.relatorios.excel") }}'
+        });
+        
+        // Adicionar token CSRF
+        form.append($('<input>', {
+            'type': 'hidden',
+            'name': '_token',
+            'value': $('meta[name="csrf-token"]').attr('content')
+        }));
+        
+        // Adicionar dados do formulário
+        const params = new URLSearchParams(formData);
+        for (const [key, value] of params) {
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': key,
+                'value': value
+            }));
+        }
+        
+        $('body').append(form);
+        form.submit();
+        form.remove();
+    });
+
+    // Exportar PDF
+    $('#exportarPdf').on('click', function() {
+        if ($('#totalResultados').text() === '0' || $('#totalResultados').is(':hidden')) {
+            alert('Nenhum resultado para exportar. Faça uma busca primeiro.');
+            return;
+        }
+        
+        const formData = $('#formFiltros').serialize();
+        
+        // Criar um formulário temporário para enviar os dados
+        const form = $('<form>', {
+            'method': 'POST',
+            'action': '{{ route("admin.associados.relatorios.pdf") }}'
+        });
+        
+        // Adicionar token CSRF
+        form.append($('<input>', {
+            'type': 'hidden',
+            'name': '_token',
+            'value': $('meta[name="csrf-token"]').attr('content')
+        }));
+        
+        // Adicionar dados do formulário
+        const params = new URLSearchParams(formData);
+        for (const [key, value] of params) {
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': key,
+                'value': value
+            }));
+        }
+        
+        $('body').append(form);
+        form.submit();
+        form.remove();
+    });
+
+    // Imprimir
+    $('#imprimir').on('click', function() {
+        if ($('#totalResultados').text() === '0' || $('#totalResultados').is(':hidden')) {
+            alert('Nenhum resultado para imprimir. Faça uma busca primeiro.');
+            return;
+        }
+        
+        // Criar uma nova janela para impressão
+        const printWindow = window.open('', '_blank');
+        const printContent = gerarConteudoImpressao();
+        
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     });
 
     function buscarAssociados() {
@@ -376,6 +463,61 @@ $(document).ready(function() {
 
         $('#estatisticasContent').html(html);
         $('#estatisticas').show();
+    }
+
+    function gerarConteudoImpressao() {
+        const estatisticas = $('#estatisticasContent').html();
+        const tabela = $('#tabelaResultados').html();
+        const total = $('#totalResultados').text();
+        
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Relatório de Associados - AMCIG</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4472C4; padding-bottom: 20px; }
+                    .header h1 { color: #4472C4; margin: 0; }
+                    .header p { margin: 5px 0; color: #666; }
+                    .stats-section { margin-bottom: 25px; }
+                    .stats-section h3 { color: #4472C4; margin-bottom: 15px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th { background-color: #4472C4; color: white; padding: 8px; text-align: left; border: 1px solid #333; }
+                    td { padding: 6px; border: 1px solid #ddd; }
+                    tr:nth-child(even) { background-color: #f8f9fa; }
+                    .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #ddd; padding-top: 15px; }
+                    @media print {
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Relatório de Associados</h1>
+                    <p>Associação dos Moradores e Comerciantes do Iguape - AMCIG</p>
+                    <p>Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+                </div>
+                
+                <div class="stats-section">
+                    <h3>Estatísticas dos Resultados</h3>
+                    <div class="row">
+                        ${estatisticas}
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h3>Lista de Associados (${total} registros)</h3>
+                    ${tabela}
+                </div>
+                
+                <div class="footer">
+                    <p>Este relatório foi gerado automaticamente pelo sistema AMCIG em ${new Date().toLocaleString('pt-BR')}</p>
+                </div>
+            </body>
+            </html>
+        `;
     }
 });
 </script>

@@ -70,6 +70,8 @@ Route::prefix('/admin')->group(function() {
             // Rotas para relatórios
             Route::get('/relatorios', 'Admin\AssociadoController@relatorios')->name('admin.associados.relatorios');
             Route::post('/relatorios/buscar', 'Admin\AssociadoController@buscarRelatorios')->name('admin.associados.relatorios.buscar');
+            Route::post('/relatorios/exportar-excel', 'Admin\AssociadoController@exportarExcel')->name('admin.associados.relatorios.excel');
+            Route::post('/relatorios/exportar-pdf', 'Admin\AssociadoController@exportarPdf')->name('admin.associados.relatorios.pdf');
         });
 
         // Rotas do Sistema Financeiro
