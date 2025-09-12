@@ -271,7 +271,7 @@
                 <h5 class="modal-title" id="updateStatusModalLabel">Atualizar Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ route('admin.solicitacoes.update-status', $solicitacao->id) }}">
+            <form id="updateStatusForm" method="POST" action="{{ route('admin.solicitacoes.update-status', $solicitacao->id) }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
@@ -308,8 +308,14 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Atualizar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelarAtualizacao">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarAtualizacao">
+                        <span class="btn-text">Atualizar</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Processando...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -338,15 +344,66 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Atribuir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelarAtribuicao">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarAtribuicao">
+                        <span class="btn-text">Atribuir</span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Processando...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     </div>
+
+<!-- Modal de carregamento -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <h5 class="mb-2">Processando solicitação...</h5>
+                <p class="text-muted mb-0">Por favor, aguarde enquanto processamos sua solicitação.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 </main>
 @endsection
+
+@push('styles')
+<style>
+    .btn-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    #loadingModal .modal-content {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    #loadingModal .spinner-border {
+        border-width: 0.3em;
+    }
+</style>
+@endpush
 
 @push('scripts')
 @if($solicitacao->latitude && $solicitacao->longitude)
@@ -374,4 +431,146 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endif
+
+<script>
+$(document).ready(function() {
+    // Função para mostrar estado de carregamento
+    function mostrarCarregamento(btnId, isLoading) {
+        const btn = document.getElementById(btnId);
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+        
+        if (isLoading) {
+            btn.disabled = true;
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+        } else {
+            btn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+        }
+    }
+
+    // Função para mostrar modal de carregamento
+    function mostrarModalCarregamento() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+        return loadingModal;
+    }
+
+    // Função para esconder modal de carregamento
+    function esconderModalCarregamento(modal) {
+        modal.hide();
+    }
+
+    // Evento para atualizar status
+    $('#confirmarAtualizacao').click(function() {
+        // Validar campos obrigatórios
+        const status = $('#status').val();
+        if (!status) {
+            alert('Por favor, selecione um status.');
+            return;
+        }
+
+        // Mostrar estado de carregamento no botão
+        mostrarCarregamento('confirmarAtualizacao', true);
+        
+        // Mostrar modal de carregamento
+        const loadingModal = mostrarModalCarregamento();
+        
+        // Fechar modal de atualização
+        $('#updateStatusModal').modal('hide');
+        
+        // Submeter formulário via AJAX
+        $.ajax({
+            url: '{{ route("admin.solicitacoes.update-status", $solicitacao->id) }}',
+            type: 'POST',
+            data: $('#updateStatusForm').serialize(),
+            success: function(response) {
+                // Mostrar mensagem de sucesso
+                setTimeout(function() {
+                    esconderModalCarregamento(loadingModal);
+                    // Recarrega a página para atualizar os dados
+                    location.reload();
+                }, 1000);
+            },
+            error: function(xhr) {
+                esconderModalCarregamento(loadingModal);
+                mostrarCarregamento('confirmarAtualizacao', false);
+                
+                if (xhr.status === 422) {
+                    // Erro de validação
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessage = 'Erro de validação:\n';
+                    for (let field in errors) {
+                        errorMessage += errors[field][0] + '\n';
+                    }
+                    alert(errorMessage);
+                } else {
+                    alert('Erro ao atualizar status da solicitação.');
+                }
+            }
+        });
+    });
+
+    // Evento para atribuir admin
+    $('#confirmarAtribuicao').click(function() {
+        // Validar campos obrigatórios
+        const adminResponsavel = $('#assignAdminModal select[name="admin_responsavel"]').val();
+        if (!adminResponsavel) {
+            alert('Por favor, selecione um admin responsável.');
+            return;
+        }
+
+        // Mostrar estado de carregamento no botão
+        mostrarCarregamento('confirmarAtribuicao', true);
+        
+        // Mostrar modal de carregamento
+        const loadingModal = mostrarModalCarregamento();
+        
+        // Fechar modal de atribuição
+        $('#assignAdminModal').modal('hide');
+        
+        // Submeter formulário via AJAX
+        $.ajax({
+            url: '{{ route("admin.solicitacoes.assign-admin", $solicitacao->id) }}',
+            type: 'POST',
+            data: $('#assignAdminModal form').serialize(),
+            success: function(response) {
+                // Mostrar mensagem de sucesso
+                setTimeout(function() {
+                    esconderModalCarregamento(loadingModal);
+                    // Recarrega a página para atualizar os dados
+                    location.reload();
+                }, 1000);
+            },
+            error: function(xhr) {
+                esconderModalCarregamento(loadingModal);
+                mostrarCarregamento('confirmarAtribuicao', false);
+                
+                if (xhr.status === 422) {
+                    // Erro de validação
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessage = 'Erro de validação:\n';
+                    for (let field in errors) {
+                        errorMessage += errors[field][0] + '\n';
+                    }
+                    alert(errorMessage);
+                } else {
+                    alert('Erro ao atribuir responsável à solicitação.');
+                }
+            }
+        });
+    });
+
+    // Resetar botões quando modais são fechados
+    $('#updateStatusModal').on('hidden.bs.modal', function () {
+        mostrarCarregamento('confirmarAtualizacao', false);
+    });
+
+    $('#assignAdminModal').on('hidden.bs.modal', function () {
+        mostrarCarregamento('confirmarAtribuicao', false);
+    });
+});
+</script>
 @endpush
