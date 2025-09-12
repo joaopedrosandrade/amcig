@@ -212,6 +212,11 @@
                                     <i class="ri-file-list-line me-1"></i>Mensalidades
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="senha-tab" data-bs-toggle="tab" data-bs-target="#senha" type="button" role="tab" aria-controls="senha" aria-selected="false">
+                                    <i class="ri-key-line me-1"></i>Alterar Senha
+                                </button>
+                            </li>
                         </ul>
 
                         <!-- Tab panes -->
@@ -456,6 +461,53 @@
                                     </div>
                                 @endif
                             </div>
+
+                            <!-- Alterar Senha -->
+                            <div class="tab-pane fade" id="senha" role="tabpanel" aria-labelledby="senha-tab">
+                                <div class="row">
+                                    <div class="col-md-8 mx-auto">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="text-muted mb-4">
+                                                    <i class="ri-key-line me-2"></i>Alterar Senha do Associado
+                                                </h6>
+                                                <form id="formResetSenha">
+                                                    @csrf
+                                                    <input type="hidden" name="id" value="{{ $associado->id }}">
+                                                    
+                                                    <div class="mb-3">
+                                                        <label for="nova_senha" class="form-label">Nova Senha <span class="text-danger">*</span></label>
+                                                        <input type="password" class="form-control" id="nova_senha" name="nova_senha" placeholder="Digite a nova senha" required>
+                                                        <div class="form-text">A senha deve ter pelo menos 6 caracteres.</div>
+                                                        <div class="error-message" id="nova_senha-error"></div>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label for="nova_senha_confirmation" class="form-label">Confirmar Nova Senha <span class="text-danger">*</span></label>
+                                                        <input type="password" class="form-control" id="nova_senha_confirmation" name="nova_senha_confirmation" placeholder="Digite novamente a nova senha" required>
+                                                        <div class="error-message" id="nova_senha_confirmation-error"></div>
+                                                    </div>
+                                                    
+                                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                        <button type="button" class="btn btn-outline-secondary" id="cancelarResetSenha">
+                                                            <i class="ri-close-line me-1"></i>Cancelar
+                                                        </button>
+                                                        <button type="submit" class="btn btn-primary" id="confirmarResetSenha">
+                                                            <span class="btn-text">
+                                                                <i class="ri-save-line me-1"></i>Alterar Senha
+                                                            </span>
+                                                            <span class="btn-loading d-none">
+                                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                                Processando...
+                                                            </span>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -463,6 +515,10 @@
         </div>
     </div>
 </main>
+
+<!-- Container para notificações -->
+<div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+</div>
 
 <!-- Modal para confirmar aprovação -->
 <div class="modal fade" id="aprovarModal" tabindex="-1" aria-labelledby="aprovarModalLabel" aria-hidden="true">
@@ -594,6 +650,36 @@
         width: 2.5rem;
         height: 2.5rem;
     }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    /* Estilos para notificações */
+    #notification-container .toast {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    #notification-container .toast-body {
+        font-weight: 500;
+    }
+    
+    .toast.show {
+        opacity: 1;
+    }
 </style>
 @endpush
 
@@ -627,6 +713,76 @@ $(document).ready(function() {
     // Função para esconder modal de carregamento
     function esconderModalCarregamento(modal) {
         modal.hide();
+    }
+
+    // Função para mostrar notificações
+    function mostrarNotificacao(mensagem, tipo = 'info') {
+        const container = document.getElementById('notification-container');
+        
+        // Cores e ícones baseados no tipo
+        let bgClass, iconClass;
+        switch(tipo) {
+            case 'success':
+                bgClass = 'bg-success';
+                iconClass = 'ri-check-line';
+                break;
+            case 'error':
+                bgClass = 'bg-danger';
+                iconClass = 'ri-error-warning-line';
+                break;
+            case 'warning':
+                bgClass = 'bg-warning';
+                iconClass = 'ri-alarm-warning-line';
+                break;
+            default:
+                bgClass = 'bg-info';
+                iconClass = 'ri-information-line';
+        }
+        
+        // Criar elemento da notificação
+        const notification = document.createElement('div');
+        notification.className = `toast align-items-center text-white ${bgClass} border-0 show`;
+        notification.setAttribute('role', 'alert');
+        notification.style.minWidth = '300px';
+        
+        notification.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    <i class="${iconClass} me-2" style="font-size: 1.2rem;"></i>
+                    ${mensagem}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Adicionar ao container
+        container.appendChild(notification);
+        
+        // Auto-remover após 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 500);
+            }
+        }, 5000);
+        
+        // Remover ao clicar no X
+        notification.querySelector('.btn-close').addEventListener('click', () => {
+            if (notification.parentNode) {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 500);
+            }
+        });
     }
 
     // Confirmar aprovação
@@ -725,6 +881,77 @@ $(document).ready(function() {
     $('#rejeitarModal').on('hidden.bs.modal', function () {
         mostrarCarregamento('confirmarRejeicao', false);
         $('#motivoRejeicao').val('');
+    });
+
+    // Reset de senha
+    $('#formResetSenha').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Limpar mensagens de erro anteriores
+        $('.error-message').text('');
+        
+        // Validar senhas
+        const senha = $('#nova_senha').val();
+        const confirmacao = $('#nova_senha_confirmation').val();
+        
+        if (senha.length < 6) {
+            $('#nova_senha-error').text('A senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
+        
+        if (senha !== confirmacao) {
+            $('#nova_senha_confirmation-error').text('As senhas não coincidem.');
+            return;
+        }
+        
+        // Mostrar estado de carregamento
+        mostrarCarregamento('confirmarResetSenha', true);
+        
+        // Enviar formulário
+        $.ajax({
+            url: '{{ route("admin.associados.reset-password") }}',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                mostrarCarregamento('confirmarResetSenha', false);
+                
+                if (response.success) {
+                    // Limpar formulário
+                    $('#formResetSenha')[0].reset();
+                    
+                    // Mostrar notificação de sucesso
+                    mostrarNotificacao('Senha alterada com sucesso!', 'success');
+                } else {
+                    // Mostrar erros de validação
+                    if (response.errors) {
+                        for (let field in response.errors) {
+                            $('#' + field + '-error').text(response.errors[field][0]);
+                        }
+                    } else {
+                        mostrarNotificacao('Erro: ' + response.message, 'error');
+                    }
+                }
+            },
+            error: function(xhr) {
+                mostrarCarregamento('confirmarResetSenha', false);
+                
+                if (xhr.status === 422) {
+                    // Erros de validação
+                    const errors = xhr.responseJSON.errors;
+                    for (let field in errors) {
+                        $('#' + field + '-error').text(errors[field][0]);
+                    }
+                } else {
+                    mostrarNotificacao('Erro ao alterar senha. Tente novamente.', 'error');
+                }
+            }
+        });
+    });
+
+    // Cancelar reset de senha
+    $('#cancelarResetSenha').click(function() {
+        $('#formResetSenha')[0].reset();
+        $('.error-message').text('');
     });
 });
 </script>

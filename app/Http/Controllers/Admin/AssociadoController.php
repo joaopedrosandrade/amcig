@@ -11,7 +11,9 @@ use App\Events\AssociadoRejeitado;
 use App\Services\AsaasService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class AssociadoController extends Controller
 {
@@ -170,6 +172,53 @@ class AssociadoController extends Controller
             'valorTotalPago',
             'valorPendente'
         ));
+    }
+
+    /**
+     * Resetar senha do associado
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+            'nova_senha' => 'required|string|min:6|confirmed'
+        ], [
+            'id.required' => 'ID do associado é obrigatório.',
+            'id.exists' => 'Associado não encontrado.',
+            'nova_senha.required' => 'A nova senha é obrigatória.',
+            'nova_senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
+            'nova_senha.confirmed' => 'A confirmação da senha não confere.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro de validação.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $associado = User::findOrFail($request->id);
+            
+            $associado->update([
+                'password' => Hash::make($request->nova_senha)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Senha atualizada com sucesso!'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno do servidor. Tente novamente.'
+            ], 500);
+        }
     }
 
     /**
