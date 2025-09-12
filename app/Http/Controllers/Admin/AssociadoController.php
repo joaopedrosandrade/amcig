@@ -44,6 +44,7 @@ class AssociadoController extends Controller
             'matricula',
             'tipo_associado',
             'status',
+            'photo',
             'created_at'
         ])->where('status', 'aprovado')->get();
 
@@ -75,6 +76,7 @@ class AssociadoController extends Controller
             'matricula',
             'tipo_associado',
             'status',
+            'photo',
             'created_at'
         ])->where('status', 'aprovado')->get();
 
@@ -289,6 +291,7 @@ class AssociadoController extends Controller
             'matricula',
             'tipo_associado',
             'status',
+            'photo',
             'created_at'
         ])->where('status', 'pendente')->get();
 
@@ -320,6 +323,7 @@ class AssociadoController extends Controller
             'matricula',
             'tipo_associado',
             'status',
+            'photo',
             'created_at'
         ])->where('status', 'pendente')->get();
 
@@ -611,7 +615,7 @@ class AssociadoController extends Controller
         $associados = $query->select([
             'id', 'name', 'email', 'cpf', 'matricula', 'sexo', 'data_nascimento',
             'telefone', 'bairro', 'logradouro', 'numero', 'complemento',
-            'cidade', 'uf', 'tipo_associado', 'status', 'created_at'
+            'cidade', 'uf', 'tipo_associado', 'status', 'photo', 'created_at'
         ])->get();
 
         // Calcular idade para cada associado
@@ -656,7 +660,7 @@ class AssociadoController extends Controller
         $associados = $query->select([
             'id', 'name', 'email', 'cpf', 'matricula', 'sexo', 'data_nascimento',
             'telefone', 'bairro', 'logradouro', 'numero', 'complemento',
-            'cidade', 'uf', 'tipo_associado', 'status', 'created_at'
+            'cidade', 'uf', 'tipo_associado', 'status', 'photo', 'created_at'
         ])->get();
 
         // Calcular idade para cada associado
@@ -725,7 +729,7 @@ class AssociadoController extends Controller
         $associados = $query->select([
             'id', 'name', 'email', 'cpf', 'matricula', 'sexo', 'data_nascimento',
             'telefone', 'bairro', 'logradouro', 'numero', 'complemento',
-            'cidade', 'uf', 'tipo_associado', 'status', 'created_at'
+            'cidade', 'uf', 'tipo_associado', 'status', 'photo', 'created_at'
         ])->get();
 
         // Calcular idade para cada associado

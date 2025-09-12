@@ -47,7 +47,7 @@
                                         <tr>
                                             <td>
                                                 <div class="avatar-sm rounded-circle overflow-hidden" style="width: 40px; height: 40px;">
-                                                    <img src="{{ $associado->photo_url }}" alt="{{ $associado->name }}" class="w-100 h-100 object-fit-cover">
+                                                    <img src="{{ $associado->photo_url }}" alt="{{ $associado->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                             </td>
                                             <td>{{ $associado->name }}</td>

@@ -25,7 +25,7 @@
                             <div class="col-md-8">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-lg rounded-circle me-3 overflow-hidden" style="width: 80px; height: 80px;">
-                                        <img src="{{ $associado->photo_url }}" alt="{{ $associado->name }}" class="w-100 h-100 object-fit-cover">
+                                        <img src="{{ $associado->photo_url }}" alt="{{ $associado->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                     <div>
                                         <h4 class="mb-1">{{ $associado->name }}</h4>

@@ -399,7 +399,7 @@ $(document).ready(function() {
                     <tr>
                         <td>
                             <div class="avatar-sm rounded-circle overflow-hidden" style="width: 40px; height: 40px;">
-                                <img src="${foto}" alt="${associado.name}" class="w-100 h-100 object-fit-cover">
+                                <img src="${foto}" alt="${associado.name}" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         </td>
                         <td>${associado.name}</td>

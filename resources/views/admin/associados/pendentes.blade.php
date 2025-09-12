@@ -29,7 +29,7 @@
                             <table id="associados_pendentes_datatable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        
                                         <th>Nome</th>
                                         <th>Matrícula</th>
                                         <th>CPF</th>
@@ -47,7 +47,7 @@
                                             ];
                                         @endphp
                                         <tr>
-                                            <td>{{ $associado->id }}</td>
+                                           
                                             <td>{{ $associado->name }}</td>
                                             <td>{{ $associado->matricula ?? 'N/A' }}</td>
                                             <td>{{ $associado->cpf ?? 'N/A' }}</td>
