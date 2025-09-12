@@ -27,7 +27,7 @@
                             <table id="associados_datatable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
                                 <thead>
                                     <tr>
-                                       
+                                        <th>Foto</th>
                                         <th>Nome</th>
                                         <th>Matrícula</th>
                                         <th>CPF</th>
@@ -45,7 +45,11 @@
                                             ];
                                         @endphp
                                         <tr>
-                                           
+                                            <td>
+                                                <div class="avatar-sm rounded-circle overflow-hidden" style="width: 40px; height: 40px;">
+                                                    <img src="{{ $associado->photo_url }}" alt="{{ $associado->name }}" class="w-100 h-100 object-fit-cover">
+                                                </div>
+                                            </td>
                                             <td>{{ $associado->name }}</td>
                                             <td>{{ $associado->matricula ?? 'N/A' }}</td>
                                             <td>{{ $associado->cpf ?? 'N/A' }}</td>
