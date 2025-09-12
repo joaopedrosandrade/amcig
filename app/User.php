@@ -273,6 +273,93 @@ class User extends Authenticatable
     }
 
     /**
+     * Formata um nome com primeira letra maiúscula de cada palavra
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function formatName($name)
+    {
+        if (empty($name)) {
+            return $name;
+        }
+
+        // Remove espaços extras e converte para minúsculas usando mb_strtolower para UTF-8
+        $name = mb_strtolower(trim($name), 'UTF-8');
+        
+        // Lista de palavras que devem permanecer em minúsculas (exceto se forem a primeira palavra)
+        $exceptions = ['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos', 'para', 'por', 'com', 'sem', 'sobre', 'entre'];
+        
+        // Divide o nome em palavras usando preg_split para tratar múltiplos espaços
+        $words = preg_split('/\s+/', $name);
+        $formattedWords = [];
+        
+        foreach ($words as $index => $word) {
+            if (empty($word)) {
+                continue;
+            }
+            
+            // Se não for a primeira palavra e estiver na lista de exceções, mantém minúscula
+            if ($index > 0 && in_array($word, $exceptions)) {
+                $formattedWords[] = $word;
+            } else {
+                // Primeira letra maiúscula usando mb_convert_case para UTF-8
+                $formattedWords[] = mb_convert_case($word, MB_CASE_TITLE, 'UTF-8');
+            }
+        }
+        
+        return implode(' ', $formattedWords);
+    }
+
+    /**
+     * Mutator para o campo name - formata automaticamente
+     */
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = self::formatName($value);
+    }
+
+    /**
+     * Mutator para o campo nome_comercio - formata automaticamente
+     */
+    public function setNomeComercioAttribute($value)
+    {
+        $this->attributes['nome_comercio'] = $value ? self::formatName($value) : $value;
+    }
+
+    /**
+     * Mutator para o campo logradouro - formata automaticamente
+     */
+    public function setLogradouroAttribute($value)
+    {
+        $this->attributes['logradouro'] = $value ? self::formatName($value) : $value;
+    }
+
+    /**
+     * Mutator para o campo bairro - formata automaticamente
+     */
+    public function setBairroAttribute($value)
+    {
+        $this->attributes['bairro'] = $value ? self::formatName($value) : $value;
+    }
+
+    /**
+     * Mutator para o campo cidade - formata automaticamente
+     */
+    public function setCidadeAttribute($value)
+    {
+        $this->attributes['cidade'] = $value ? self::formatName($value) : $value;
+    }
+
+    /**
+     * Mutator para o campo ramo_atividade - formata automaticamente
+     */
+    public function setRamoAtividadeAttribute($value)
+    {
+        $this->attributes['ramo_atividade'] = $value ? self::formatName($value) : $value;
+    }
+
+    /**
      * Boot do modelo para gerar matrícula automaticamente
      */
     protected static function boot()
