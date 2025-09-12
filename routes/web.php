@@ -617,10 +617,28 @@ Route::get('/force-update-payment/{invoice_id}', function($invoice_id) {
     }
 })->name('force.update.payment');
 
-
-
-
-
-
-
+// Rotas para assembleias
+Route::prefix('assembleias')->group(function() {
+    // Rotas administrativas
+    Route::middleware(['auth:admin'])->group(function() {
+        Route::get('/', 'Admin\AssembleiaController@index')->name('admin.assembleias.index');
+        Route::get('/create', 'Admin\AssembleiaController@create')->name('admin.assembleias.create');
+        Route::post('/store', 'Admin\AssembleiaController@store')->name('admin.assembleias.store');
+        Route::get('/{id}', 'Admin\AssembleiaController@show')->name('admin.assembleias.show');
+        Route::get('/{id}/edit', 'Admin\AssembleiaController@edit')->name('admin.assembleias.edit');
+        Route::put('/{id}', 'Admin\AssembleiaController@update')->name('admin.assembleias.update');
+        Route::delete('/{id}', 'Admin\AssembleiaController@destroy')->name('admin.assembleias.destroy');
+        
+        // Funcionalidades específicas
+        Route::post('/{id}/gerar-link', 'Admin\AssembleiaController@gerarLinkPresenca')->name('admin.assembleias.gerar-link');
+        Route::post('/{id}/toggle-lista', 'Admin\AssembleiaController@toggleListaPresenca')->name('admin.assembleias.toggle-lista');
+        Route::get('/{id}/presencas', 'Admin\AssembleiaController@presencas')->name('admin.assembleias.presencas');
+        Route::get('/{id}/exportar-presencas', 'Admin\AssembleiaController@exportarPresencas')->name('admin.assembleias.exportar-presencas');
+    });
+    
+    // Rotas públicas para lista de presença
+    Route::get('/presenca/{link}', 'AssembleiaPresencaController@show')->name('assembleia.presenca');
+    Route::post('/presenca/{link}', 'AssembleiaPresencaController@store')->name('assembleia.presenca.store');
+    Route::post('/buscar-usuario', 'AssembleiaPresencaController@buscarUsuario')->name('assembleia.buscar-usuario');
+});
 

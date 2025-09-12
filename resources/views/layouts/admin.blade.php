@@ -206,6 +206,12 @@
                             <li class="pe-slide-item"><a href="{{ route('admin.associados.relatorios') }}" class="pe-nav-link">Relatórios</a></li>
                                 </ul>
                             </li>
+                    <li class="pe-slide">
+                        <a href="{{ route('admin.assembleias.index') }}" class="pe-nav-link">
+                            <i class="ri-calendar-event-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Assembleias</span>
+                        </a>
+                    </li>
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
                             <i class="ri-bank-card-line pe-nav-icon"></i>
