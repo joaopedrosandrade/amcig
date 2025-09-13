@@ -60,13 +60,13 @@
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="hora_inicio" class="form-label">Hora Início <span class="text-danger">*</span></label>
-                                            <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="{{ \Carbon\Carbon::parse($assembleia->hora_inicio)->format('H:i') }}" required>
+                                            <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="{{ $assembleia->hora_inicio }}" required>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="hora_fim" class="form-label">Hora Fim</label>
-                                            <input type="time" class="form-control" id="hora_fim" name="hora_fim" value="{{ $assembleia->hora_fim ? \Carbon\Carbon::parse($assembleia->hora_fim)->format('H:i') : '' }}">
+                                            <input type="time" class="form-control" id="hora_fim" name="hora_fim" value="{{ $assembleia->hora_fim }}">
                                         </div>
                                     </div>
                                 </div>
@@ -135,21 +135,37 @@ $(document).ready(function() {
     $('#assembleiaForm').on('submit', function(e) {
         e.preventDefault();
         
+        const $btn = $(this).find('button[type="submit"]');
+        const originalText = $btn.html();
+        
+        // Desabilitar botão e mostrar loading
+        $btn.prop('disabled', true).html('<i class="ri-loader-4-line ri-spin me-1"></i>Salvando...');
+        
         const formData = $(this).serialize();
+        
+        console.log('Enviando dados:', formData);
+        console.log('URL:', '{{ route("admin.assembleias.update", $assembleia->id) }}');
         
         $.ajax({
             url: '{{ route("admin.assembleias.update", $assembleia->id) }}',
             method: 'POST',
             data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
+                console.log('Resposta recebida:', response);
                 if (response.success) {
                     toastr.success(response.message);
                     setTimeout(function() {
                         window.location.href = '{{ route("admin.assembleias.index") }}';
                     }, 1000);
+                } else {
+                    toastr.error(response.message || 'Erro ao atualizar assembleia');
                 }
             },
             error: function(xhr) {
+                console.log('Erro:', xhr);
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
                     let errorMessage = 'Erro de validação:\n';
@@ -160,8 +176,13 @@ $(document).ready(function() {
                     
                     toastr.error(errorMessage);
                 } else {
-                    toastr.error('Erro ao atualizar assembleia');
+                    const errorMsg = xhr.responseJSON?.message || 'Erro ao atualizar assembleia';
+                    toastr.error(errorMsg);
                 }
+            },
+            complete: function() {
+                // Reabilitar botão
+                $btn.prop('disabled', false).html(originalText);
             }
         });
     });

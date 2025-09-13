@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Assembleia;
-use App\Presenca;
+use App\Evento;
+use App\PresencaEvento;
 use Illuminate\Support\Facades\Validator;
 
-class AssembleiaController extends Controller
+class EventoController extends Controller
 {
     public function __construct()
     {
@@ -22,11 +22,11 @@ class AssembleiaController extends Controller
      */
     public function index()
     {
-        $assembleias = Assembleia::orderBy('data_assembleia', 'desc')
+        $eventos = Evento::orderBy('data_evento', 'desc')
             ->orderBy('hora_inicio', 'desc')
             ->get();
 
-        return view('admin.assembleias.index', compact('assembleias'));
+        return view('admin.eventos.index', compact('eventos'));
     }
 
     /**
@@ -36,7 +36,7 @@ class AssembleiaController extends Controller
      */
     public function create()
     {
-        return view('admin.assembleias.create');
+        return view('admin.eventos.create');
     }
 
     /**
@@ -58,11 +58,11 @@ class AssembleiaController extends Controller
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
-            'data_assembleia' => 'required|date|after_or_equal:today',
+            'data_evento' => 'required|date|after_or_equal:today',
             'hora_inicio' => 'required',
             'hora_fim' => 'nullable|after:hora_inicio',
             'local' => 'required|string|max:255',
-            'tipo' => 'required|in:ordinaria,extraordinaria',
+            'tipo' => 'required|in:assembleia,reuniao,palestra,workshop,outro',
             'pauta' => 'nullable|string',
             'observacoes' => 'nullable|string',
             'quorum_minimo' => 'nullable|integer|min:1'
@@ -77,17 +77,17 @@ class AssembleiaController extends Controller
         }
 
         try {
-            $assembleia = Assembleia::create($request->all());
+            $evento = Evento::create($request->all());
             
-            \Log::info('Assembleia criada com sucesso', ['id' => $assembleia->id, 'titulo' => $assembleia->titulo]);
+            \Log::info('Evento criado com sucesso', ['id' => $evento->id, 'titulo' => $evento->titulo]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Assembleia criada com sucesso!',
-                'redirect' => route('admin.assembleias.index')
+                'message' => 'Evento criado com sucesso!',
+                'redirect' => route('admin.eventos.index')
             ]);
         } catch (\Exception $e) {
-            \Log::error('Erro ao criar assembleia', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            \Log::error('Erro ao criar evento', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             
             return response()->json([
                 'success' => false,
@@ -104,8 +104,8 @@ class AssembleiaController extends Controller
      */
     public function show($id)
     {
-        $assembleia = Assembleia::with('presencas.user')->findOrFail($id);
-        return view('admin.assembleias.show', compact('assembleia'));
+        $evento = Evento::with('presencas.user')->findOrFail($id);
+        return view('admin.eventos.show', compact('evento'));
     }
 
     /**
@@ -116,8 +116,8 @@ class AssembleiaController extends Controller
      */
     public function edit($id)
     {
-        $assembleia = Assembleia::findOrFail($id);
-        return view('admin.assembleias.edit', compact('assembleia'));
+        $evento = Evento::findOrFail($id);
+        return view('admin.eventos.edit', compact('evento'));
     }
 
     /**
@@ -129,17 +129,17 @@ class AssembleiaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $assembleia = Assembleia::findOrFail($id);
+        $evento = Evento::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
-            'data_assembleia' => 'required|date',
+            'data_evento' => 'required|date',
             'hora_inicio' => 'required',
             'hora_fim' => 'nullable|after:hora_inicio',
             'local' => 'required|string|max:255',
-            'tipo' => 'required|in:ordinaria,extraordinaria',
-            'status' => 'required|in:agendada,em_andamento,concluida,cancelada',
+            'tipo' => 'required|in:assembleia,reuniao,palestra,workshop,outro',
+            'status' => 'required|in:agendado,em_andamento,concluido,cancelado',
             'pauta' => 'nullable|string',
             'observacoes' => 'nullable|string',
             'quorum_minimo' => 'nullable|integer|min:1'
@@ -153,11 +153,11 @@ class AssembleiaController extends Controller
             ], 422);
         }
 
-        $assembleia->update($request->all());
+        $evento->update($request->all());
 
         return response()->json([
             'success' => true,
-            'message' => 'Assembleia atualizada com sucesso!'
+            'message' => 'Evento atualizado com sucesso!'
         ]);
     }
 
@@ -169,12 +169,12 @@ class AssembleiaController extends Controller
      */
     public function destroy($id)
     {
-        $assembleia = Assembleia::findOrFail($id);
-        $assembleia->delete();
+        $evento = Evento::findOrFail($id);
+        $evento->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Assembleia excluída com sucesso!'
+            'message' => 'Evento excluído com sucesso!'
         ]);
     }
 
@@ -183,12 +183,12 @@ class AssembleiaController extends Controller
      */
     public function gerarLinkPresenca($id)
     {
-        $assembleia = Assembleia::findOrFail($id);
-        $link = $assembleia->gerarLinkPresenca();
+        $evento = Evento::findOrFail($id);
+        $link = $evento->gerarLinkPresenca();
 
         return response()->json([
             'success' => true,
-            'link' => route('assembleia.presenca', $link),
+            'link' => route('evento.presenca', $link),
             'message' => 'Link gerado com sucesso!'
         ]);
     }
@@ -198,20 +198,20 @@ class AssembleiaController extends Controller
      */
     public function toggleListaPresenca($id)
     {
-        $assembleia = Assembleia::findOrFail($id);
+        $evento = Evento::findOrFail($id);
 
-        if ($assembleia->lista_presenca_ativa) {
-            $assembleia->desativarListaPresenca();
+        if ($evento->lista_presenca_ativa) {
+            $evento->desativarListaPresenca();
             $message = 'Lista de presença desativada!';
         } else {
-            $assembleia->ativarListaPresenca();
+            $evento->ativarListaPresenca();
             $message = 'Lista de presença ativada!';
         }
 
         return response()->json([
             'success' => true,
             'message' => $message,
-            'ativa' => $assembleia->lista_presenca_ativa
+            'ativa' => $evento->lista_presenca_ativa
         ]);
     }
 
@@ -220,8 +220,8 @@ class AssembleiaController extends Controller
      */
     public function presencas($id)
     {
-        $assembleia = Assembleia::with('presencas.user')->findOrFail($id);
-        return view('admin.assembleias.presencas', compact('assembleia'));
+        $evento = Evento::with('presencas.user')->findOrFail($id);
+        return view('admin.eventos.presencas', compact('evento'));
     }
 
     /**
@@ -229,12 +229,12 @@ class AssembleiaController extends Controller
      */
     public function exportarPresencas($id)
     {
-        $assembleia = Assembleia::with('presencas.user')->findOrFail($id);
+        $evento = Evento::with('presencas.user')->findOrFail($id);
 
         $csvData = [];
         $csvData[] = ['Nome', 'CPF', 'Email', 'Telefone', 'Data/Hora Presença', 'Observações'];
 
-        foreach ($assembleia->presencas as $presenca) {
+        foreach ($evento->presencas as $presenca) {
             $csvData[] = [
                 $presenca->nome ?? $presenca->user->name ?? 'N/A',
                 $presenca->cpf ?? $presenca->user->cpf ?? 'N/A',
@@ -245,7 +245,7 @@ class AssembleiaController extends Controller
             ];
         }
 
-        $filename = 'lista_presenca_' . $assembleia->titulo . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'lista_presenca_' . $evento->titulo . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
 
         $csvContent = '';
         foreach ($csvData as $row) {

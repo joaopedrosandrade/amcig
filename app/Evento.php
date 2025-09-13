@@ -5,14 +5,14 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Assembleia extends Model
+class Evento extends Model
 {
-    protected $table = 'assembleias_sistema';
+    protected $table = 'eventos_sistema';
 
     protected $fillable = [
         'titulo',
         'descricao',
-        'data_assembleia',
+        'data_evento',
         'hora_inicio',
         'hora_fim',
         'local',
@@ -26,7 +26,7 @@ class Assembleia extends Model
     ];
 
     protected $casts = [
-        'data_assembleia' => 'date',
+        'data_evento' => 'date',
         'lista_presenca_ativa' => 'boolean',
         'quorum_minimo' => 'integer'
     ];
@@ -36,7 +36,7 @@ class Assembleia extends Model
      */
     public function presencas()
     {
-        return $this->hasMany(Presenca::class, 'assembleia_id');
+        return $this->hasMany(PresencaEvento::class, 'evento_id');
     }
 
     /**
@@ -90,15 +90,15 @@ class Assembleia extends Model
     }
 
     /**
-     * Scope para assembleias ativas
+     * Scope para eventos ativos
      */
-    public function scopeAtivas($query)
+    public function scopeAtivos($query)
     {
         return $query->where('lista_presenca_ativa', true);
     }
 
     /**
-     * Scope para assembleias por status
+     * Scope para eventos por status
      */
     public function scopePorStatus($query, $status)
     {
@@ -106,7 +106,7 @@ class Assembleia extends Model
     }
 
     /**
-     * Scope para assembleias por tipo
+     * Scope para eventos por tipo
      */
     public function scopePorTipo($query, $tipo)
     {

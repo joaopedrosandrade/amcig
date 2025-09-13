@@ -25,7 +25,7 @@
                                 <div>
                                     <h5 class="card-title mb-0">Presenças Registradas</h5>
                                     <p class="text-muted mb-0">
-                                        {{ $assembleia->data_assembleia->format('d/m/Y') }} às {{ \Carbon\Carbon::parse($assembleia->hora_inicio)->format('H:i') }}
+                                        {{ $assembleia->data_assembleia->format('d/m/Y') }} às {{ $assembleia->hora_inicio }}
                                     </p>
                                 </div>
                                 <div class="d-flex gap-2">
@@ -124,7 +124,7 @@
                                                 </td>
                                                 <td>
                                                     @if($presenca->observacoes)
-                                                        <small>{{ Str::limit($presenca->observacoes, 50) }}</small>
+                                                        <small>{{ \Illuminate\Support\Str::limit($presenca->observacoes, 50) }}</small>
                                                     @else
                                                         <span class="text-muted">-</span>
                                                     @endif
@@ -143,13 +143,7 @@
 </main>
 @endsection
 
-@push('styles')
-<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-@endpush
-
 @push('scripts')
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#presencasTable').DataTable({

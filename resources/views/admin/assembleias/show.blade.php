@@ -38,9 +38,9 @@
                                     <h6 class="text-muted">Data e Horário</h6>
                                     <p class="mb-3">
                                         <i class="ri-calendar-line me-2"></i>
-                                        {{ $assembleia->data_assembleia->format('d/m/Y') }} às {{ \Carbon\Carbon::parse($assembleia->hora_inicio)->format('H:i') }}
+                                        {{ $assembleia->data_assembleia->format('d/m/Y') }} às {{ $assembleia->hora_inicio }}
                                         @if($assembleia->hora_fim)
-                                            - {{ \Carbon\Carbon::parse($assembleia->hora_fim)->format('H:i') }}
+                                            - {{ $assembleia->hora_fim }}
                                         @endif
                                     </p>
 
@@ -193,13 +193,21 @@
 @push('scripts')
 <script>
 function gerarLink(id) {
+    const url = `{{ url('assembleias') }}/${id}/gerar-link`;
+    console.log('Gerando link para assembleia ID:', id);
+    console.log('URL da requisição:', url);
+    
     $.ajax({
-        url: `{{ url('admin/assembleias') }}/${id}/gerar-link`,
+        url: url,
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}'
         },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
         success: function(response) {
+            console.log('Resposta recebida:', response);
             if (response.success) {
                 $('#linkInput').val(response.link);
                 $('#linkModal').modal('show');
@@ -209,8 +217,12 @@ function gerarLink(id) {
                 }, 1000);
             }
         },
-        error: function() {
-            toastr.error('Erro ao gerar link');
+        error: function(xhr, status, error) {
+            console.log('Erro na requisição:', xhr);
+            console.log('Status:', status);
+            console.log('Error:', error);
+            console.log('Response Text:', xhr.responseText);
+            toastr.error('Erro ao gerar link: ' + error);
         }
     });
 }
@@ -232,8 +244,8 @@ function copiarLinkModal() {
 }
 
 function toggleLista(id) {
-    $.ajax({
-        url: `{{ url('admin/assembleias') }}/${id}/toggle-lista`,
+        $.ajax({
+            url: `{{ url('assembleias') }}/${id}/toggle-lista`,
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}'

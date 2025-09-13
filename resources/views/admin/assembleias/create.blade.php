@@ -123,19 +123,37 @@ $(document).ready(function() {
     $('#assembleiaForm').on('submit', function(e) {
         e.preventDefault();
         
+        const $btn = $(this).find('button[type="submit"]');
+        const originalText = $btn.html();
+        
+        // Desabilitar botão e mostrar loading
+        $btn.prop('disabled', true).html('<i class="ri-loader-4-line ri-spin me-1"></i>Salvando...');
+        
         const formData = $(this).serialize();
+        
+        console.log('Enviando dados:', formData);
+        console.log('URL:', '{{ route("admin.assembleias.store") }}');
         
         $.ajax({
             url: '{{ route("admin.assembleias.store") }}',
             method: 'POST',
             data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
+                console.log('Resposta recebida:', response);
                 if (response.success) {
                     toastr.success(response.message);
-                    window.location.href = response.redirect;
+                    setTimeout(function() {
+                        window.location.href = response.redirect;
+                    }, 1000);
+                } else {
+                    toastr.error(response.message || 'Erro ao salvar assembleia');
                 }
             },
             error: function(xhr) {
+                console.log('Erro:', xhr);
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
                     let errorMessage = 'Erro de validação:\n';
@@ -146,8 +164,13 @@ $(document).ready(function() {
                     
                     toastr.error(errorMessage);
                 } else {
-                    toastr.error('Erro ao salvar assembleia');
+                    const errorMsg = xhr.responseJSON?.message || 'Erro ao salvar assembleia';
+                    toastr.error(errorMsg);
                 }
+            },
+            complete: function() {
+                // Reabilitar botão
+                $btn.prop('disabled', false).html(originalText);
             }
         });
     });

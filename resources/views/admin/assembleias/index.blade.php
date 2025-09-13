@@ -48,14 +48,14 @@
                                                 <td>
                                                     <strong>{{ $assembleia->titulo }}</strong>
                                                     @if($assembleia->descricao)
-                                                        <br><small class="text-muted">{{ Str::limit($assembleia->descricao, 50) }}</small>
+                                                        <br><small class="text-muted">{{ \Illuminate\Support\Str::limit($assembleia->descricao, 50) }}</small>
                                                     @endif
                                                 </td>
                                                 <td>{{ $assembleia->data_assembleia->format('d/m/Y') }}</td>
                                                 <td>
-                                                    {{ \Carbon\Carbon::parse($assembleia->hora_inicio)->format('H:i') }}
+                                                    {{ $assembleia->hora_inicio }}
                                                     @if($assembleia->hora_fim)
-                                                        - {{ \Carbon\Carbon::parse($assembleia->hora_fim)->format('H:i') }}
+                                                        - {{ $assembleia->hora_fim }}
                                                     @endif
                                                 </td>
                                                 <td>{{ $assembleia->local }}</td>
@@ -156,13 +156,7 @@
 </div>
 @endsection
 
-@push('styles')
-<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-@endpush
-
 @push('scripts')
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#assembleiasTable').DataTable({
@@ -179,7 +173,7 @@ $(document).ready(function() {
         const ativo = $(this).is(':checked');
         
         $.ajax({
-            url: `{{ url('admin/assembleias') }}/${id}/toggle-lista`,
+            url: `{{ url('assembleias') }}/${id}/toggle-lista`,
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}'
@@ -198,21 +192,33 @@ $(document).ready(function() {
 });
 
 function gerarLink(id) {
+    const url = `{{ url('assembleias') }}/${id}/gerar-link`;
+    console.log('Gerando link para assembleia ID:', id);
+    console.log('URL da requisição:', url);
+    
     $.ajax({
-        url: `{{ url('admin/assembleias') }}/${id}/gerar-link`,
+        url: url,
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}'
         },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
         success: function(response) {
+            console.log('Resposta recebida:', response);
             if (response.success) {
                 $('#linkInput').val(response.link);
                 $('#linkModal').modal('show');
                 toastr.success(response.message);
             }
         },
-        error: function() {
-            toastr.error('Erro ao gerar link');
+        error: function(xhr, status, error) {
+            console.log('Erro na requisição:', xhr);
+            console.log('Status:', status);
+            console.log('Error:', error);
+            console.log('Response Text:', xhr.responseText);
+            toastr.error('Erro ao gerar link: ' + error);
         }
     });
 }
@@ -228,7 +234,7 @@ function copiarLink() {
 function excluirAssembleia(id) {
     if (confirm('Tem certeza que deseja excluir esta assembleia?')) {
         $.ajax({
-            url: `{{ url('admin/assembleias') }}/${id}`,
+            url: `{{ url('assembleias') }}/${id}`,
             method: 'DELETE',
             data: {
                 _token: '{{ csrf_token() }}'

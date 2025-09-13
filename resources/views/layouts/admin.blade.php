@@ -207,9 +207,9 @@
                                 </ul>
                             </li>
                     <li class="pe-slide">
-                        <a href="{{ route('admin.assembleias.index') }}" class="pe-nav-link">
+                        <a href="{{ route('admin.eventos.index') }}" class="pe-nav-link">
                             <i class="ri-calendar-event-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Assembleias</span>
+                            <span class="pe-nav-content">Eventos</span>
                         </a>
                     </li>
                     <li class="pe-slide pe-has-sub">
@@ -302,6 +302,9 @@
 
 <!-- App js -->
 
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
 <!--datatable js-->
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -312,6 +315,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+// Configuração do Toastr
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": false,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};
+</script>
 
 <script src="{{asset('assets/js/table/datatable.init.js')}}"></script>
 <script src="{{asset('assets/js/app.js')}}"></script>
