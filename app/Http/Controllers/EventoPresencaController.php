@@ -95,7 +95,14 @@ class EventoPresencaController extends Controller
             return response()->json(['success' => false]);
         }
 
+        // Buscar por CPF limpo (apenas números)
         $user = User::where('cpf', $cpf)->first();
+        
+        // Se não encontrou, buscar por CPF formatado
+        if (!$user) {
+            $cpfFormatado = substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+            $user = User::where('cpf', $cpfFormatado)->first();
+        }
 
         if ($user) {
             return response()->json([

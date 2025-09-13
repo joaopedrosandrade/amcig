@@ -37,6 +37,17 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         }
+        .tipo-participante {
+            transition: all 0.3s ease;
+        }
+        .tipo-participante:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .tipo-participante.border-primary {
+            border-color: #667eea !important;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
     </style>
 </head>
 <body>
@@ -79,57 +90,121 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <div class="alert alert-success mb-0">
-                                <i class="ri-check-line me-2"></i>
-                                <strong>Lista Ativa</strong>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="form-container">
                     <h5 class="mb-4"><i class="ri-user-add-line me-2"></i>Registrar Presença</h5>
                     
-                    <form id="presencaForm">
+                    <!-- Seleção do tipo de participante -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Clique sobre uma opção: <span class="text-danger">*</span></label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-2 tipo-participante" data-tipo="associado" style="cursor: pointer;">
+                                    <div class="card-body text-center">
+                                      
+                                        <h6 class="card-title">Sou Associado</h6>
+                                        <p class="card-text text-muted small">Digite seu CPF para preenchimento automático</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-2 tipo-participante" data-tipo="visitante" style="cursor: pointer;">
+                                    <div class="card-body text-center">
+                                     
+                                        <h6 class="card-title">Não Sou Associado</h6>
+                                        <p class="card-text text-muted small">Preencha seus dados manualmente</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário para Associado -->
+                    <form id="presencaFormAssociado" style="display: none;">
                         @csrf
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="nome" name="nome" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="cpf" name="cpf" required placeholder="000.000.000-00">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">E-mail</label>
-                                    <input type="email" class="form-control" id="email" name="email">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="telefone" class="form-label">Telefone</label>
-                                    <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000">
-                                </div>
-                            </div>
-                        </div>
+                        <input type="hidden" name="tipo" value="associado">
                         
                         <div class="mb-3">
-                            <label for="observacoes" class="form-label">Observações</label>
-                            <textarea class="form-control" id="observacoes" name="observacoes" rows="3" placeholder="Observações adicionais (opcional)"></textarea>
+                            <label for="cpf_associado" class="form-label">CPF <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cpf_associado" name="cpf" required placeholder="000.000.000-00">
+                            <div class="form-text">Digite seu CPF para buscar seus dados automaticamente</div>
+                        </div>
+                        
+                        <div id="dadosAssociado" style="display: none;">
+                            <div class="alert alert-success">
+                                <i class="ri-check-line me-2"></i>
+                                <strong>Dados encontrados!</strong> Verifique as informações abaixo:
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="nome_associado" class="form-label">Nome Completo</label>
+                                        <input type="text" class="form-control" id="nome_associado" name="nome" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email_associado" class="form-label">E-mail</label>
+                                        <input type="email" class="form-control" id="email_associado" name="email" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="telefone_associado" class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="telefone_associado" name="telefone" readonly>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="observacoes_associado" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacoes_associado" name="observacoes" rows="3" placeholder="Observações adicionais (opcional)"></textarea>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="ri-check-line me-2"></i>Confirmar Presença
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Formulário para Visitante -->
+                    <form id="presencaFormVisitante" style="display: none;">
+                        @csrf
+                        <input type="hidden" name="tipo" value="visitante">
+                        
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Que tal se tornar um associado?</strong> 
+                            <a href="#" class="alert-link">Clique aqui para saber mais sobre os benefícios</a>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="nome_visitante" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nome_visitante" name="nome" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="cpf_visitante" class="form-label">CPF <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="cpf_visitante" name="cpf" required placeholder="000.000.000-00">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="telefone_visitante" class="form-label">Telefone <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="telefone_visitante" name="telefone" required placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-warning btn-lg">
                                 <i class="ri-check-line me-2"></i>Confirmar Presença
                             </button>
                         </div>
@@ -173,11 +248,30 @@
 
         $(document).ready(function() {
             // Máscaras para CPF e telefone
-            $('#cpf').mask('000.000.000-00');
-            $('#telefone').mask('(00) 00000-0000');
+            $('#cpf_associado, #cpf_visitante').mask('000.000.000-00');
+            $('#telefone_visitante').mask('(00) 00000-0000');
 
-            // Buscar usuário por CPF
-            $('#cpf').on('blur', function() {
+            // Seleção do tipo de participante
+            $('.tipo-participante').on('click', function() {
+                const tipo = $(this).data('tipo');
+                
+                // Remover seleção anterior
+                $('.tipo-participante').removeClass('border-primary').addClass('border-secondary');
+                $(this).removeClass('border-secondary').addClass('border-primary');
+                
+                // Esconder formulários
+                $('#presencaFormAssociado, #presencaFormVisitante').hide();
+                
+                // Mostrar formulário selecionado
+                if (tipo === 'associado') {
+                    $('#presencaFormAssociado').show();
+                } else {
+                    $('#presencaFormVisitante').show();
+                }
+            });
+
+            // Buscar usuário associado por CPF
+            $('#cpf_associado').on('blur', function() {
                 const cpf = $(this).val().replace(/[^0-9]/g, '');
                 if (cpf.length === 11) {
                     $.ajax({
@@ -189,18 +283,26 @@
                         },
                         success: function(response) {
                             if (response.success && response.user) {
-                                $('#nome').val(response.user.nome);
-                                $('#email').val(response.user.email);
-                                $('#telefone').val(response.user.telefone);
-                                toastr.info('Dados preenchidos automaticamente!');
+                                $('#nome_associado').val(response.user.nome);
+                                $('#email_associado').val(response.user.email);
+                                $('#telefone_associado').val(response.user.telefone);
+                                $('#dadosAssociado').show();
+                                toastr.success('Dados encontrados! Verifique as informações abaixo.');
+                            } else {
+                                $('#dadosAssociado').hide();
+                                toastr.warning('CPF não encontrado. Verifique se você está cadastrado como associado.');
                             }
+                        },
+                        error: function() {
+                            $('#dadosAssociado').hide();
+                            toastr.error('Erro ao buscar dados do associado.');
                         }
                     });
                 }
             });
 
-            // Formulário de presença
-            $('#presencaForm').on('submit', function(e) {
+            // Formulário de presença para associado
+            $('#presencaFormAssociado').on('submit', function(e) {
                 e.preventDefault();
                 
                 const $btn = $(this).find('button[type="submit"]');
@@ -221,12 +323,7 @@
                     success: function(response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            $('#presencaForm')[0].reset();
-                            // Opcional: redirecionar ou mostrar mensagem de sucesso
-                            setTimeout(function() {
-                                $('<div class="alert alert-success text-center"><i class="ri-check-circle-line me-2"></i><strong>Presença registrada com sucesso!</strong><br>Sua presença foi confirmada no evento.</div>').insertAfter('.form-container');
-                                $('.form-container').hide();
-                            }, 1000);
+                            mostrarSucesso();
                         }
                     },
                     error: function(xhr) {
@@ -250,6 +347,61 @@
                     }
                 });
             });
+
+            // Formulário de presença para visitante
+            $('#presencaFormVisitante').on('submit', function(e) {
+                e.preventDefault();
+                
+                const $btn = $(this).find('button[type="submit"]');
+                const originalText = $btn.html();
+                
+                // Desabilitar botão e mostrar loading
+                $btn.prop('disabled', true).html('<i class="ri-loader-4-line ri-spin me-2"></i>Registrando...');
+                
+                const formData = $(this).serialize();
+                
+                $.ajax({
+                    url: '{{ route("evento.presenca.store", $evento->link_presenca) }}',
+                    method: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            mostrarSucesso();
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            const errors = xhr.responseJSON.errors;
+                            let errorMessage = 'Erro de validação:\n';
+                            
+                            Object.keys(errors).forEach(function(key) {
+                                errorMessage += '- ' + errors[key][0] + '\n';
+                            });
+                            
+                            toastr.error(errorMessage);
+                        } else {
+                            const errorMsg = xhr.responseJSON?.message || 'Erro ao registrar presença';
+                            toastr.error(errorMsg);
+                        }
+                    },
+                    complete: function() {
+                        // Reabilitar botão
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+
+            // Função para mostrar mensagem de sucesso
+            function mostrarSucesso() {
+                setTimeout(function() {
+                    $('<div class="alert alert-success text-center mt-4"><i class="ri-check-circle-line me-2"></i><strong>Presença registrada com sucesso!</strong><br>Sua presença foi confirmada no evento.<br><small class="text-muted">Obrigado por participar!</small></div>').insertAfter('.form-container');
+                    $('.form-container').hide();
+                }, 1000);
+            }
         });
     </script>
 </body>
