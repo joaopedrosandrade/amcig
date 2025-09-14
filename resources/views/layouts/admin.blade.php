@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>AMCIG - Sistema Administrativo</title>
+    <title>Admin AMCIG - Painel Administrativo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta content="Dashboard Administrativo AMCIG" name="description" />
     <meta content="AMCIG" name="author" />
@@ -35,6 +35,32 @@
     <link href="{{asset('assets/css/app.min.css')}}" id="app-style" rel="stylesheet" type="text/css">
     
     @stack('styles')
+    
+    <!-- Estilos personalizados para área administrativa -->
+    <style>
+        /* Indicador visual sutil para área admin */
+        .pe-app-sidebar {
+            border-right: 3px solid #405189;
+        }
+        
+        /* Badge ADMIN mais destacado */
+        .badge.bg-primary {
+            background-color: #405189 !important;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Hover effect diferenciado para admin */
+        .pe-nav-link:hover {
+            background-color: rgba(64, 81, 137, 0.1);
+        }
+        
+        /* Breadcrumb com indicador admin */
+        .breadcrumb-title::before {
+            content: "🔧 ";
+            color: #405189;
+        }
+    </style>
 </head>
 <body>
 <!-- begin::App -->
@@ -46,7 +72,7 @@
                 <div class="d-inline-flex align-items-center gap-2">
                     <a href="index.html" class="align-items-end logo-main d-none me-5">
                         <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="{{asset('assets/images/logo-md.png')}}"">
-                        <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">AMCIG</h3>
+                        <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">Admin AMCIG</h3>
                     </a>
                     <button type="button" class="vertical-toggle btn header-btn" id="toggleSidebar" aria-label="Toggle Sidebar">
                         <i class="bi bi-arrow-bar-left header-icon"></i>
@@ -113,8 +139,11 @@
                     <div class="dropdown pe-dropdown-mega d-none d-md-block">
                         <button class="header-profile-btn btn gap-1 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="d-none d-xl-block pe-2">
-                                <span class="d-block mb-0 fs-12 fw-semibold">    {{ Auth::guard('admin')->user()->name }}</span>
-                                <span class="d-block mb-0 fs-10 text-muted">    {{ Auth::guard('admin')->user()->email }}</span>
+                                <span class="d-block mb-0 fs-12 fw-semibold">{{ Auth::guard('admin')->user()->name }}</span>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="d-block mb-0 fs-10 text-muted">{{ Auth::guard('admin')->user()->email }}</span>
+                                    <span class="badge bg-primary fs-10 px-1">ADMIN</span>
+                                </div>
                             </div>
                             <span class="header-btn btn position-relative">
                                 <img src="{{asset('assets/images/avatar/avatar-3.jpg')}}" alt="Avatar Image" class="img-fluid rounded-circle">
@@ -125,9 +154,12 @@
                                 <img src="{{asset('assets/images/avatar/avatar-3.jpg')}}" alt="Avatar Image" class="avatar-md">
                                 <div>
                                     <a href="javascript:void(0)">
-                                        <h6 class="mb-0 lh-base">  {{ Auth::guard('admin')->user()->name }}</h6>
+                                        <h6 class="mb-0 lh-base">{{ Auth::guard('admin')->user()->name }}</h6>
                                     </a>
-                                    <p class="mb-0 fs-13 text-muted"> {{ Auth::guard('admin')->user()->email }}</p>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <p class="mb-0 fs-13 text-muted">{{ Auth::guard('admin')->user()->email }}</p>
+                                        <span class="badge bg-primary fs-10 px-1">ADMIN</span>
+                                    </div>
                                 </div>
                             </div>
                             <ul class="list-unstyled mb-1 border-bottom pb-1">
@@ -178,7 +210,10 @@
             <a href="index.html" class="d-flex align-items-end logo-main">
                 <img height="35" width="34" class="logo-dark" alt="Dark Logo" src="{{asset('assets/images/logo-md.png')}}">
                 <img height="35" width="34" class="logo-light" alt="Light Logo" src="{{asset('assets/images/logo-md-light.png')}}">
-                <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">AMCIG</h3>
+                <div class="d-flex flex-column">
+                    <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">AMCIG</h3>
+                    <small class="text-primary fw-bold ms-1">ADMIN</small>
+                </div>
             </a>
             <button type="button" id="sidebarDefaultArrow" class="btn btn-sm p-0 fs-16 text-body-emphasis ms-auto float-end d-none icon-hover-btn d-none"><i class="ri-arrow-right-line fs-5"></i></button>
             <!--end::Brand Image-->
