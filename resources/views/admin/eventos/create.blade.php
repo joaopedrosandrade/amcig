@@ -99,6 +99,22 @@
                                 <div class="form-text">Deixe em branco se não houver quórum mínimo definido.</div>
                             </div>
 
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input type="hidden" name="criar_lista_presenca" value="0">
+                                    <input class="form-check-input" type="checkbox" id="criar_lista_presenca" name="criar_lista_presenca" value="1" checked>
+                                    <label class="form-check-label" for="criar_lista_presenca">
+                                        <strong>Criar lista de presença automaticamente</strong>
+                                    </label>
+                                    <div class="form-text mt-2">
+                                        <i class="ri-information-line me-1"></i>
+                                        Marque esta opção para gerar automaticamente um link de confirmação de presença e ativá-lo imediatamente.
+                                        <br>
+                                        <small class="text-muted">Útil para eventos que precisam de confirmação de presença dos participantes.</small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="text-end">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="ri-save-line me-1"></i>Salvar Evento

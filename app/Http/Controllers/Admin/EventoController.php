@@ -65,7 +65,8 @@ class EventoController extends Controller
             'tipo' => 'required|in:assembleia,reuniao,palestra,workshop,outro',
             'pauta' => 'nullable|string',
             'observacoes' => 'nullable|string',
-            'quorum_minimo' => 'nullable|integer|min:1'
+            'quorum_minimo' => 'nullable|integer|min:1',
+            'criar_lista_presenca' => 'nullable|in:0,1'
         ]);
 
         if ($validator->fails()) {
@@ -77,13 +78,30 @@ class EventoController extends Controller
         }
 
         try {
-            $evento = Evento::create($request->all());
+            // Preparar dados para criação do evento
+            $eventoData = $request->except(['criar_lista_presenca']);
+            
+            $evento = Evento::create($eventoData);
             
             \Log::info('Evento criado com sucesso', ['id' => $evento->id, 'titulo' => $evento->titulo]);
 
+            // Se foi solicitado criar lista de presença automaticamente
+            if ($request->criar_lista_presenca == '1') {
+                // Gerar link único para presença usando o método do modelo
+                $evento->gerarLinkPresenca();
+                $evento->update(['lista_presenca_ativa' => true]);
+                
+                \Log::info('Link de presença criado automaticamente', [
+                    'evento_id' => $evento->id, 
+                    'link' => $evento->link_presenca
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Evento criado com sucesso!',
+                'message' => 'Evento criado com sucesso!' . 
+                    ($request->criar_lista_presenca == '1' ? 
+                        ' Link de presença foi gerado e ativado automaticamente.' : ''),
                 'redirect' => route('admin.eventos.index')
             ]);
         } catch (\Exception $e) {

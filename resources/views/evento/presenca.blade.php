@@ -181,11 +181,7 @@
                         @csrf
                         <input type="hidden" name="tipo" value="visitante">
                         
-                        <div class="alert alert-info">
-                            <i class="ri-information-line me-2"></i>
-                            <strong>Que tal se tornar um associado?</strong> 
-                            <a href="#" class="alert-link">Clique aqui para saber mais sobre os benefícios</a>
-                        </div>
+      
                         
                         <div class="row">
                             <div class="col-md-4">
@@ -206,6 +202,11 @@
                                     <input type="text" class="form-control" id="telefone_visitante" name="telefone" required placeholder="(00) 00000-0000">
                                 </div>
                             </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Que tal se tornar um associado?</strong> 
+                            <a href="#" class="alert-link">Clique aqui para saber mais sobre os benefícios</a>
                         </div>
                         
                         <div class="d-grid">
