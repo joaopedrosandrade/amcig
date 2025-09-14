@@ -212,6 +212,12 @@
                             <span class="pe-nav-content">Eventos</span>
                         </a>
                     </li>
+                    <li class="pe-slide">
+                        <a href="{{ route('admin.parcerias.index') }}" class="pe-nav-link">
+                            <i class="ri-handshake-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Parcerias</span>
+                        </a>
+                    </li>
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
                             <i class="ri-bank-card-line pe-nav-icon"></i>
@@ -317,6 +323,9 @@
 
 <!-- Toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 <script>
 // Configuração do Toastr

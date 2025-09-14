@@ -625,6 +625,22 @@ Route::prefix('admin/configuracoes')->middleware(['auth:admin'])->group(function
     Route::post('/inicializar', 'Admin\ConfiguracaoController@inicializar')->name('admin.configuracoes.inicializar');
 });
 
+// Rotas administrativas para parcerias
+Route::prefix('admin/parcerias')->middleware(['auth:admin'])->group(function() {
+    Route::get('/', 'Admin\ParceriaController@index')->name('admin.parcerias.index');
+    Route::get('/create', 'Admin\ParceriaController@create')->name('admin.parcerias.create');
+    Route::post('/store', 'Admin\ParceriaController@store')->name('admin.parcerias.store');
+    Route::get('/{id}', 'Admin\ParceriaController@show')->name('admin.parcerias.show');
+    Route::get('/{id}/edit', 'Admin\ParceriaController@edit')->name('admin.parcerias.edit');
+    Route::put('/{id}', 'Admin\ParceriaController@update')->name('admin.parcerias.update');
+    Route::delete('/{id}', 'Admin\ParceriaController@destroy')->name('admin.parcerias.destroy');
+    Route::post('/{id}/toggle-status', 'Admin\ParceriaController@toggleStatus')->name('admin.parcerias.toggle-status');
+    Route::post('/{id}/toggle-destaque', 'Admin\ParceriaController@toggleDestaque')->name('admin.parcerias.toggle-destaque');
+});
+
+// Rota de teste temporária (sem middleware)
+Route::post('/test-parceria', 'Admin\ParceriaController@store')->name('test.parceria');
+
 // Rotas administrativas para eventos
 Route::prefix('admin/eventos')->middleware(['auth:admin'])->group(function() {
     Route::get('/', 'Admin\EventoController@index')->name('admin.eventos.index');
