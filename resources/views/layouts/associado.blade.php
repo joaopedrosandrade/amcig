@@ -261,6 +261,14 @@
                     </li>
                     @endif
 
+                    <!-- Parcerias -->
+                    <li class="pe-slide">
+                        <a href="{{ route('parcerias.index') }}" class="pe-nav-link {{ request()->routeIs('parcerias.*') ? 'active' : '' }}">
+                            <i class="ri-handshake-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Parcerias</span>
+                        </a>
+                    </li>
+
                     @if($menuDocumentosVisivel)
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseInformacoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseInformacoes">

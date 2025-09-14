@@ -34,8 +34,6 @@ class ParceriaController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info('ParceriaController@store chamado', ['request' => $request->all()]);
-        
         $validator = Validator::make($request->all(), [
             'nome_empresa' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -48,6 +46,7 @@ class ParceriaController extends Controller
             'valor_desconto' => 'required|numeric|min:0',
             'valor_minimo_pedido' => 'nullable|numeric|min:0',
             'condicoes_desconto' => 'nullable|string',
+            'logo' => 'nullable|file|mimes:jpeg,jpg,png|max:2048',
             'ativo' => 'nullable|boolean',
             'destaque' => 'nullable|boolean',
             'ordem' => 'nullable|integer|min:0'
@@ -62,15 +61,32 @@ class ParceriaController extends Controller
         }
 
         try {
-            $data = $request->all();
+            $data = $request->except(['logo']);
             
             // Tratar checkboxes
             $data['ativo'] = $request->has('ativo') ? true : false;
             $data['destaque'] = $request->has('destaque') ? true : false;
             
-            // Por enquanto, não vamos fazer upload de logo via AJAX
-            // Isso pode ser implementado depois se necessário
-            unset($data['logo']);
+            // Upload da logo
+            if ($request->hasFile('logo')) {
+                $logo = $request->file('logo');
+                
+                // Validação adicional do MIME type
+                $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!in_array($logo->getMimeType(), $allowedMimes)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tipo de arquivo não suportado. Use apenas imagens JPEG ou PNG.',
+                        'errors' => [
+                            'logo' => ['Tipo de arquivo não suportado. Use apenas imagens JPEG ou PNG.']
+                        ]
+                    ], 422);
+                }
+                
+                $logoName = time() . '_' . $logo->getClientOriginalName();
+                $logo->storeAs('public/logos', $logoName);
+                $data['logo'] = $logoName;
+            }
             
             $parceria = Parceria::create($data);
 
@@ -127,7 +143,7 @@ class ParceriaController extends Controller
             'valor_desconto' => 'required|numeric|min:0',
             'valor_minimo_pedido' => 'nullable|numeric|min:0',
             'condicoes_desconto' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|file|mimes:jpeg,jpg,png|max:2048',
             'ativo' => 'boolean',
             'destaque' => 'boolean',
             'ordem' => 'integer|min:0'
@@ -150,12 +166,25 @@ class ParceriaController extends Controller
             
             // Upload da nova logo
             if ($request->hasFile('logo')) {
+                $logo = $request->file('logo');
+                
+                // Validação adicional do MIME type
+                $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!in_array($logo->getMimeType(), $allowedMimes)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tipo de arquivo não suportado. Use apenas imagens JPEG ou PNG.',
+                        'errors' => [
+                            'logo' => ['Tipo de arquivo não suportado. Use apenas imagens JPEG ou PNG.']
+                        ]
+                    ], 422);
+                }
+                
                 // Remove a logo antiga se existir
                 if ($parceria->logo) {
                     Storage::delete('public/logos/' . $parceria->logo);
                 }
                 
-                $logo = $request->file('logo');
                 $logoName = time() . '_' . $logo->getClientOriginalName();
                 $logo->storeAs('public/logos', $logoName);
                 $data['logo'] = $logoName;

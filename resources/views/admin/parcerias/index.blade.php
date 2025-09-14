@@ -57,11 +57,24 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <div>
-                                                        <strong>{{ $parceria->nome_empresa }}</strong>
-                                                        @if($parceria->descricao)
-                                                            <br><small class="text-muted">{{ Str::limit($parceria->descricao, 50) }}</small>
+                                                    <div class="d-flex align-items-center">
+                                                        @if($parceria->logo)
+                                                            <img src="{{ asset('storage/logos/' . $parceria->logo) }}" 
+                                                                 alt="Logo {{ $parceria->nome_empresa }}" 
+                                                                 style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover;" 
+                                                                 class="me-3 border">
+                                                        @else
+                                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                                                 style="width: 40px; height: 40px;">
+                                                                <i class="ri-building-line text-muted"></i>
+                                                            </div>
                                                         @endif
+                                                        <div>
+                                                            <strong>{{ $parceria->nome_empresa }}</strong>
+                                                            @if($parceria->descricao)
+                                                                <br><small class="text-muted">{{ \Illuminate\Support\Str::limit($parceria->descricao, 50) }}</small>
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td>

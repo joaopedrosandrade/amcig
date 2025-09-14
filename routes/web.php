@@ -641,6 +641,13 @@ Route::prefix('admin/parcerias')->middleware(['auth:admin'])->group(function() {
 // Rota de teste temporária (sem middleware)
 Route::post('/test-parceria', 'Admin\ParceriaController@store')->name('test.parceria');
 
+// Rotas públicas para associados verem parcerias
+Route::prefix('associado/parcerias')->middleware(['auth'])->group(function() {
+    Route::get('/', 'ParceriaController@index')->name('parcerias.index');
+    Route::get('/{id}', 'ParceriaController@show')->name('parcerias.show');
+    Route::get('/categoria/{categoria}', 'ParceriaController@categoria')->name('parcerias.categoria');
+});
+
 // Rotas administrativas para eventos
 Route::prefix('admin/eventos')->middleware(['auth:admin'])->group(function() {
     Route::get('/', 'Admin\EventoController@index')->name('admin.eventos.index');

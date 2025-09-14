@@ -23,7 +23,7 @@
                         <h5 class="card-title mb-0">Dados da Parceria</h5>
                     </div>
                     <div class="card-body">
-                        <form id="parceriaForm" method="POST">
+                        <form id="parceriaForm" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             
@@ -87,14 +87,21 @@
                                 <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Endereço completo da empresa" value="{{ $parceria->endereco }}">
                             </div>
 
-                            <!-- Logo será implementado depois -->
-                            <!-- 
                             <div class="mb-3">
                                 <label for="logo" class="form-label">Logo da Empresa</label>
-                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                                <div class="form-text">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB</div>
+                                @if($parceria->logo)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/logos/' . $parceria->logo) }}" alt="Logo atual" style="max-width: 200px; max-height: 200px; border-radius: 8px;" class="border">
+                                        <div class="form-text">Logo atual</div>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" id="logo" name="logo" accept="image/jpeg,image/jpg,image/png">
+                                <div class="form-text">Formatos aceitos: JPG, JPEG, PNG. Tamanho máximo: 2MB. Deixe em branco para manter a logo atual.</div>
+                                <div id="logo-preview" class="mt-2" style="display: none;">
+                                    <img id="preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                                    <div class="form-text">Nova logo</div>
+                                </div>
                             </div>
-                            -->
 
                             <!-- Configurações de Desconto -->
                             <div class="row mb-4 mt-4">
@@ -229,6 +236,21 @@ $(document).ready(function() {
         }
     });
 
+    // Preview da imagem
+    $('#logo').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#preview-img').attr('src', e.target.result);
+                $('#logo-preview').show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#logo-preview').hide();
+        }
+    });
+
     // Formulário de submissão
     $('#parceriaForm').on('submit', function(e) {
         e.preventDefault();
@@ -239,7 +261,7 @@ $(document).ready(function() {
         // Desabilitar botão e mostrar loading
         $btn.prop('disabled', true).html('<i class="ri-loader-4-line ri-spin me-1"></i>Atualizando...');
         
-        const formData = $(this).serialize();
+        const formData = new FormData(this);
         
         console.log('Enviando dados:', formData);
         console.log('URL:', '{{ route("admin.parcerias.update", $parceria->id) }}');
@@ -249,6 +271,8 @@ $(document).ready(function() {
             url: '{{ route("admin.parcerias.update", $parceria->id) }}',
             method: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },

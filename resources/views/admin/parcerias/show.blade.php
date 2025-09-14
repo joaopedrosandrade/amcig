@@ -108,6 +108,16 @@
                         </div>
                         @endif
 
+                        @if($parceria->logo)
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Logo da Empresa</label>
+                            <div class="mt-2">
+                                <img src="{{ asset('storage/logos/' . $parceria->logo) }}" alt="Logo {{ $parceria->nome_empresa }}" 
+                                     style="max-width: 200px; max-height: 200px; border-radius: 8px;" class="border">
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- Configurações de Desconto -->
                         <div class="row mb-4 mt-4">
                             <div class="col-12">
