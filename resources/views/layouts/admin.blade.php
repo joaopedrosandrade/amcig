@@ -237,11 +237,10 @@
                             <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['prioridade' => 'URGENTE']) }}" class="pe-nav-link">Urgentes</a></li>
                         </ul>
                     </li>
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#!" class="pe-nav-link">
+                    <li class="pe-slide">
+                        <a href="{{ route('admin.configuracoes.index') }}" class="pe-nav-link">
                             <i class="ri-settings-3-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Configurações</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow d-none"></i>
                         </a>
                     </li>
                  

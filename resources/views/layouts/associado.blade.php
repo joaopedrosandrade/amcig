@@ -1,3 +1,12 @@
+@php
+    use App\ConfiguracaoSistema;
+    
+    // Verifica configurações de visibilidade dos menus existentes
+    $menuRelatoriosVisivel = ConfiguracaoSistema::isEnabled('menu_relatorios_visivel'); // Solicitações
+    $menuEventosVisivel = ConfiguracaoSistema::isEnabled('menu_eventos_visivel'); // Financeiro
+    $menuDocumentosVisivel = ConfiguracaoSistema::isEnabled('menu_documentos_visivel'); // Informações
+@endphp
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -210,23 +219,7 @@
                             <span class="pe-nav-content">Dashboard</span>
                         </a>
                     </li>
-                    <li class="pe-slide pe-has-sub">
-                        <a href="#collapseInformacoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseInformacoes">
-                            <i class="ri-information-line pe-nav-icon"></i>
-                            <span class="pe-nav-content">Informações</span>
-                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
-                        </a>
-                        <ul class="pe-slide-menu collapse" id="collapseInformacoes">
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Assembleias</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Atas</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Sobre a AMCIG</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Diretoria</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Comitês</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Notícias</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Estatuto</a></li>
-                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Regimento Interno</a></li>
-                        </ul>
-                    </li>
+                   
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapsePerfil" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapsePerfil">
                             <i class="ri-user-line pe-nav-icon"></i>
@@ -240,6 +233,7 @@
                     </li>
                     
                     <!-- Solicitações -->
+                    @if($menuRelatoriosVisivel)
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseSolicitacoes" class="pe-nav-link {{ request()->routeIs('associado.solicitacoes.*') ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseSolicitacoes">
                             <i class="ri-file-list-3-line pe-nav-icon"></i>
@@ -251,7 +245,9 @@
                             <li class="pe-slide-item"><a href="{{ route('associado.solicitacoes.create') }}" class="pe-nav-link {{ request()->routeIs('associado.solicitacoes.create') ? 'active' : '' }}">Nova Solicitação</a></li>
                         </ul>
                     </li>
+                    @endif
                     
+                    @if($menuEventosVisivel)
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
                             <i class="ri-bank-card-line pe-nav-icon"></i>
@@ -263,6 +259,22 @@
                             <li class="pe-slide-item"><a href="{{ route('associado.historico-pagamentos') }}" class="pe-nav-link {{ request()->routeIs('associado.historico-pagamentos') ? 'active' : '' }}">Histórico de Pagamentos</a></li>
                         </ul>
                     </li>
+                    @endif
+
+                    @if($menuDocumentosVisivel)
+                    <li class="pe-slide pe-has-sub">
+                        <a href="#collapseInformacoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseInformacoes">
+                            <i class="ri-information-line pe-nav-icon"></i>
+                            <span class="pe-nav-content">Informações</span>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                        </a>
+                        <ul class="pe-slide-menu collapse" id="collapseInformacoes">
+                            <li class="pe-slide-item"><a href="#" class="pe-nav-link">Dados da AMCIG</a></li>
+                           
+                        </ul>
+                    </li>
+                    @endif
+                    
                     
                    
                     

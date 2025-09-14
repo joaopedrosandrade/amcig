@@ -617,6 +617,14 @@ Route::get('/force-update-payment/{invoice_id}', function($invoice_id) {
     }
 })->name('force.update.payment');
 
+// Rotas administrativas para configurações
+Route::prefix('admin/configuracoes')->middleware(['auth:admin'])->group(function() {
+    Route::get('/', 'Admin\ConfiguracaoController@index')->name('admin.configuracoes.index');
+    Route::put('/{id}', 'Admin\ConfiguracaoController@update')->name('admin.configuracoes.update');
+    Route::post('/{id}/toggle', 'Admin\ConfiguracaoController@toggle')->name('admin.configuracoes.toggle');
+    Route::post('/inicializar', 'Admin\ConfiguracaoController@inicializar')->name('admin.configuracoes.inicializar');
+});
+
 // Rotas administrativas para eventos
 Route::prefix('admin/eventos')->middleware(['auth:admin'])->group(function() {
     Route::get('/', 'Admin\EventoController@index')->name('admin.eventos.index');
