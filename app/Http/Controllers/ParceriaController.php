@@ -4,9 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Parceria;
+use App\ConfiguracaoSistema;
 
 class ParceriaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!ConfiguracaoSistema::isEnabled('menu_parcerias_visivel')) {
+                abort(404, 'Funcionalidade não disponível no momento.');
+            }
+            return $next($request);
+        });
+    }
     /**
      * Exibe a listagem de parcerias para associados
      */

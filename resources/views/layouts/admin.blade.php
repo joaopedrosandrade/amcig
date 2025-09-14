@@ -214,7 +214,7 @@
                     </li>
                     <li class="pe-slide">
                         <a href="{{ route('admin.parcerias.index') }}" class="pe-nav-link">
-                            <i class="ri-handshake-line pe-nav-icon"></i>
+                            <i class="ri-percent-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Parcerias</span>
                         </a>
                     </li>

@@ -20,7 +20,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
-                            <i class="ri-handshake-line me-2"></i>Gerenciar Parcerias
+                            <i class="ri-percent-line me-2"></i>Gerenciar Parcerias
                         </h5>
                         <a href="{{ route('admin.parcerias.create') }}" class="btn btn-primary">
                             <i class="ri-add-line me-1"></i>Nova Parceria
@@ -132,7 +132,7 @@
                             </div>
                         @else
                             <div class="text-center py-5">
-                                <i class="ri-handshake-line text-muted" style="font-size: 4rem;"></i>
+                                <i class="ri-percent-line text-muted" style="font-size: 4rem;"></i>
                                 <h4 class="text-muted mt-3">Nenhuma parceria encontrada</h4>
                                 <p class="text-muted">Comece criando sua primeira parceria.</p>
                                 <a href="{{ route('admin.parcerias.create') }}" class="btn btn-primary">

@@ -5,6 +5,7 @@
     $menuRelatoriosVisivel = ConfiguracaoSistema::isEnabled('menu_relatorios_visivel'); // Solicitações
     $menuEventosVisivel = ConfiguracaoSistema::isEnabled('menu_eventos_visivel'); // Financeiro
     $menuDocumentosVisivel = ConfiguracaoSistema::isEnabled('menu_documentos_visivel'); // Informações
+    $menuParceriasVisivel = ConfiguracaoSistema::isEnabled('menu_parcerias_visivel'); // Parcerias
 @endphp
 
 <!DOCTYPE html>
@@ -262,12 +263,14 @@
                     @endif
 
                     <!-- Parcerias -->
+                    @if($menuParceriasVisivel)
                     <li class="pe-slide">
                         <a href="{{ route('parcerias.index') }}" class="pe-nav-link {{ request()->routeIs('parcerias.*') ? 'active' : '' }}">
                             <i class="ri-percent-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Parcerias</span>
                         </a>
                     </li>
+                    @endif
 
                     @if($menuDocumentosVisivel)
                     <li class="pe-slide pe-has-sub">

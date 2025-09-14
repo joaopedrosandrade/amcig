@@ -103,6 +103,7 @@ class ConfiguracaoController extends Controller
             ['chave' => 'menu_relatorios_visivel', 'nome' => 'Solicitações', 'descricao' => 'Exibir menu de solicitações para associados', 'categoria' => 'menus', 'valor' => true],
             ['chave' => 'menu_eventos_visivel', 'nome' => 'Financeiro', 'descricao' => 'Exibir menu financeiro para associados', 'categoria' => 'menus', 'valor' => true],
             ['chave' => 'menu_documentos_visivel', 'nome' => 'Informações', 'descricao' => 'Exibir menu de informações para associados', 'categoria' => 'menus', 'valor' => true],
+            ['chave' => 'menu_parcerias_visivel', 'nome' => 'Parcerias', 'descricao' => 'Exibir menu de parcerias para associados', 'categoria' => 'menus', 'valor' => true],
             
             // Funcionalidades
             ['chave' => 'lista_presenca_ativa', 'nome' => 'Lista de Presença', 'descricao' => 'Permitir que associados confirmem presença em eventos', 'categoria' => 'funcionalidades', 'valor' => true],
