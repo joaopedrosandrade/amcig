@@ -128,8 +128,13 @@
                         
                         <div class="mb-3">
                             <label for="cpf_associado" class="form-label">CPF <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="cpf_associado" name="cpf" required placeholder="000.000.000-00">
-                            <div class="form-text">Digite seu CPF para buscar seus dados automaticamente</div>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="cpf_associado" name="cpf" required placeholder="000.000.000-00">
+                                <button type="button" class="btn btn-outline-primary" id="buscarAssociado">
+                                    <i class="ri-search-line me-1"></i>Buscar
+                                </button>
+                            </div>
+                            <div class="form-text">Digite seu CPF e clique em "Buscar" para preencher seus dados automaticamente</div>
                         </div>
                         
                         <div id="dadosAssociado" style="display: none;">
@@ -271,33 +276,84 @@
             });
 
             // Buscar usuário associado por CPF
-            $('#cpf_associado').on('blur', function() {
-                const cpf = $(this).val().replace(/[^0-9]/g, '');
-                if (cpf.length === 11) {
-                    $.ajax({
-                        url: '{{ route("evento.buscar-usuario") }}',
-                        method: 'POST',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content'),
-                            cpf: cpf
-                        },
-                        success: function(response) {
-                            if (response.success && response.user) {
-                                $('#nome_associado').val(response.user.nome);
-                                $('#email_associado').val(response.user.email);
-                                $('#telefone_associado').val(response.user.telefone);
-                                $('#dadosAssociado').show();
-                                toastr.success('Dados encontrados! Verifique as informações abaixo.');
-                            } else {
-                                $('#dadosAssociado').hide();
-                                toastr.warning('CPF não encontrado. Verifique se você está cadastrado como associado.');
-                            }
-                        },
-                        error: function() {
+            $('#buscarAssociado').on('click', function() {
+                const cpf = $('#cpf_associado').val().replace(/[^0-9]/g, '');
+                const $btn = $(this);
+                
+                if (cpf.length !== 11) {
+                    toastr.warning('Por favor, digite um CPF válido (11 dígitos)');
+                    $('#cpf_associado').focus();
+                    return;
+                }
+                
+                // Desabilita o botão e mostra loading
+                $btn.prop('disabled', true);
+                $btn.html('<i class="ri-loader-4-line ri-spin me-1"></i>Buscando...');
+                
+                // Primeiro verifica se já está registrado
+                $.ajax({
+                    url: '{{ route("evento.verificar-duplicacao") }}',
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        cpf: cpf,
+                        link: '{{ $evento->link_presenca }}'
+                    },
+                    success: function(response) {
+                        if (response.duplicado) {
                             $('#dadosAssociado').hide();
-                            toastr.error('Erro ao buscar dados do associado.');
+                            toastr.error('Você já está registrado neste evento! Não é possível confirmar presença novamente.');
+                            $('#cpf_associado').val('').focus();
+                            resetButton();
+                            return;
                         }
-                    });
+                        
+                        // Se não está duplicado, busca os dados do usuário
+                        $.ajax({
+                            url: '{{ route("evento.buscar-usuario") }}',
+                            method: 'POST',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                cpf: cpf
+                            },
+                            success: function(response) {
+                                if (response.success && response.user) {
+                                    $('#nome_associado').val(response.user.nome);
+                                    $('#email_associado').val(response.user.email);
+                                    $('#telefone_associado').val(response.user.telefone);
+                                    $('#dadosAssociado').show();
+                                    toastr.success('Dados encontrados! Verifique as informações abaixo.');
+                                } else {
+                                    $('#dadosAssociado').hide();
+                                    toastr.warning('CPF não encontrado. Verifique se você está cadastrado como associado.');
+                                }
+                                resetButton();
+                            },
+                            error: function() {
+                                $('#dadosAssociado').hide();
+                                toastr.error('Erro ao buscar dados do associado.');
+                                resetButton();
+                            }
+                        });
+                    },
+                    error: function() {
+                        $('#dadosAssociado').hide();
+                        toastr.error('Erro ao verificar duplicação.');
+                        resetButton();
+                    }
+                });
+                
+                function resetButton() {
+                    $btn.prop('disabled', false);
+                    $btn.html('<i class="ri-search-line me-1"></i>Buscar');
+                }
+            });
+
+            // Permitir busca com Enter no campo CPF
+            $('#cpf_associado').on('keypress', function(e) {
+                if (e.which === 13) { // Enter
+                    e.preventDefault();
+                    $('#buscarAssociado').click();
                 }
             });
 
@@ -338,7 +394,11 @@
                             toastr.error(errorMessage);
                         } else {
                             const errorMsg = xhr.responseJSON?.message || 'Erro ao registrar presença';
-                            toastr.error(errorMsg);
+                            if (errorMsg.includes('já está registrado')) {
+                                toastr.warning(errorMsg);
+                            } else {
+                                toastr.error(errorMsg);
+                            }
                         }
                     },
                     complete: function() {
@@ -385,7 +445,11 @@
                             toastr.error(errorMessage);
                         } else {
                             const errorMsg = xhr.responseJSON?.message || 'Erro ao registrar presença';
-                            toastr.error(errorMsg);
+                            if (errorMsg.includes('já está registrado')) {
+                                toastr.warning(errorMsg);
+                            } else {
+                                toastr.error(errorMsg);
+                            }
                         }
                     },
                     complete: function() {

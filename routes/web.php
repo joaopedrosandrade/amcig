@@ -639,5 +639,6 @@ Route::prefix('eventos')->group(function() {
     Route::get('/presenca/{link}', 'EventoPresencaController@show')->name('evento.presenca');
     Route::post('/presenca/{link}', 'EventoPresencaController@store')->name('evento.presenca.store');
     Route::post('/buscar-usuario', 'EventoPresencaController@buscarUsuario')->name('evento.buscar-usuario');
+    Route::post('/verificar-duplicacao', 'EventoPresencaController@verificarDuplicacao')->name('evento.verificar-duplicacao');
 });
 

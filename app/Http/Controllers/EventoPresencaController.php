@@ -52,7 +52,10 @@ class EventoPresencaController extends Controller
 
         // Verifica se já existe presença com este CPF neste evento
         $presencaExistente = PresencaEvento::where('evento_id', $evento->id)
-            ->where('cpf', $cpf)
+            ->where(function($query) use ($cpf) {
+                $query->where('cpf', $cpf)
+                      ->orWhere('cpf', substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2));
+            })
             ->first();
 
         if ($presencaExistente) {
@@ -62,8 +65,15 @@ class EventoPresencaController extends Controller
             ], 422);
         }
 
+
         // Tenta encontrar o usuário pelo CPF
         $user = User::where('cpf', $cpf)->first();
+        
+        // Se não encontrou, buscar por CPF formatado
+        if (!$user) {
+            $cpfFormatado = substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+            $user = User::where('cpf', $cpfFormatado)->first();
+        }
 
         // Cria a presença
         PresencaEvento::create([
@@ -81,6 +91,38 @@ class EventoPresencaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Presença registrada com sucesso!'
+        ]);
+    }
+
+    /**
+     * Verifica se CPF já está registrado no evento
+     */
+    public function verificarDuplicacao(Request $request)
+    {
+        $cpf = preg_replace('/[^0-9]/', '', $request->cpf);
+        
+        if (strlen($cpf) != 11) {
+            return response()->json(['success' => false, 'duplicado' => false]);
+        }
+
+        $evento = Evento::where('link_presenca', $request->link)
+            ->where('lista_presenca_ativa', true)
+            ->first();
+
+        if (!$evento) {
+            return response()->json(['success' => false, 'duplicado' => false]);
+        }
+
+        $presencaExistente = PresencaEvento::where('evento_id', $evento->id)
+            ->where(function($query) use ($cpf) {
+                $query->where('cpf', $cpf)
+                      ->orWhere('cpf', substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2));
+            })
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'duplicado' => $presencaExistente ? true : false
         ]);
     }
 

@@ -51,7 +51,7 @@
                             <div class="col-md-3">
                                 <div class="card border-0 bg-success bg-opacity-10">
                                     <div class="card-body text-center">
-                                        <h3 class="text-success mb-1">{{ $evento->presencas->whereNotNull('user_id')->count() }}</h3>
+                                        <h3 class="text-success mb-1">{{ $evento->presencas->where('user_id', '!=', null)->count() }}</h3>
                                         <p class="text-muted mb-0">Associados</p>
                                     </div>
                                 </div>
@@ -59,7 +59,7 @@
                             <div class="col-md-3">
                                 <div class="card border-0 bg-warning bg-opacity-10">
                                     <div class="card-body text-center">
-                                        <h3 class="text-warning mb-1">{{ $evento->presencas->whereNull('user_id')->count() }}</h3>
+                                        <h3 class="text-warning mb-1">{{ $evento->presencas->where('user_id', null)->count() }}</h3>
                                         <p class="text-muted mb-0">Visitantes</p>
                                     </div>
                                 </div>
