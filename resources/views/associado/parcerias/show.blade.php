@@ -166,7 +166,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="ri-handshake-line me-2"></i>Outras Parcerias da Categoria
+                        <i class="ri-percent-line me-2"></i>Outras Parcerias da Categoria
                     </h6>
                 </div>
                 <div class="card-body">

@@ -264,7 +264,7 @@
                     <!-- Parcerias -->
                     <li class="pe-slide">
                         <a href="{{ route('parcerias.index') }}" class="pe-nav-link {{ request()->routeIs('parcerias.*') ? 'active' : '' }}">
-                            <i class="ri-handshake-line pe-nav-icon"></i>
+                            <i class="ri-percent-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Parcerias</span>
                         </a>
                     </li>

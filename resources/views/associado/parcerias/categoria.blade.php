@@ -102,7 +102,7 @@
         </div>
     @else
         <div class="text-center py-5">
-            <i class="ri-handshake-line text-muted" style="font-size: 4rem;"></i>
+            <i class="ri-percent-line text-muted" style="font-size: 4rem;"></i>
             <h5 class="text-muted mt-3">Nenhuma parceria encontrada</h5>
             <p class="text-muted">Não há parcerias disponíveis nesta categoria no momento.</p>
             <a href="{{ route('parcerias.index') }}" class="btn btn-primary">

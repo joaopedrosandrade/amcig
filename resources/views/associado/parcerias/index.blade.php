@@ -114,7 +114,7 @@
     <!-- Todas as Parcerias -->
     <div class="mb-4">
         <h4 class="mb-3">
-            <i class="ri-handshake-line text-primary me-2"></i>Todas as Parcerias
+            <i class="ri-percent-line text-primary me-2"></i>Todas as Parcerias
         </h4>
         
         @if($parceriasNormais->count() > 0)
@@ -163,42 +163,13 @@
             </div>
         @else
             <div class="text-center py-5">
-                <i class="ri-handshake-line text-muted" style="font-size: 4rem;"></i>
+                <i class="ri-percent-line text-muted" style="font-size: 4rem;"></i>
                 <h5 class="text-muted mt-3">Nenhuma parceria encontrada</h5>
                 <p class="text-muted">Novas parcerias serão adicionadas em breve.</p>
             </div>
         @endif
     </div>
 
-    <!-- Estatísticas -->
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <i class="ri-handshake-line fs-1 mb-2"></i>
-                    <h3>{{ $parceriasDestaque->count() + $parceriasNormais->count() }}</h3>
-                    <p class="mb-0">Parcerias Ativas</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <i class="ri-star-fill fs-1 mb-2"></i>
-                    <h3>{{ $parceriasDestaque->count() }}</h3>
-                    <p class="mb-0">Em Destaque</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <i class="ri-price-tag-3-line fs-1 mb-2"></i>
-                    <h3>{{ $parceriasPorCategoria->count() }}</h3>
-                    <p class="mb-0">Categorias</p>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </main>
 @endsection
