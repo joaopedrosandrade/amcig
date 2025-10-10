@@ -50,6 +50,7 @@ class ContaPagar extends Model
         'numero_parcela',
         'total_parcelas',
         'conta_pagar_origem_id',
+        'evento_id',
         'comprovante_pagamento',
         'arquivo_nota_fiscal',
         'cadastrado_por',
@@ -120,6 +121,14 @@ class ContaPagar extends Model
     public function parcelas()
     {
         return $this->hasMany(ContaPagar::class, 'conta_pagar_origem_id');
+    }
+
+    /**
+     * Relacionamento com Evento
+     */
+    public function evento()
+    {
+        return $this->belongsTo(Evento::class, 'evento_id');
     }
 
     /**

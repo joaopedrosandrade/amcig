@@ -147,6 +147,11 @@
                                                 @if($conta->numero_nota_fiscal)
                                                     <br><small class="text-muted">NF: {{ $conta->numero_nota_fiscal }}</small>
                                                 @endif
+                                                @if($conta->evento)
+                                                    <br><small class="text-info">
+                                                        <i class="ri-calendar-event-line"></i> {{ $conta->evento->titulo }}
+                                                    </small>
+                                                @endif
                                             </td>
                                             <td>{{ $conta->categoria }}</td>
                                             <td>{{ $conta->fornecedor }}</td>

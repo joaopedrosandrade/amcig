@@ -23,6 +23,8 @@ class Fornecedor extends Model
      */
     protected $fillable = [
         'nome',
+        'tipo_pessoa',
+        'cpf',
         'cnpj',
         'telefone',
         'email',
@@ -60,14 +62,32 @@ class Fornecedor extends Model
     }
 
     /**
-     * Retorna o nome formatado com CNPJ se houver
+     * Retorna o nome formatado com CPF/CNPJ se houver
      */
     public function getNomeCompletoAttribute()
     {
-        if ($this->cnpj) {
-            return $this->nome . ' - ' . $this->cnpj;
+        $documento = $this->tipo_pessoa === 'fisica' ? $this->cpf : $this->cnpj;
+        
+        if ($documento) {
+            return $this->nome . ' - ' . $documento;
         }
         return $this->nome;
+    }
+
+    /**
+     * Verifica se é pessoa física
+     */
+    public function isPessoaFisica()
+    {
+        return $this->tipo_pessoa === 'fisica';
+    }
+
+    /**
+     * Verifica se é pessoa jurídica
+     */
+    public function isPessoaJuridica()
+    {
+        return $this->tipo_pessoa === 'juridica';
     }
 }
 

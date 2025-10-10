@@ -101,6 +101,33 @@
                                 </div>
                             </div>
 
+                            <!-- Vinculação com Evento -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h6 class="text-primary mb-3"><i class="ri-calendar-event-line me-2"></i>Vincular a Evento (Opcional)</h6>
+                                </div>
+
+                                <div class="col-md-12 mb-3">
+                                    <label for="evento_id" class="form-label">Evento</label>
+                                    <select class="form-select {{ $errors->has('evento_id') ? 'is-invalid' : '' }}" 
+                                            id="evento_id" name="evento_id">
+                                        <option value="">Nenhum evento vinculado</option>
+                                        @foreach($eventos as $evento)
+                                            <option value="{{ $evento->id }}" {{ old('evento_id') == $evento->id ? 'selected' : '' }}>
+                                                {{ $evento->titulo }} - {{ $evento->data_evento ? $evento->data_evento->format('d/m/Y') : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">
+                                        <i class="ri-information-line"></i> 
+                                        Vincule esta despesa a um evento específico para melhor controle financeiro por evento
+                                    </small>
+                                    @if($errors->has('evento_id'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('evento_id') }}</div>
+                                    @endif
+                                </div>
+                            </div>
+
                             <!-- Dados do Fornecedor -->
                             <div class="row mb-4">
                                 <div class="col-12 mb-3">
@@ -225,20 +252,38 @@
             <div class="modal-body">
                 <form id="formNovoFornecedor">
                     <div class="mb-3">
-                        <label class="form-label">Nome <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="fornecedor_nome" required>
+                        <label class="form-label">Tipo de Pessoa <span class="text-danger">*</span></label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="fornecedor_tipo_pessoa" id="tipo_juridica" value="juridica" checked>
+                                <label class="form-check-label" for="tipo_juridica">Pessoa Jurídica</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="fornecedor_tipo_pessoa" id="tipo_fisica" value="fisica">
+                                <label class="form-check-label" for="tipo_fisica">Pessoa Física</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Nome <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="fornecedor_nome" required>
+                        <small class="text-muted">Para PJ: Razão Social / Para PF: Nome Completo</small>
+                    </div>
+                    <div class="mb-3" id="campo_cpf" style="display: none;">
+                        <label class="form-label">CPF</label>
+                        <input type="text" class="form-control" id="fornecedor_cpf" placeholder="000.000.000-00">
+                    </div>
+                    <div class="mb-3" id="campo_cnpj">
                         <label class="form-label">CNPJ</label>
-                        <input type="text" class="form-control" id="fornecedor_cnpj">
+                        <input type="text" class="form-control" id="fornecedor_cnpj" placeholder="00.000.000/0000-00">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Telefone</label>
-                        <input type="text" class="form-control" id="fornecedor_telefone">
+                        <input type="text" class="form-control" id="fornecedor_telefone" placeholder="(00) 00000-0000">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">E-mail</label>
-                        <input type="email" class="form-control" id="fornecedor_email">
+                        <input type="email" class="form-control" id="fornecedor_email" placeholder="email@exemplo.com">
                     </div>
                 </form>
             </div>
@@ -315,8 +360,22 @@ $(document).ready(function() {
     });
     
     // Máscaras
+    $('#fornecedor_cpf').mask('000.000.000-00');
     $('#fornecedor_cnpj').mask('00.000.000/0000-00');
-    $('#fornecedor_telefone').mask('(00) 0000-00000');
+    $('#fornecedor_telefone').mask('(00) 00000-0000');
+    
+    // Alternar entre CPF e CNPJ no modal
+    $('input[name="fornecedor_tipo_pessoa"]').change(function() {
+        if ($(this).val() === 'fisica') {
+            $('#campo_cpf').show();
+            $('#campo_cnpj').hide();
+            $('#fornecedor_cnpj').val('');
+        } else {
+            $('#campo_cpf').hide();
+            $('#campo_cnpj').show();
+            $('#fornecedor_cpf').val('');
+        }
+    });
     
     // Mostrar/ocultar campos de parcelamento
     $('#parcelado').change(function() {
@@ -335,9 +394,13 @@ $(document).ready(function() {
 
 // Salvar novo fornecedor
 function salvarFornecedor() {
+    const tipoPessoa = $('input[name="fornecedor_tipo_pessoa"]:checked').val();
+    
     const dados = {
         nome: $('#fornecedor_nome').val(),
-        cnpj: $('#fornecedor_cnpj').val(),
+        tipo_pessoa: tipoPessoa,
+        cpf: tipoPessoa === 'fisica' ? $('#fornecedor_cpf').val() : null,
+        cnpj: tipoPessoa === 'juridica' ? $('#fornecedor_cnpj').val() : null,
         telefone: $('#fornecedor_telefone').val(),
         email: $('#fornecedor_email').val(),
         _token: '{{ csrf_token() }}'
@@ -361,12 +424,23 @@ function salvarFornecedor() {
                 // Fechar modal e limpar
                 $('#modalNovoFornecedor').modal('hide');
                 $('#formNovoFornecedor')[0].reset();
+                // Resetar para pessoa jurídica e mostrar CNPJ
+                $('#tipo_juridica').prop('checked', true);
+                $('#campo_cnpj').show();
+                $('#campo_cpf').hide();
                 
                 toastr.success(response.message);
             }
         },
         error: function(xhr) {
-            toastr.error('Erro ao cadastrar fornecedor!');
+            const errors = xhr.responseJSON?.errors;
+            if (errors) {
+                Object.values(errors).forEach(error => {
+                    toastr.error(error[0]);
+                });
+            } else {
+                toastr.error('Erro ao cadastrar fornecedor!');
+            }
         }
     });
 }

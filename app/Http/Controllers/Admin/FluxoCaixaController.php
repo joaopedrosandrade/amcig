@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\ContaPagar;
 use App\Fornecedor;
 use App\CategoriaConta;
+use App\Evento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -30,7 +31,7 @@ class FluxoCaixaController extends Controller
      */
     public function contasPagar()
     {
-        $contas = ContaPagar::with(['cadastradoPor', 'pagoPor'])
+        $contas = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao'])
             ->orderBy('data_vencimento', 'desc')
             ->paginate(20);
 
@@ -46,8 +47,9 @@ class FluxoCaixaController extends Controller
     {
         $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
         $fornecedores = Fornecedor::ativos()->orderBy('nome')->get();
+        $eventos = Evento::orderBy('data_evento', 'desc')->get();
 
-        return view('admin.fluxo-caixa.contas-pagar-create', compact('categorias', 'fornecedores'));
+        return view('admin.fluxo-caixa.contas-pagar-create', compact('categorias', 'fornecedores', 'eventos'));
     }
 
     /**
@@ -62,6 +64,7 @@ class FluxoCaixaController extends Controller
             'descricao' => 'required|string|max:255',
             'categoria_id' => 'required|exists:categorias_contas,id',
             'fornecedor_id' => 'required|exists:fornecedores,id',
+            'evento_id' => 'nullable|exists:eventos_sistema,id',
             'valor' => 'required|numeric|min:0',
             'data_vencimento' => 'required|date',
             'data_competencia' => 'nullable|date',
@@ -112,25 +115,11 @@ class FluxoCaixaController extends Controller
     public function editContaPagar($id)
     {
         $conta = ContaPagar::findOrFail($id);
-        
-        $categorias = [
-            'Água' => 'Água',
-            'Luz' => 'Luz',
-            'Telefone/Internet' => 'Telefone/Internet',
-            'Aluguel' => 'Aluguel',
-            'Condomínio' => 'Condomínio',
-            'Manutenção' => 'Manutenção',
-            'Material de Escritório' => 'Material de Escritório',
-            'Material de Limpeza' => 'Material de Limpeza',
-            'Salários' => 'Salários',
-            'Impostos' => 'Impostos',
-            'Serviços Profissionais' => 'Serviços Profissionais',
-            'Publicidade' => 'Publicidade',
-            'Seguros' => 'Seguros',
-            'Outros' => 'Outros',
-        ];
+        $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
+        $fornecedores = Fornecedor::ativos()->orderBy('nome')->get();
+        $eventos = Evento::orderBy('data_evento', 'desc')->get();
 
-        return view('admin.fluxo-caixa.contas-pagar-edit', compact('conta', 'categorias'));
+        return view('admin.fluxo-caixa.contas-pagar-edit', compact('conta', 'categorias', 'fornecedores', 'eventos'));
     }
 
     /**
@@ -146,11 +135,9 @@ class FluxoCaixaController extends Controller
 
         $validatedData = $request->validate([
             'descricao' => 'required|string|max:255',
-            'categoria' => 'required|string',
-            'fornecedor' => 'required|string|max:255',
-            'cnpj_fornecedor' => 'nullable|string|max:18',
-            'telefone_fornecedor' => 'nullable|string|max:20',
-            'email_fornecedor' => 'nullable|email|max:255',
+            'categoria_id' => 'required|exists:categorias_contas,id',
+            'fornecedor_id' => 'required|exists:fornecedores,id',
+            'evento_id' => 'nullable|exists:eventos_sistema,id',
             'valor' => 'required|numeric|min:0',
             'data_vencimento' => 'required|date',
             'data_competencia' => 'nullable|date',
@@ -161,6 +148,16 @@ class FluxoCaixaController extends Controller
             'observacoes' => 'nullable|string',
             'arquivo_nota_fiscal' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
+        
+        // Pegar dados do fornecedor e categoria para preencher campos antigos (compatibilidade)
+        $fornecedor = Fornecedor::find($validatedData['fornecedor_id']);
+        $categoria = CategoriaConta::find($validatedData['categoria_id']);
+        
+        $validatedData['fornecedor'] = $fornecedor->nome;
+        $validatedData['cnpj_fornecedor'] = $fornecedor->cnpj;
+        $validatedData['telefone_fornecedor'] = $fornecedor->telefone;
+        $validatedData['email_fornecedor'] = $fornecedor->email;
+        $validatedData['categoria'] = $categoria->nome;
 
         // Upload do arquivo da nota fiscal
         if ($request->hasFile('arquivo_nota_fiscal')) {
@@ -285,6 +282,8 @@ class FluxoCaixaController extends Controller
         try {
             $validatedData = $request->validate([
                 'nome' => 'required|string|max:255',
+                'tipo_pessoa' => 'required|in:fisica,juridica',
+                'cpf' => 'nullable|string|max:14',
                 'cnpj' => 'nullable|string|max:18',
                 'telefone' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',

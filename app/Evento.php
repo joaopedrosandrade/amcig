@@ -40,6 +40,46 @@ class Evento extends Model
     }
 
     /**
+     * Relacionamento com contas a pagar (despesas do evento)
+     */
+    public function contasPagar()
+    {
+        return $this->hasMany(ContaPagar::class, 'evento_id');
+    }
+
+    /**
+     * Retorna o total de despesas do evento
+     */
+    public function getTotalDespesasAttribute()
+    {
+        return $this->contasPagar()->sum('valor');
+    }
+
+    /**
+     * Retorna o total de despesas pagas do evento
+     */
+    public function getTotalDespesasPagasAttribute()
+    {
+        return $this->contasPagar()->where('status', 'pago')->sum('valor');
+    }
+
+    /**
+     * Retorna o total de despesas pendentes do evento
+     */
+    public function getTotalDespesasPendentesAttribute()
+    {
+        return $this->contasPagar()->where('status', 'pendente')->sum('valor');
+    }
+
+    /**
+     * Retorna as despesas formatadas
+     */
+    public function getTotalDespesasFormatadoAttribute()
+    {
+        return 'R$ ' . number_format($this->total_despesas, 2, ',', '.');
+    }
+
+    /**
      * Gera um link único para lista de presença
      */
     public function gerarLinkPresenca()

@@ -45,18 +45,18 @@
                                 </div>
 
                                 <div class="col-md-3 mb-3">
-                                    <label for="categoria" class="form-label">Categoria <span class="text-danger">*</span></label>
-                                    <select class="form-select {{ $errors->has('categoria') ? 'is-invalid' : '' }}" 
-                                            id="categoria" name="categoria" required>
+                                    <label for="categoria_id" class="form-label">Categoria <span class="text-danger">*</span></label>
+                                    <select class="form-select {{ $errors->has('categoria_id') ? 'is-invalid' : '' }}" 
+                                            id="categoria_id" name="categoria_id" required>
                                         <option value="">Selecione...</option>
-                                        @foreach($categorias as $key => $value)
-                                            <option value="{{ $key }}" {{ old('categoria', $conta->categoria) == $key ? 'selected' : '' }}>
-                                                {{ $value }}
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id }}" {{ old('categoria_id', $conta->categoria_id) == $categoria->id ? 'selected' : '' }}>
+                                                {{ $categoria->nome }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @if($errors->has('categoria'))
-                                        <div class="invalid-feedback d-block">{{ $errors->first('categoria') }}</div>
+                                    @if($errors->has('categoria_id'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('categoria_id') }}</div>
                                     @endif
                                 </div>
 
@@ -91,48 +91,52 @@
                                 </div>
                             </div>
 
-                            <!-- Dados do Fornecedor -->
+                            <!-- Vinculação com Evento -->
                             <div class="row mb-4">
                                 <div class="col-12">
-                                    <h6 class="text-primary mb-3"><i class="ri-building-line me-2"></i>Dados do Fornecedor</h6>
+                                    <h6 class="text-primary mb-3"><i class="ri-calendar-event-line me-2"></i>Vincular a Evento (Opcional)</h6>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label for="fornecedor" class="form-label">Nome do Fornecedor <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control {{ $errors->has('fornecedor') ? 'is-invalid' : '' }}" 
-                                           id="fornecedor" name="fornecedor" value="{{ old('fornecedor', $conta->fornecedor) }}" required>
-                                    @if($errors->has('fornecedor'))
-                                        <div class="invalid-feedback d-block">{{ $errors->first('fornecedor') }}</div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="evento_id" class="form-label">Evento</label>
+                                    <select class="form-select {{ $errors->has('evento_id') ? 'is-invalid' : '' }}" 
+                                            id="evento_id" name="evento_id">
+                                        <option value="">Nenhum evento vinculado</option>
+                                        @foreach($eventos as $evento)
+                                            <option value="{{ $evento->id }}" {{ old('evento_id', $conta->evento_id) == $evento->id ? 'selected' : '' }}>
+                                                {{ $evento->titulo }} - {{ $evento->data_evento ? $evento->data_evento->format('d/m/Y') : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">
+                                        <i class="ri-information-line"></i> 
+                                        Vincule esta despesa a um evento específico para melhor controle financeiro por evento
+                                    </small>
+                                    @if($errors->has('evento_id'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('evento_id') }}</div>
                                     @endif
                                 </div>
+                            </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label for="cnpj_fornecedor" class="form-label">CNPJ do Fornecedor</label>
-                                    <input type="text" class="form-control {{ $errors->has('cnpj_fornecedor') ? 'is-invalid' : '' }}" 
-                                           id="cnpj_fornecedor" name="cnpj_fornecedor" 
-                                           value="{{ old('cnpj_fornecedor', $conta->cnpj_fornecedor) }}" placeholder="00.000.000/0000-00">
-                                    @if($errors->has('cnpj_fornecedor'))
-                                        <div class="invalid-feedback d-block">{{ $errors->first('cnpj_fornecedor') }}</div>
-                                    @endif
+                            <!-- Dados do Fornecedor -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h6 class="text-primary mb-0"><i class="ri-building-line me-2"></i>Fornecedor</h6>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label for="telefone_fornecedor" class="form-label">Telefone do Fornecedor</label>
-                                    <input type="text" class="form-control {{ $errors->has('telefone_fornecedor') ? 'is-invalid' : '' }}" 
-                                           id="telefone_fornecedor" name="telefone_fornecedor" 
-                                           value="{{ old('telefone_fornecedor', $conta->telefone_fornecedor) }}" placeholder="(00) 0000-0000">
-                                    @if($errors->has('telefone_fornecedor'))
-                                        <div class="invalid-feedback d-block">{{ $errors->first('telefone_fornecedor') }}</div>
-                                    @endif
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="email_fornecedor" class="form-label">E-mail do Fornecedor</label>
-                                    <input type="email" class="form-control {{ $errors->has('email_fornecedor') ? 'is-invalid' : '' }}" 
-                                           id="email_fornecedor" name="email_fornecedor" 
-                                           value="{{ old('email_fornecedor', $conta->email_fornecedor) }}" placeholder="fornecedor@exemplo.com">
-                                    @if($errors->has('email_fornecedor'))
-                                        <div class="invalid-feedback d-block">{{ $errors->first('email_fornecedor') }}</div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="fornecedor_id" class="form-label">Fornecedor <span class="text-danger">*</span></label>
+                                    <select class="form-select {{ $errors->has('fornecedor_id') ? 'is-invalid' : '' }}" 
+                                            id="fornecedor_id" name="fornecedor_id" required>
+                                        <option value="">Selecione...</option>
+                                        @foreach($fornecedores as $fornecedor)
+                                            <option value="{{ $fornecedor->id }}" {{ old('fornecedor_id', $conta->fornecedor_id) == $fornecedor->id ? 'selected' : '' }}>
+                                                {{ $fornecedor->nome_completo }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if($errors->has('fornecedor_id'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('fornecedor_id') }}</div>
                                     @endif
                                 </div>
                             </div>
