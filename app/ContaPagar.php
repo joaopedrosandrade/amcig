@@ -51,6 +51,7 @@ class ContaPagar extends Model
         'total_parcelas',
         'conta_pagar_origem_id',
         'evento_id',
+        'conta_bancaria_id',
         'comprovante_pagamento',
         'arquivo_nota_fiscal',
         'cadastrado_por',
@@ -129,6 +130,14 @@ class ContaPagar extends Model
     public function evento()
     {
         return $this->belongsTo(Evento::class, 'evento_id');
+    }
+
+    /**
+     * Relacionamento com Conta Bancária
+     */
+    public function contaBancaria()
+    {
+        return $this->belongsTo(ContaBancaria::class, 'conta_bancaria_id');
     }
 
     /**

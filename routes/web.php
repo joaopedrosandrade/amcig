@@ -645,6 +645,16 @@ Route::prefix('admin/configuracoes')->middleware(['auth:admin'])->group(function
     Route::post('/inicializar', 'Admin\ConfiguracaoController@inicializar')->name('admin.configuracoes.inicializar');
 });
 
+// Rotas para Contas Bancárias
+Route::prefix('admin/contas-bancarias')->middleware(['auth:admin'])->group(function() {
+    Route::get('/', 'Admin\ContaBancariaController@index')->name('admin.contas-bancarias.index');
+    Route::get('/create', 'Admin\ContaBancariaController@create')->name('admin.contas-bancarias.create');
+    Route::post('/', 'Admin\ContaBancariaController@store')->name('admin.contas-bancarias.store');
+    Route::get('/{id}/edit', 'Admin\ContaBancariaController@edit')->name('admin.contas-bancarias.edit');
+    Route::put('/{id}', 'Admin\ContaBancariaController@update')->name('admin.contas-bancarias.update');
+    Route::delete('/{id}', 'Admin\ContaBancariaController@destroy')->name('admin.contas-bancarias.destroy');
+});
+
 // Rotas administrativas para parcerias
 Route::prefix('admin/parcerias')->middleware(['auth:admin'])->group(function() {
     Route::get('/', 'Admin\ParceriaController@index')->name('admin.parcerias.index');

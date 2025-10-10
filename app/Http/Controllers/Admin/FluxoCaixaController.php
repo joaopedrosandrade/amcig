@@ -7,6 +7,7 @@ use App\ContaPagar;
 use App\Fornecedor;
 use App\CategoriaConta;
 use App\Evento;
+use App\ContaBancaria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +32,7 @@ class FluxoCaixaController extends Controller
      */
     public function contasPagar(Request $request)
     {
-        $query = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao']);
+        $query = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao', 'contaBancaria']);
 
         // Filtros
         if ($request->filled('status')) {
@@ -62,13 +63,14 @@ class FluxoCaixaController extends Controller
         // Dados para os filtros
         $eventos = Evento::orderBy('data_evento', 'desc')->get();
         $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
+        $contasBancarias = ContaBancaria::ativas()->orderBy('principal', 'desc')->orderBy('nome')->get();
         
         // Estatísticas
         $totalPagar = ContaPagar::pendentes()->sum('valor');
         $totalPago = ContaPagar::pagas()->whereMonth('data_pagamento', Carbon::now()->month)->sum('valor');
         $totalVencido = ContaPagar::vencidas()->sum('valor');
 
-        return view('admin.fluxo-caixa.contas-pagar', compact('contas', 'eventos', 'categorias', 'totalPagar', 'totalPago', 'totalVencido'));
+        return view('admin.fluxo-caixa.contas-pagar', compact('contas', 'eventos', 'categorias', 'contasBancarias', 'totalPagar', 'totalPago', 'totalVencido'));
     }
 
     /**
@@ -249,6 +251,7 @@ class FluxoCaixaController extends Controller
         $validatedData = $request->validate([
             'data_pagamento' => 'required|date',
             'forma_pagamento' => 'required|string',
+            'conta_bancaria_id' => 'required|exists:contas_bancarias,id',
             'valor_pago' => 'required|numeric|min:0',
             'juros' => 'nullable|numeric|min:0',
             'multa' => 'nullable|numeric|min:0',
@@ -267,10 +270,17 @@ class FluxoCaixaController extends Controller
         $validatedData['status'] = 'pago';
         $validatedData['pago_por'] = Auth::guard('admin')->id();
 
+        // Atualizar saldo da conta bancária
+        $contaBancaria = ContaBancaria::find($validatedData['conta_bancaria_id']);
+        if ($contaBancaria) {
+            $valorTotal = $validatedData['valor_pago'] + ($validatedData['juros'] ?? 0) + ($validatedData['multa'] ?? 0) - ($validatedData['desconto'] ?? 0);
+            $contaBancaria->atualizarSaldo($valorTotal, 'debito');
+        }
+
         $conta->update($validatedData);
 
         return redirect()->route('admin.fluxo-caixa.contas-pagar')
-            ->with('success', 'Pagamento registrado com sucesso!');
+            ->with('success', 'Pagamento registrado com sucesso! Saldo da conta atualizado.');
     }
 
     /**

@@ -290,11 +290,16 @@
                             <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['prioridade' => 'URGENTE']) }}" class="pe-nav-link">Urgentes</a></li>
                         </ul>
                     </li>
-                    <li class="pe-slide">
-                        <a href="{{ route('admin.configuracoes.index') }}" class="pe-nav-link">
+                    <li class="pe-slide pe-has-sub">
+                        <a href="#collapseConfiguracoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseConfiguracoes">
                             <i class="ri-settings-3-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Configurações</span>
+                            <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
+                        <ul class="pe-slide-menu collapse" id="collapseConfiguracoes">
+                            <li class="pe-slide-item"><a href="{{ route('admin.configuracoes.index') }}" class="pe-nav-link">Configurações do Sistema</a></li>
+                            <li class="pe-slide-item"><a href="{{ route('admin.contas-bancarias.index') }}" class="pe-nav-link">Contas Bancárias</a></li>
+                        </ul>
                     </li>
                  
                    

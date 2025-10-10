@@ -312,6 +312,19 @@
                                                             </div>
                                                             
                                                             <div class="mb-3">
+                                                                <label class="form-label">Conta Bancária <span class="text-danger">*</span></label>
+                                                                <select class="form-select" name="conta_bancaria_id" required>
+                                                                    <option value="">Selecione a conta...</option>
+                                                                    @foreach($contasBancarias as $cb)
+                                                                        <option value="{{ $cb->id }}" {{ $cb->principal ? 'selected' : '' }}>
+                                                                            {{ $cb->nome_completo }} - {{ $cb->saldo_formatado }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <small class="text-muted">O saldo desta conta será debitado</small>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
                                                                 <label class="form-label">Forma de Pagamento <span class="text-danger">*</span></label>
                                                                 <select class="form-select" name="forma_pagamento" required>
                                                                     <option value="">Selecione...</option>
