@@ -4,7 +4,7 @@
 <main class="app-wrapper">
     <div class="container-fluid">
         <div class="main-breadcrumb d-flex align-items-center my-3 position-relative">
-            <h2 class="breadcrumb-title mb-0 flex-grow-1 fs-14">Controle Financeiro</h2>
+            <h2 class="breadcrumb-title mb-0 flex-grow-1 fs-14">Dashboard Financeiro</h2>
             <div class="flex-shrink-0">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-end mb-0">
@@ -143,15 +143,75 @@
             </div>
         </div>
 
-        <!-- Gráfico de Recebimentos -->
+        <!-- Seção Fluxo de Caixa -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Fluxo de Caixa - Resumo</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0"><i class="ri-arrow-down-circle-line text-danger me-2"></i>Contas a Pagar</h5>
+                                        <a href="{{ route('admin.fluxo-caixa.contas-pagar') }}" class="btn btn-sm btn-outline-danger">Ver Todas</a>
+                                    </div>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Total</p>
+                                            <h6 class="mb-0">R$ 0,00</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Vencendo Hoje</p>
+                                            <h6 class="mb-0 text-warning">R$ 0,00</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Em Atraso</p>
+                                            <h6 class="mb-0 text-danger">R$ 0,00</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-xl-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0"><i class="ri-arrow-up-circle-line text-success me-2"></i>Contas a Receber</h5>
+                                        <a href="{{ route('admin.fluxo-caixa.contas-receber') }}" class="btn btn-sm btn-outline-success">Ver Todas</a>
+                                    </div>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Total</p>
+                                            <h6 class="mb-0">R$ 0,00</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Vencendo Hoje</p>
+                                            <h6 class="mb-0 text-warning">R$ 0,00</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="text-muted mb-1 fs-12">Em Atraso</p>
+                                            <h6 class="mb-0 text-danger">R$ 0,00</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos Financeiros -->
         <div class="row mb-4">
             <div class="col-xl-8">
                 <div class="card">
                     <div class="card-header pb-0">
-                        <h4>Recebimentos dos Últimos 12 Meses</h4>
+                        <h4>Entradas x Saídas (Últimos 12 Meses)</h4>
                     </div>
                     <div class="card-body">
-                        <canvas id="recebimentosChart" height="100"></canvas>
+                        <canvas id="entradasSaidasChart" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -167,6 +227,20 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Gráfico de Recebimentos (Mensalidades) -->
+        <div class="row mb-4">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header pb-0">
+                        <h4>Mensalidades - Recebimentos dos Últimos 12 Meses</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="recebimentosChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Links Rápidos -->
         <div class="row">
@@ -177,25 +251,39 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <a href="{{ route('admin.financeiro.faturas') }}" class="btn btn-outline-info w-100">
+                                    <i class="ri-file-list-line me-2"></i>
+                                    Mensalidades
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <a href="{{ route('admin.fluxo-caixa.contas-pagar') }}" class="btn btn-outline-danger w-100">
+                                    <i class="ri-arrow-down-circle-line me-2"></i>
+                                    Contas a Pagar
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <a href="{{ route('admin.fluxo-caixa.contas-receber') }}" class="btn btn-outline-success w-100">
+                                    <i class="ri-arrow-up-circle-line me-2"></i>
+                                    Contas a Receber
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
                                 <a href="{{ route('admin.financeiro.pagamentos') }}" class="btn btn-outline-primary w-100">
                                     <i class="ri-money-dollar-circle-line me-2"></i>
                                     Todos os Pagamentos
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('admin.financeiro.faturas') }}" class="btn btn-outline-info w-100">
-                                    <i class="ri-file-list-line me-2"></i>
-                                    Todas as Faturas
-                                </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('admin.financeiro.relatorio') }}" class="btn btn-outline-success w-100">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <a href="{{ route('admin.financeiro.relatorio') }}" class="btn btn-outline-secondary w-100">
                                     <i class="ri-bar-chart-line me-2"></i>
                                     Relatório Completo
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <a href="{{ route('admin.financeiro.relatorio', ['data_inicio' => now()->startOfMonth()->format('Y-m-d'), 'data_fim' => now()->endOfMonth()->format('Y-m-d')]) }}" class="btn btn-outline-warning w-100">
                                     <i class="ri-calendar-line me-2"></i>
                                     Relatório do Mês
@@ -213,8 +301,64 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gráfico de Recebimentos dos Últimos 12 Meses
+    // Gráfico de Entradas x Saídas (Últimos 12 Meses)
     const recebimentosData = @json($recebimentosUltimos12Meses);
+    const ctxEntradasSaidas = document.getElementById('entradasSaidasChart').getContext('2d');
+    
+    // Por enquanto, as saídas são simuladas (você pode buscar dados reais do banco)
+    const saidasSimuladas = recebimentosData.map(item => item.total * 0.3); // 30% do valor de entrada como exemplo
+    
+    new Chart(ctxEntradasSaidas, {
+        type: 'bar',
+        data: {
+            labels: recebimentosData.map(item => item.mes),
+            datasets: [
+                {
+                    label: 'Entradas (Recebimentos)',
+                    data: recebimentosData.map(item => item.total),
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Saídas (Contas a Pagar)',
+                    data: saidasSimuladas,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                        }
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Recebimentos dos Últimos 12 Meses (Mensalidades)
     const ctxRecebimentos = document.getElementById('recebimentosChart').getContext('2d');
     
     new Chart(ctxRecebimentos, {
@@ -222,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: recebimentosData.map(item => item.mes),
             datasets: [{
-                label: 'Recebimentos (R$)',
+                label: 'Mensalidades Recebidas (R$)',
                 data: recebimentosData.map(item => item.total),
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.1)',
@@ -238,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
+                            return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                         }
                     }
                 }
@@ -247,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return 'Recebimentos: R$ ' + context.parsed.y.toLocaleString('pt-BR');
+                            return 'Recebimentos: R$ ' + context.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                         }
                     }
                 }

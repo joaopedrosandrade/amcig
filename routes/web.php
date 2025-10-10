@@ -83,6 +83,12 @@ Route::prefix('/admin')->group(function() {
             Route::get('/dados-graficos', 'Admin\FinanceiroController@dadosGraficos')->name('admin.financeiro.dados-graficos');
         });
         
+        // Rotas para Fluxo de Caixa
+        Route::prefix('fluxo-caixa')->group(function() {
+            Route::get('/contas-pagar', 'Admin\FluxoCaixaController@contasPagar')->name('admin.fluxo-caixa.contas-pagar');
+            Route::get('/contas-receber', 'Admin\FluxoCaixaController@contasReceber')->name('admin.fluxo-caixa.contas-receber');
+        });
+        
         // Rotas para gerenciamento de solicitações
         Route::prefix('solicitacoes')->group(function() {
             Route::get('/', 'AdminSolicitacaoController@index')->name('admin.solicitacoes.index');

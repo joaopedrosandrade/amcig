@@ -260,9 +260,21 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
-                  
+                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.index') }}" class="pe-nav-link">Dashboard Financeiro</a></li>
                             <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Mensalidades</a></li>
                             <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
+                            
+                            <!-- Fluxo de Caixa -->
+                            <li class="pe-slide pe-has-sub">
+                                <a href="#collapseFluxoCaixa" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFluxoCaixa">
+                                    <span class="pe-nav-content">Fluxo de Caixa</span>
+                                    <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
+                                </a>
+                                <ul class="pe-slide-menu collapse" id="collapseFluxoCaixa">
+                                    <li class="pe-slide-item"><a href="{{ route('admin.fluxo-caixa.contas-pagar') }}" class="pe-nav-link">Contas a Pagar</a></li>
+                                    <li class="pe-slide-item"><a href="{{ route('admin.fluxo-caixa.contas-receber') }}" class="pe-nav-link">Contas a Receber</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <li class="pe-slide pe-has-sub">
