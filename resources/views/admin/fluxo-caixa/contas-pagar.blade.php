@@ -226,8 +226,10 @@
                                                     <br><small class="text-muted">NF: {{ $conta->numero_nota_fiscal }}</small>
                                                 @endif
                                                 @if($conta->evento)
-                                                    <br><small class="text-info">
-                                                        <i class="ri-calendar-event-line"></i> {{ $conta->evento->titulo }}
+                                                    <br><small>
+                                                        <a href="{{ route('admin.eventos.show', $conta->evento->id) }}" class="text-info text-decoration-none" title="Ver evento">
+                                                            <i class="ri-calendar-event-line"></i> {{ $conta->evento->titulo }}
+                                                        </a>
                                                     </small>
                                                 @endif
                                             </td>

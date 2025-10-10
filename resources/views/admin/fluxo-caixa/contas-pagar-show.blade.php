@@ -70,8 +70,11 @@
                             <div class="col-md-12">
                                 <label class="text-muted mb-1">Evento Vinculado</label>
                                 <p class="fw-semibold">
-                                    <i class="ri-calendar-event-line text-info"></i> {{ $conta->evento->titulo }}
-                                    <small class="text-muted">({{ $conta->evento->data_evento ? $conta->evento->data_evento->format('d/m/Y') : '' }})</small>
+                                    <a href="{{ route('admin.eventos.show', $conta->evento->id) }}" class="text-info text-decoration-none" title="Ver detalhes do evento">
+                                        <i class="ri-calendar-event-line"></i> {{ $conta->evento->titulo }}
+                                        <i class="ri-external-link-line ms-1"></i>
+                                    </a>
+                                    <br><small class="text-muted">{{ $conta->evento->data_evento ? $conta->evento->data_evento->format('d/m/Y') : '' }}</small>
                                 </p>
                             </div>
                         </div>

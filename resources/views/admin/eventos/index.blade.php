@@ -20,30 +20,32 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Lista de Eventos</h5>
-                            <a href="{{ route('admin.eventos.create') }}" class="btn btn-primary">
+                            <h5 class="card-title mb-0">
+                                Lista de Eventos
+                                <small class="text-muted">({{ $eventos->count() }} evento{{ $eventos->count() != 1 ? 's' : '' }})</small>
+                            </h5>
+                            <a href="{{ route('admin.eventos.create') }}" class="btn btn-success btn-sm">
                                 <i class="ri-add-line me-1"></i>Novo Evento
                             </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%" id="eventosTable">
-                                <thead>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Título</th>
-                                        <th>Data</th>
-                                        <th>Horário</th>
+                                        <th>Data e Horário</th>
                                         <th>Local</th>
                                         <th>Tipo</th>
                                         <th>Status</th>
-                                        <th>Lista Ativa</th>
-                                        <th>Presenças</th>
-                                        <th>Ações</th>
+                                        <th class="text-center">Lista</th>
+                                        <th class="text-center">Presenças</th>
+                                        <th class="text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($eventos as $evento)
+                                    @forelse($eventos as $evento)
                                         <tr>
                                             <td>
                                                 <strong>{{ $evento->titulo }}</strong>
@@ -51,12 +53,14 @@
                                                     <br><small class="text-muted">{{ \Illuminate\Support\Str::limit($evento->descricao, 50) }}</small>
                                                 @endif
                                             </td>
-                                            <td>{{ $evento->data_evento->format('d/m/Y') }}</td>
                                             <td>
-                                                {{ $evento->hora_inicio }}
-                                                @if($evento->hora_fim)
-                                                    - {{ $evento->hora_fim }}
-                                                @endif
+                                                <strong>{{ $evento->data_evento->format('d/m/Y') }}</strong>
+                                                <br><small class="text-muted">
+                                                    {{ $evento->hora_inicio }}
+                                                    @if($evento->hora_fim)
+                                                        - {{ $evento->hora_fim }}
+                                                    @endif
+                                                </small>
                                             </td>
                                             <td>{{ $evento->local }}</td>
                                             <td>
@@ -88,34 +92,54 @@
                                                     {{ $statusInfo['text'] }}
                                                 </span>
                                             </td>
-                                            <td>
-                                                <div class="form-check form-switch">
+                                            <td class="text-center">
+                                                <div class="form-check form-switch d-inline-block">
                                                     <input class="form-check-input toggle-lista" type="checkbox" role="switch"
                                                            data-id="{{ $evento->id }}"
                                                            {{ $evento->lista_presenca_ativa ? 'checked' : '' }}>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <a href="{{ route('admin.eventos.presencas', $evento->id) }}" class="btn btn-sm btn-outline-info">
-                                                    {{ $evento->total_presencas }} <i class="ri-user-line"></i>
+                                            <td class="text-center">
+                                                <a href="{{ route('admin.eventos.presencas', $evento->id) }}" class="btn btn-sm btn-outline-info" title="Ver Presenças">
+                                                    <i class="ri-user-line"></i> {{ $evento->total_presencas }}
                                                 </a>
                                             </td>
-                                            <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        Ações
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ route('admin.eventos.show', $evento->id) }}" 
+                                                       class="btn btn-outline-info" title="Visualizar">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="{{ route('admin.eventos.edit', $evento->id) }}" 
+                                                       class="btn btn-outline-primary" title="Editar">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-success" 
+                                                            title="Gerar Link de Presença" 
+                                                            onclick="gerarLink({{ $evento->id }})">
+                                                        <i class="ri-link"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="{{ route('admin.eventos.show', $evento->id) }}">Visualizar</a></li>
-                                                        <li><a class="dropdown-item" href="{{ route('admin.eventos.edit', $evento->id) }}">Editar</a></li>
-                                                        <li><a class="dropdown-item" href="#" onclick="gerarLink({{ $evento->id }})">Gerar Link Presença</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#" onclick="excluirEvento({{ $evento->id }})">Excluir</a></li>
-                                                    </ul>
+                                                    <a href="{{ route('admin.eventos.presencas', $evento->id) }}" 
+                                                       class="btn btn-outline-secondary" title="Ver Lista de Presenças">
+                                                        <i class="ri-group-line"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-danger" 
+                                                            title="Excluir" 
+                                                            onclick="excluirEvento({{ $evento->id }})">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-5">
+                                                <i class="ri-calendar-event-line" style="font-size: 3rem;"></i>
+                                                <p class="mb-0 mt-2">Nenhum evento cadastrado</p>
+                                                <small class="text-muted">Clique em "Novo Evento" para adicionar</small>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -157,23 +181,10 @@
 </div>
 @endsection
 
-@push('styles')
-<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-@endpush
-
 @push('scripts')
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
-    $('#eventosTable').DataTable({
-        responsive: true,
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
-        },
-        order: [[1, 'desc']] // Ordenar por data
-    });
-
     // Toggle lista de presença
     $('.toggle-lista').on('change', function() {
         const id = $(this).data('id');
@@ -239,24 +250,35 @@ function copiarLink() {
 }
 
 function excluirEvento(id) {
-    if (confirm('Tem certeza que deseja excluir este evento?')) {
-        $.ajax({
-            url: `{{ url('admin/eventos') }}/${id}`,
-            method: 'DELETE',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    location.reload();
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não poderá ser revertida!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `{{ url('admin/eventos') }}/${id}`,
+                method: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    toastr.error('Erro ao excluir evento');
                 }
-            },
-            error: function() {
-                toastr.error('Erro ao excluir evento');
-            }
-        });
-    }
+            });
+        }
+    });
 }
 </script>
 @endpush
