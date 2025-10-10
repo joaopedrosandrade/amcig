@@ -29,13 +29,46 @@ class FluxoCaixaController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function contasPagar()
+    public function contasPagar(Request $request)
     {
-        $contas = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao'])
-            ->orderBy('data_vencimento', 'desc')
-            ->paginate(20);
+        $query = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao']);
 
-        return view('admin.fluxo-caixa.contas-pagar', compact('contas'));
+        // Filtros
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('evento_id')) {
+            $query->where('evento_id', $request->evento_id);
+        }
+
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
+
+        if ($request->filled('data_inicio')) {
+            $query->where('data_vencimento', '>=', $request->data_inicio);
+        }
+
+        if ($request->filled('data_fim')) {
+            $query->where('data_vencimento', '<=', $request->data_fim);
+        }
+
+        // Por padrão, mostrar todas as contas (não filtrar por data)
+        // Usuário pode usar filtros se quiser período específico
+        
+        $contas = $query->orderBy('data_vencimento', 'desc')->paginate(20);
+
+        // Dados para os filtros
+        $eventos = Evento::orderBy('data_evento', 'desc')->get();
+        $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
+        
+        // Estatísticas
+        $totalPagar = ContaPagar::pendentes()->sum('valor');
+        $totalPago = ContaPagar::pagas()->whereMonth('data_pagamento', Carbon::now()->month)->sum('valor');
+        $totalVencido = ContaPagar::vencidas()->sum('valor');
+
+        return view('admin.fluxo-caixa.contas-pagar', compact('contas', 'eventos', 'categorias', 'totalPagar', 'totalPago', 'totalVencido'));
     }
 
     /**
