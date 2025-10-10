@@ -122,8 +122,15 @@ class EventoController extends Controller
      */
     public function show($id)
     {
-        $evento = Evento::with('presencas.user')->findOrFail($id);
-        return view('admin.eventos.show', compact('evento'));
+        $evento = Evento::with(['presencas.user', 'contasPagar.fornecedorRelacao', 'contasPagar.categoriaRelacao', 'contasPagar.contaBancaria'])
+            ->findOrFail($id);
+        
+        // Calcular estatísticas financeiras
+        $totalDespesas = $evento->contasPagar()->sum('valor');
+        $totalDespesasPagas = $evento->contasPagar()->where('status', 'pago')->sum('valor_pago');
+        $totalDespesasPendentes = $evento->contasPagar()->where('status', 'pendente')->sum('valor');
+        
+        return view('admin.eventos.show', compact('evento', 'totalDespesas', 'totalDespesasPagas', 'totalDespesasPendentes'));
     }
 
     /**

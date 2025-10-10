@@ -78,13 +78,16 @@ class FluxoCaixaController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function createContaPagar()
+    public function createContaPagar(Request $request)
     {
         $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
         $fornecedores = Fornecedor::ativos()->orderBy('nome')->get();
         $eventos = Evento::orderBy('data_evento', 'desc')->get();
+        
+        // Pré-selecionar evento se vier da URL
+        $eventoSelecionado = $request->get('evento_id');
 
-        return view('admin.fluxo-caixa.contas-pagar-create', compact('categorias', 'fornecedores', 'eventos'));
+        return view('admin.fluxo-caixa.contas-pagar-create', compact('categorias', 'fornecedores', 'eventos', 'eventoSelecionado'));
     }
 
     /**
@@ -142,6 +145,20 @@ class FluxoCaixaController extends Controller
     }
 
     /**
+     * Exibe detalhes de uma conta a pagar
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function showContaPagar($id)
+    {
+        $conta = ContaPagar::with(['cadastradoPor', 'pagoPor', 'evento', 'fornecedorRelacao', 'categoriaRelacao', 'contaBancaria'])
+            ->findOrFail($id);
+
+        return view('admin.fluxo-caixa.contas-pagar-show', compact('conta'));
+    }
+
+    /**
      * Exibe formulário de edição de conta a pagar
      *
      * @param int $id
@@ -150,6 +167,13 @@ class FluxoCaixaController extends Controller
     public function editContaPagar($id)
     {
         $conta = ContaPagar::findOrFail($id);
+        
+        // Bloquear edição de contas pagas
+        if ($conta->isPaga()) {
+            return redirect()->route('admin.fluxo-caixa.contas-pagar.show', $id)
+                ->with('error', 'Contas pagas não podem ser editadas. Visualize os detalhes abaixo.');
+        }
+        
         $categorias = CategoriaConta::ativas()->pagar()->orderBy('nome')->get();
         $fornecedores = Fornecedor::ativos()->orderBy('nome')->get();
         $eventos = Evento::orderBy('data_evento', 'desc')->get();
@@ -167,6 +191,12 @@ class FluxoCaixaController extends Controller
     public function updateContaPagar(Request $request, $id)
     {
         $conta = ContaPagar::findOrFail($id);
+        
+        // Bloquear edição de contas pagas
+        if ($conta->isPaga()) {
+            return redirect()->route('admin.fluxo-caixa.contas-pagar.show', $id)
+                ->with('error', 'Contas pagas não podem ser editadas.');
+        }
 
         $validatedData = $request->validate([
             'descricao' => 'required|string|max:255',

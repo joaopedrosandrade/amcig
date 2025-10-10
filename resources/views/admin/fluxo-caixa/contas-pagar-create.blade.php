@@ -113,7 +113,7 @@
                                             id="evento_id" name="evento_id">
                                         <option value="">Nenhum evento vinculado</option>
                                         @foreach($eventos as $evento)
-                                            <option value="{{ $evento->id }}" {{ old('evento_id') == $evento->id ? 'selected' : '' }}>
+                                            <option value="{{ $evento->id }}" {{ (old('evento_id', $eventoSelecionado ?? null) == $evento->id) ? 'selected' : '' }}>
                                                 {{ $evento->titulo }} - {{ $evento->data_evento ? $evento->data_evento->format('d/m/Y') : '' }}
                                             </option>
                                         @endforeach

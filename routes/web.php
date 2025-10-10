@@ -89,6 +89,7 @@ Route::prefix('/admin')->group(function() {
             Route::get('/contas-pagar', 'Admin\FluxoCaixaController@contasPagar')->name('admin.fluxo-caixa.contas-pagar');
             Route::get('/contas-pagar/create', 'Admin\FluxoCaixaController@createContaPagar')->name('admin.fluxo-caixa.contas-pagar.create');
             Route::post('/contas-pagar', 'Admin\FluxoCaixaController@storeContaPagar')->name('admin.fluxo-caixa.contas-pagar.store');
+            Route::get('/contas-pagar/{id}', 'Admin\FluxoCaixaController@showContaPagar')->name('admin.fluxo-caixa.contas-pagar.show');
             Route::get('/contas-pagar/{id}/edit', 'Admin\FluxoCaixaController@editContaPagar')->name('admin.fluxo-caixa.contas-pagar.edit');
             Route::put('/contas-pagar/{id}', 'Admin\FluxoCaixaController@updateContaPagar')->name('admin.fluxo-caixa.contas-pagar.update');
             Route::delete('/contas-pagar/{id}', 'Admin\FluxoCaixaController@destroyContaPagar')->name('admin.fluxo-caixa.contas-pagar.destroy');

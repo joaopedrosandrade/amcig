@@ -260,10 +260,18 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="{{ route('admin.fluxo-caixa.contas-pagar.edit', $conta->id) }}" 
-                                                       class="btn btn-outline-primary" title="Editar">
-                                                        <i class="ri-edit-line"></i>
-                                                    </a>
+                                                    @if($conta->isPaga())
+                                                        <a href="{{ route('admin.fluxo-caixa.contas-pagar.show', $conta->id) }}" 
+                                                           class="btn btn-outline-info" title="Visualizar">
+                                                            <i class="ri-eye-line"></i>
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('admin.fluxo-caixa.contas-pagar.edit', $conta->id) }}" 
+                                                           class="btn btn-outline-primary" title="Editar">
+                                                            <i class="ri-edit-line"></i>
+                                                        </a>
+                                                    @endif
+                                                    
                                                     @if($conta->isPendente())
                                                         <button type="button" class="btn btn-outline-success" 
                                                                 title="Registrar Pagamento" 
@@ -272,11 +280,14 @@
                                                             <i class="ri-money-dollar-circle-line"></i>
                                                         </button>
                                                     @endif
-                                                    <button type="button" class="btn btn-outline-danger" 
-                                                            title="Excluir"
-                                                            onclick="confirmarExclusao({{ $conta->id }})">
-                                                        <i class="ri-delete-bin-line"></i>
-                                                    </button>
+                                                    
+                                                    @if(!$conta->isPaga())
+                                                        <button type="button" class="btn btn-outline-danger" 
+                                                                title="Excluir"
+                                                                onclick="confirmarExclusao({{ $conta->id }})">
+                                                            <i class="ri-delete-bin-line"></i>
+                                                        </button>
+                                                    @endif
                                                 </div>
                                                 
                                                 <form id="form-delete-{{ $conta->id }}" 

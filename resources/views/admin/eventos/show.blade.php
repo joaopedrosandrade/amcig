@@ -119,6 +119,102 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Informações Financeiras do Evento -->
+                @if($evento->contasPagar->count() > 0)
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="ri-money-dollar-circle-line me-2"></i>Gestão Financeira do Evento</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cards de Resumo Financeiro -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">Total de Despesas</p>
+                                    <h5 class="mb-0">R$ {{ number_format($totalDespesas, 2, ',', '.') }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">Despesas Pagas</p>
+                                    <h5 class="mb-0 text-success">R$ {{ number_format($totalDespesasPagas, 2, ',', '.') }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">Despesas Pendentes</p>
+                                    <h5 class="mb-0 text-warning">R$ {{ number_format($totalDespesasPendentes, 2, ',', '.') }}</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Contas a Pagar -->
+                        <h6 class="text-primary mb-3"><i class="ri-arrow-down-circle-line me-2"></i>Contas a Pagar do Evento</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>Fornecedor</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($evento->contasPagar as $conta)
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $conta->descricao }}</strong>
+                                            <br><small class="text-muted">{{ $conta->categoria }}</small>
+                                        </td>
+                                        <td>{{ $conta->fornecedor }}</td>
+                                        <td>
+                                            {{ $conta->data_vencimento_formatada }}
+                                            @if($conta->isVencida())
+                                                <br><small class="text-danger">{{ $conta->dias_atraso }}d atraso</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <strong>{{ $conta->valor_formatado }}</strong>
+                                            @if($conta->isPaga() && $conta->contaBancaria)
+                                                <br><small class="text-muted">
+                                                    <i class="ri-bank-line"></i> {{ $conta->contaBancaria->nome }}
+                                                </small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $conta->status_badge_class }}">
+                                                {{ $conta->status_texto }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('admin.fluxo-caixa.contas-pagar.show', $conta->id) }}" 
+                                               class="btn btn-sm btn-outline-info" title="Ver Detalhes">
+                                                <i class="ri-eye-line"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="{{ route('admin.fluxo-caixa.contas-pagar', ['evento_id' => $evento->id]) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="ri-external-link-line me-1"></i> Ver Todas as Contas deste Evento
+                            </a>
+                            <a href="{{ route('admin.fluxo-caixa.contas-pagar.create') }}?evento_id={{ $evento->id }}" 
+                               class="btn btn-outline-success btn-sm">
+                                <i class="ri-add-line me-1"></i> Adicionar Despesa ao Evento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
             
             <div class="col-md-4">
