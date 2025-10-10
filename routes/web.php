@@ -85,7 +85,21 @@ Route::prefix('/admin')->group(function() {
         
         // Rotas para Fluxo de Caixa
         Route::prefix('fluxo-caixa')->group(function() {
+            // Contas a Pagar
             Route::get('/contas-pagar', 'Admin\FluxoCaixaController@contasPagar')->name('admin.fluxo-caixa.contas-pagar');
+            Route::get('/contas-pagar/create', 'Admin\FluxoCaixaController@createContaPagar')->name('admin.fluxo-caixa.contas-pagar.create');
+            Route::post('/contas-pagar', 'Admin\FluxoCaixaController@storeContaPagar')->name('admin.fluxo-caixa.contas-pagar.store');
+            Route::get('/contas-pagar/{id}/edit', 'Admin\FluxoCaixaController@editContaPagar')->name('admin.fluxo-caixa.contas-pagar.edit');
+            Route::put('/contas-pagar/{id}', 'Admin\FluxoCaixaController@updateContaPagar')->name('admin.fluxo-caixa.contas-pagar.update');
+            Route::delete('/contas-pagar/{id}', 'Admin\FluxoCaixaController@destroyContaPagar')->name('admin.fluxo-caixa.contas-pagar.destroy');
+            Route::post('/contas-pagar/{id}/pagar', 'Admin\FluxoCaixaController@pagarConta')->name('admin.fluxo-caixa.contas-pagar.pagar');
+            
+            // AJAX - Fornecedores e Categorias
+            Route::get('/fornecedores/buscar', 'Admin\FluxoCaixaController@buscarFornecedores')->name('admin.fluxo-caixa.fornecedores.buscar');
+            Route::post('/fornecedores', 'Admin\FluxoCaixaController@storeFornecedor')->name('admin.fluxo-caixa.fornecedores.store');
+            Route::post('/categorias', 'Admin\FluxoCaixaController@storeCategoria')->name('admin.fluxo-caixa.categorias.store');
+            
+            // Contas a Receber
             Route::get('/contas-receber', 'Admin\FluxoCaixaController@contasReceber')->name('admin.fluxo-caixa.contas-receber');
         });
         

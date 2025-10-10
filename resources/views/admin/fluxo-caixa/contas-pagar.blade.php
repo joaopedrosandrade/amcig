@@ -92,15 +92,38 @@
             </div>
         </div>
 
+        <!-- Mensagens de Sucesso/Erro -->
+        @if(session('success'))
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="ri-check-line me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="ri-error-warning-line me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Tabela de Contas a Pagar -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Lista de Contas a Pagar</h5>
-                        <button type="button" class="btn btn-primary btn-sm">
+                        <a href="{{ route('admin.fluxo-caixa.contas-pagar.create') }}" class="btn btn-primary btn-sm">
                             <i class="ri-add-line me-1"></i> Nova Conta
-                        </button>
+                        </a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -117,21 +140,108 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted py-5">
-                                            <i class="ri-file-list-line" style="font-size: 3rem;"></i>
-                                            <p class="mb-0 mt-2">Nenhuma conta a pagar cadastrada</p>
-                                            <small class="text-muted">Clique em "Nova Conta" para adicionar</small>
-                                        </td>
-                                    </tr>
+                                    @forelse($contas as $conta)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $conta->descricao }}</strong>
+                                                @if($conta->numero_nota_fiscal)
+                                                    <br><small class="text-muted">NF: {{ $conta->numero_nota_fiscal }}</small>
+                                                @endif
+                                            </td>
+                                            <td>{{ $conta->categoria }}</td>
+                                            <td>{{ $conta->fornecedor }}</td>
+                                            <td>
+                                                {{ $conta->data_vencimento_formatada }}
+                                                @if($conta->isVencida())
+                                                    <br><small class="text-danger">{{ $conta->dias_atraso }} dias de atraso</small>
+                                                @endif
+                                            </td>
+                                            <td>{{ $conta->valor_formatado }}</td>
+                                            <td>
+                                                <span class="badge {{ $conta->status_badge_class }}">
+                                                    {{ $conta->status_texto }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ route('admin.fluxo-caixa.contas-pagar.edit', $conta->id) }}" 
+                                                       class="btn btn-outline-primary" title="Editar">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    @if($conta->isPendente())
+                                                        <button type="button" class="btn btn-outline-success" 
+                                                                title="Registrar Pagamento" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#modalPagar{{ $conta->id }}">
+                                                            <i class="ri-money-dollar-circle-line"></i>
+                                                        </button>
+                                                    @endif
+                                                    <button type="button" class="btn btn-outline-danger" 
+                                                            title="Excluir"
+                                                            onclick="confirmarExclusao({{ $conta->id }})">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <form id="form-delete-{{ $conta->id }}" 
+                                                      action="{{ route('admin.fluxo-caixa.contas-pagar.destroy', $conta->id) }}" 
+                                                      method="POST" style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-5">
+                                                <i class="ri-file-list-line" style="font-size: 3rem;"></i>
+                                                <p class="mb-0 mt-2">Nenhuma conta a pagar cadastrada</p>
+                                                <small class="text-muted">Clique em "Nova Conta" para adicionar</small>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
+                        
+                        @if($contas->hasPages())
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        Mostrando {{ $contas->firstItem() }} a {{ $contas->lastItem() }} de {{ $contas->total() }} registros
+                                    </div>
+                                    <div>
+                                        {{ $contas->links() }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+@push('scripts')
+<script>
+function confirmarExclusao(id) {
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não poderá ser revertida!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('form-delete-' + id).submit();
+        }
+    });
+}
+</script>
+@endpush
 @endsection
 

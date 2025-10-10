@@ -1,11 +1,9 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Admin;
 use App\CategoriaConta;
-use Illuminate\Support\Facades\Hash;
 
-class AdminSeeder extends Seeder
+class CategoriasContasSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,19 +12,6 @@ class AdminSeeder extends Seeder
      */
     public function run()
     {
-        Admin::updateOrCreate(
-            ['email' => 'admin@admin.com'],
-            [
-                'name' => 'João Pedro',
-                'password' => Hash::make('159753'),
-            ]
-        );
-
-        if (isset($this->command)) {
-            $this->command->info('Administrador padrão semeado: admin@admin.com / 159753');
-        }
-
-        // Criar categorias padrão para Contas a Pagar
         $categoriasPagar = [
             'Água',
             'Luz',
@@ -43,17 +28,18 @@ class AdminSeeder extends Seeder
             'Seguros',
             'Combustível',
             'Transporte',
+            'Alimentação',
             'Outros',
         ];
 
         foreach ($categoriasPagar as $nome) {
-            CategoriaConta::updateOrCreate(
-                ['nome' => $nome, 'tipo' => 'pagar'],
-                ['ativo' => true]
-            );
+            CategoriaConta::create([
+                'nome' => $nome,
+                'tipo' => 'pagar',
+                'ativo' => true,
+            ]);
         }
 
-        // Criar categorias padrão para Contas a Receber
         $categoriasReceber = [
             'Mensalidades',
             'Doações',
@@ -64,16 +50,14 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($categoriasReceber as $nome) {
-            CategoriaConta::updateOrCreate(
-                ['nome' => $nome, 'tipo' => 'receber'],
-                ['ativo' => true]
-            );
+            CategoriaConta::create([
+                'nome' => $nome,
+                'tipo' => 'receber',
+                'ativo' => true,
+            ]);
         }
 
-        if (isset($this->command)) {
-            $this->command->info('Categorias de contas cadastradas!');
-        }
+        echo "Categorias cadastradas com sucesso!\n";
     }
 }
-
 
