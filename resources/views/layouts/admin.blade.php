@@ -229,6 +229,7 @@
                             <span class="pe-nav-content">Dashboard</span>
                         </a>
                     </li>
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('associados', 'view')))
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseAssociados" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseAssociados">
                             <i class="ri-group-line pe-nav-icon"></i>
@@ -236,23 +237,35 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseAssociados">
-                            <li class="pe-slide-item"><a href="{{ route('admin.associados.index') }}" class="pe-nav-link">Cadastrados</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.associados.pendentes') }}" class="pe-nav-link">Aprovação</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.associados.relatorios') }}" class="pe-nav-link">Relatórios</a></li>
-                                </ul>
-                            </li>
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('associados', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.associados.index') }}" class="pe-nav-link">Cadastrados</a></li>
+                            @endif
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('associados', 'update'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.associados.pendentes') }}" class="pe-nav-link">Aprovação</a></li>
+                            @endif
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('associados', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.associados.relatorios') }}" class="pe-nav-link">Relatórios</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('eventos', 'view')))
                     <li class="pe-slide">
                         <a href="{{ route('admin.eventos.index') }}" class="pe-nav-link">
                             <i class="ri-calendar-event-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Eventos</span>
                         </a>
                     </li>
+                    @endif
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('parcerias', 'view')))
                     <li class="pe-slide">
                         <a href="{{ route('admin.parcerias.index') }}" class="pe-nav-link">
                             <i class="ri-percent-line pe-nav-icon"></i>
                             <span class="pe-nav-content">Parcerias</span>
                         </a>
                     </li>
+                    @endif
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('financeiro', 'view')))
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseFinanceiro" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFinanceiro">
                             <i class="ri-bank-card-line pe-nav-icon"></i>
@@ -260,11 +273,14 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseFinanceiro">
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.index') }}" class="pe-nav-link">Dashboard Financeiro</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Mensalidades</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('financeiro', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.financeiro.index') }}" class="pe-nav-link">Dashboard Financeiro</a></li>
+                                <li class="pe-slide-item"><a href="{{ route('admin.financeiro.faturas') }}" class="pe-nav-link">Mensalidades</a></li>
+                                <li class="pe-slide-item"><a href="{{ route('admin.financeiro.relatorio') }}" class="pe-nav-link">Relatórios</a></li>
+                            @endif
                             
                             <!-- Fluxo de Caixa -->
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('financeiro', 'view'))
                             <li class="pe-slide pe-has-sub">
                                 <a href="#collapseFluxoCaixa" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseFluxoCaixa">
                                     <span class="pe-nav-content">Fluxo de Caixa</span>
@@ -275,8 +291,11 @@
                                     <li class="pe-slide-item"><a href="{{ route('admin.fluxo-caixa.contas-receber') }}" class="pe-nav-link">Contas a Receber</a></li>
                                 </ul>
                             </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('solicitacoes', 'view')))
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseSolicitacoes" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.*') ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseSolicitacoes">
                             <i class="ri-file-list-3-line pe-nav-icon"></i>
@@ -284,12 +303,16 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse {{ request()->routeIs('admin.solicitacoes.*') ? 'show' : '' }}" id="collapseSolicitacoes">
-                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.dashboard') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.index') ? 'active' : '' }}">Todas as Solicitações</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['status' => 'ABERTA']) }}" class="pe-nav-link">Abertas</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['prioridade' => 'URGENTE']) }}" class="pe-nav-link">Urgentes</a></li>
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('solicitacoes', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.dashboard') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                                <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index') }}" class="pe-nav-link {{ request()->routeIs('admin.solicitacoes.index') ? 'active' : '' }}">Todas as Solicitações</a></li>
+                                <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['status' => 'ABERTA']) }}" class="pe-nav-link">Abertas</a></li>
+                                <li class="pe-slide-item"><a href="{{ route('admin.solicitacoes.index', ['prioridade' => 'URGENTE']) }}" class="pe-nav-link">Urgentes</a></li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
+                    @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('config_sistema', 'view')))
                     <li class="pe-slide pe-has-sub">
                         <a href="#collapseConfiguracoes" class="pe-nav-link" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseConfiguracoes">
                             <i class="ri-settings-3-line pe-nav-icon"></i>
@@ -297,20 +320,30 @@
                             <i class="ri-arrow-down-s-line pe-nav-arrow"></i>
                         </a>
                         <ul class="pe-slide-menu collapse" id="collapseConfiguracoes">
-                            <li class="pe-slide-item"><a href="{{ route('admin.configuracoes.index') }}" class="pe-nav-link">Configurações do Sistema</a></li>
-                            <li class="pe-slide-item"><a href="{{ route('admin.contas-bancarias.index') }}" class="pe-nav-link">Contas Bancárias</a></li>
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('config_sistema', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.configuracoes.index') }}" class="pe-nav-link">Configurações do Sistema</a></li>
+                            @endif
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('contas_bancarias', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.contas-bancarias.index') }}" class="pe-nav-link">Contas Bancárias</a></li>
+                            @endif
+                            @if(auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('config_sistema', 'view'))
+                                <li class="pe-slide-item"><a href="{{ route('admin.config.usuarios.index') }}" class="pe-nav-link">Usuários Administrativos</a></li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
                  
                    
                   
                 </ul>
                 <!-- Widgets -->
+                @if(auth('admin')->check() && (auth('admin')->user()->isSuperAdmin() || auth('admin')->user()->hasPermission('associados', 'update')))
                 <div class="sidebar-widget text-center">
                     <img src="{{asset('assets/images/sidebar-widget.png')}}" alt="Widget Image">
                     <p class="text-muted fw-semibold">{{ \App\User::where('status', 'pendente')->count() }} novas solicitações de associado</p>
                     <a href="{{ route('admin.associados.pendentes') }}" class="btn btn-primary rounded-pill w-100">Ver Solicitações</a>
                 </div>
+                @endif
             </div>
         </nav>
     </aside>    

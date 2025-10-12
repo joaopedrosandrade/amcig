@@ -13,5 +13,8 @@ class DatabaseSeeder extends Seeder
     {
         // $this->call(UsersTableSeeder::class);
         $this->call(AdminSeeder::class);
+        
+        // Descomente a linha abaixo para criar usuários de exemplo com permissões
+        // $this->call(AdminPermissionsSeeder::class);
     }
 }

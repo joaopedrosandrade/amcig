@@ -19,6 +19,9 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'João Pedro',
                 'password' => Hash::make('159753'),
+                'status' => true,
+                'is_superadmin' => true,
+                'last_login_at' => null, // Será atualizado no primeiro login
             ]
         );
 

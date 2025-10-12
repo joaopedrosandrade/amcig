@@ -52,20 +52,24 @@ Route::prefix('/admin')->group(function() {
         Route::post('/logout', 'Auth\AdminLoginController@logout')->name('admin.logout');
         
         // Rotas para gerenciar associados
-        Route::prefix('associados')->group(function() {
+        Route::prefix('associados')->middleware(['check.permission:associados,view'])->group(function() {
             Route::get('/', 'Admin\AssociadoController@index')->name('admin.associados.index');
             Route::get('/data', 'Admin\AssociadoController@data')->name('admin.associados.data');
             Route::get('/show', 'Admin\AssociadoController@show')->name('admin.associados.show');
             Route::get('/detalhes/{id}', 'Admin\AssociadoController@detalhes')->name('admin.associados.detalhes');
-            Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
-            Route::post('/reset-password', 'Admin\AssociadoController@resetPassword')->name('admin.associados.reset-password');
-            Route::post('/desativar', 'Admin\AssociadoController@desativar')->name('admin.associados.desativar');
+            
+            // Rotas que precisam de permissão de update
+            Route::middleware(['check.permission:associados,update'])->group(function() {
+                Route::post('/update-status', 'Admin\AssociadoController@updateStatus')->name('admin.associados.update-status');
+                Route::post('/reset-password', 'Admin\AssociadoController@resetPassword')->name('admin.associados.reset-password');
+                Route::post('/desativar', 'Admin\AssociadoController@desativar')->name('admin.associados.desativar');
+                Route::post('/aprovar', 'Admin\AssociadoController@aprovar')->name('admin.associados.aprovar');
+                Route::post('/rejeitar', 'Admin\AssociadoController@rejeitar')->name('admin.associados.rejeitar');
+            });
             
             // Rotas para associados pendentes
             Route::get('/pendentes', 'Admin\AssociadoController@pendentes')->name('admin.associados.pendentes');
             Route::get('/pendentes/data', 'Admin\AssociadoController@pendentesData')->name('admin.associados.pendentes.data');
-            Route::post('/aprovar', 'Admin\AssociadoController@aprovar')->name('admin.associados.aprovar');
-            Route::post('/rejeitar', 'Admin\AssociadoController@rejeitar')->name('admin.associados.rejeitar');
             
             // Rotas para relatórios
             Route::get('/relatorios', 'Admin\AssociadoController@relatorios')->name('admin.associados.relatorios');
@@ -75,7 +79,7 @@ Route::prefix('/admin')->group(function() {
         });
 
         // Rotas do Sistema Financeiro
-        Route::prefix('financeiro')->group(function() {
+        Route::prefix('financeiro')->middleware(['check.permission:financeiro,view'])->group(function() {
             Route::get('/', 'Admin\FinanceiroController@index')->name('admin.financeiro.index');
             Route::get('/pagamentos', 'Admin\FinanceiroController@pagamentos')->name('admin.financeiro.pagamentos');
             Route::get('/faturas', 'Admin\FinanceiroController@faturas')->name('admin.financeiro.faturas');
@@ -105,12 +109,16 @@ Route::prefix('/admin')->group(function() {
         });
         
         // Rotas para gerenciamento de solicitações
-        Route::prefix('solicitacoes')->group(function() {
+        Route::prefix('solicitacoes')->middleware(['check.permission:solicitacoes,view'])->group(function() {
             Route::get('/', 'AdminSolicitacaoController@index')->name('admin.solicitacoes.index');
             Route::get('/dashboard', 'AdminSolicitacaoController@dashboard')->name('admin.solicitacoes.dashboard');
             Route::get('/{id}', 'AdminSolicitacaoController@show')->name('admin.solicitacoes.show');
-            Route::post('/{id}/update-status', 'AdminSolicitacaoController@updateStatus')->name('admin.solicitacoes.update-status');
-            Route::post('/{id}/assign-admin', 'AdminSolicitacaoController@assignAdmin')->name('admin.solicitacoes.assign-admin');
+            
+            // Rotas que precisam de permissão de update
+            Route::middleware(['check.permission:solicitacoes,update'])->group(function() {
+                Route::post('/{id}/update-status', 'AdminSolicitacaoController@updateStatus')->name('admin.solicitacoes.update-status');
+                Route::post('/{id}/assign-admin', 'AdminSolicitacaoController@assignAdmin')->name('admin.solicitacoes.assign-admin');
+            });
         });
     });
 });
@@ -639,34 +647,74 @@ Route::get('/force-update-payment/{invoice_id}', function($invoice_id) {
 })->name('force.update.payment');
 
 // Rotas administrativas para configurações
-Route::prefix('admin/configuracoes')->middleware(['auth:admin'])->group(function() {
+Route::prefix('admin/configuracoes')->middleware(['auth:admin', 'check.permission:config_sistema,view'])->group(function() {
     Route::get('/', 'Admin\ConfiguracaoController@index')->name('admin.configuracoes.index');
-    Route::put('/{id}', 'Admin\ConfiguracaoController@update')->name('admin.configuracoes.update');
-    Route::post('/{id}/toggle', 'Admin\ConfiguracaoController@toggle')->name('admin.configuracoes.toggle');
-    Route::post('/inicializar', 'Admin\ConfiguracaoController@inicializar')->name('admin.configuracoes.inicializar');
+    
+    // Rotas que precisam de permissão de update
+    Route::middleware(['check.permission:config_sistema,update'])->group(function() {
+        Route::put('/{id}', 'Admin\ConfiguracaoController@update')->name('admin.configuracoes.update');
+        Route::post('/{id}/toggle', 'Admin\ConfiguracaoController@toggle')->name('admin.configuracoes.toggle');
+        Route::post('/inicializar', 'Admin\ConfiguracaoController@inicializar')->name('admin.configuracoes.inicializar');
+    });
+});
+
+// Rotas para Usuários Administrativos
+Route::prefix('admin/config/usuarios')->middleware(['auth:admin'])->group(function() {
+    Route::get('/', 'Admin\AdminUserController@index')->name('admin.config.usuarios.index');
+    Route::get('/create', 'Admin\AdminUserController@create')->name('admin.config.usuarios.create');
+    Route::post('/', 'Admin\AdminUserController@store')->name('admin.config.usuarios.store');
+    Route::get('/{admin}', 'Admin\AdminUserController@show')->name('admin.config.usuarios.show');
+    Route::get('/{admin}/edit', 'Admin\AdminUserController@edit')->name('admin.config.usuarios.edit');
+    Route::put('/{admin}', 'Admin\AdminUserController@update')->name('admin.config.usuarios.update');
+    Route::delete('/{admin}', 'Admin\AdminUserController@destroy')->name('admin.config.usuarios.destroy');
+    Route::patch('/{admin}/toggle-status', 'Admin\AdminUserController@toggleStatus')->name('admin.config.usuarios.toggle-status');
 });
 
 // Rotas para Contas Bancárias
-Route::prefix('admin/contas-bancarias')->middleware(['auth:admin'])->group(function() {
+Route::prefix('admin/contas-bancarias')->middleware(['auth:admin', 'check.permission:contas_bancarias,view'])->group(function() {
     Route::get('/', 'Admin\ContaBancariaController@index')->name('admin.contas-bancarias.index');
-    Route::get('/create', 'Admin\ContaBancariaController@create')->name('admin.contas-bancarias.create');
-    Route::post('/', 'Admin\ContaBancariaController@store')->name('admin.contas-bancarias.store');
-    Route::get('/{id}/edit', 'Admin\ContaBancariaController@edit')->name('admin.contas-bancarias.edit');
-    Route::put('/{id}', 'Admin\ContaBancariaController@update')->name('admin.contas-bancarias.update');
-    Route::delete('/{id}', 'Admin\ContaBancariaController@destroy')->name('admin.contas-bancarias.destroy');
+    
+    // Rotas que precisam de permissão de create
+    Route::middleware(['check.permission:contas_bancarias,create'])->group(function() {
+        Route::get('/create', 'Admin\ContaBancariaController@create')->name('admin.contas-bancarias.create');
+        Route::post('/', 'Admin\ContaBancariaController@store')->name('admin.contas-bancarias.store');
+    });
+    
+    // Rotas que precisam de permissão de update
+    Route::middleware(['check.permission:contas_bancarias,update'])->group(function() {
+        Route::get('/{id}/edit', 'Admin\ContaBancariaController@edit')->name('admin.contas-bancarias.edit');
+        Route::put('/{id}', 'Admin\ContaBancariaController@update')->name('admin.contas-bancarias.update');
+    });
+    
+    // Rotas que precisam de permissão de delete
+    Route::middleware(['check.permission:contas_bancarias,delete'])->group(function() {
+        Route::delete('/{id}', 'Admin\ContaBancariaController@destroy')->name('admin.contas-bancarias.destroy');
+    });
 });
 
 // Rotas administrativas para parcerias
-Route::prefix('admin/parcerias')->middleware(['auth:admin'])->group(function() {
+Route::prefix('admin/parcerias')->middleware(['auth:admin', 'check.permission:parcerias,view'])->group(function() {
     Route::get('/', 'Admin\ParceriaController@index')->name('admin.parcerias.index');
-    Route::get('/create', 'Admin\ParceriaController@create')->name('admin.parcerias.create');
-    Route::post('/store', 'Admin\ParceriaController@store')->name('admin.parcerias.store');
     Route::get('/{id}', 'Admin\ParceriaController@show')->name('admin.parcerias.show');
-    Route::get('/{id}/edit', 'Admin\ParceriaController@edit')->name('admin.parcerias.edit');
-    Route::put('/{id}', 'Admin\ParceriaController@update')->name('admin.parcerias.update');
-    Route::delete('/{id}', 'Admin\ParceriaController@destroy')->name('admin.parcerias.destroy');
-    Route::post('/{id}/toggle-status', 'Admin\ParceriaController@toggleStatus')->name('admin.parcerias.toggle-status');
-    Route::post('/{id}/toggle-destaque', 'Admin\ParceriaController@toggleDestaque')->name('admin.parcerias.toggle-destaque');
+    
+    // Rotas que precisam de permissão de create
+    Route::middleware(['check.permission:parcerias,create'])->group(function() {
+        Route::get('/create', 'Admin\ParceriaController@create')->name('admin.parcerias.create');
+        Route::post('/store', 'Admin\ParceriaController@store')->name('admin.parcerias.store');
+    });
+    
+    // Rotas que precisam de permissão de update
+    Route::middleware(['check.permission:parcerias,update'])->group(function() {
+        Route::get('/{id}/edit', 'Admin\ParceriaController@edit')->name('admin.parcerias.edit');
+        Route::put('/{id}', 'Admin\ParceriaController@update')->name('admin.parcerias.update');
+        Route::post('/{id}/toggle-status', 'Admin\ParceriaController@toggleStatus')->name('admin.parcerias.toggle-status');
+        Route::post('/{id}/toggle-destaque', 'Admin\ParceriaController@toggleDestaque')->name('admin.parcerias.toggle-destaque');
+    });
+    
+    // Rotas que precisam de permissão de delete
+    Route::middleware(['check.permission:parcerias,delete'])->group(function() {
+        Route::delete('/{id}', 'Admin\ParceriaController@destroy')->name('admin.parcerias.destroy');
+    });
 });
 
 // Rota de teste temporária (sem middleware)
@@ -680,20 +728,30 @@ Route::prefix('associado/parcerias')->middleware(['auth'])->group(function() {
 });
 
 // Rotas administrativas para eventos
-Route::prefix('admin/eventos')->middleware(['auth:admin'])->group(function() {
+Route::prefix('admin/eventos')->middleware(['auth:admin', 'check.permission:eventos,view'])->group(function() {
     Route::get('/', 'Admin\EventoController@index')->name('admin.eventos.index');
-    Route::get('/create', 'Admin\EventoController@create')->name('admin.eventos.create');
-    Route::post('/store', 'Admin\EventoController@store')->name('admin.eventos.store');
     Route::get('/{id}', 'Admin\EventoController@show')->name('admin.eventos.show');
-    Route::get('/{id}/edit', 'Admin\EventoController@edit')->name('admin.eventos.edit');
-    Route::put('/{id}', 'Admin\EventoController@update')->name('admin.eventos.update');
-    Route::delete('/{id}', 'Admin\EventoController@destroy')->name('admin.eventos.destroy');
-    
-    // Funcionalidades específicas
-    Route::post('/{id}/gerar-link', 'Admin\EventoController@gerarLinkPresenca')->name('admin.eventos.gerar-link');
-    Route::post('/{id}/toggle-lista', 'Admin\EventoController@toggleListaPresenca')->name('admin.eventos.toggle-lista');
     Route::get('/{id}/presencas', 'Admin\EventoController@presencas')->name('admin.eventos.presencas');
     Route::get('/{id}/exportar-presencas', 'Admin\EventoController@exportarPresencas')->name('admin.eventos.exportar-presencas');
+    
+    // Rotas que precisam de permissão de create
+    Route::middleware(['check.permission:eventos,create'])->group(function() {
+        Route::get('/create', 'Admin\EventoController@create')->name('admin.eventos.create');
+        Route::post('/store', 'Admin\EventoController@store')->name('admin.eventos.store');
+    });
+    
+    // Rotas que precisam de permissão de update
+    Route::middleware(['check.permission:eventos,update'])->group(function() {
+        Route::get('/{id}/edit', 'Admin\EventoController@edit')->name('admin.eventos.edit');
+        Route::put('/{id}', 'Admin\EventoController@update')->name('admin.eventos.update');
+        Route::post('/{id}/gerar-link', 'Admin\EventoController@gerarLinkPresenca')->name('admin.eventos.gerar-link');
+        Route::post('/{id}/toggle-lista', 'Admin\EventoController@toggleListaPresenca')->name('admin.eventos.toggle-lista');
+    });
+    
+    // Rotas que precisam de permissão de delete
+    Route::middleware(['check.permission:eventos,delete'])->group(function() {
+        Route::delete('/{id}', 'Admin\EventoController@destroy')->name('admin.eventos.destroy');
+    });
 });
 
 // Rotas públicas para lista de presença

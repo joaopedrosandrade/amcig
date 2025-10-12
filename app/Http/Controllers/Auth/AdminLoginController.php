@@ -44,6 +44,10 @@ class AdminLoginController extends Controller
 
         // se ok, então direcionar para a localização interna
         if ($authOk) {
+            // Atualizar o último acesso do admin
+            $admin = Auth::guard('admin')->user();
+            $admin->update(['last_login_at' => now()]);
+            
             // Quando um usuário tenta acessar uma página que necessita de login
             // e o Laravel redireciona direto pro login, essa página é mantida 
             // pelo framework e pode ser chamada através do método redirect()->intended()
